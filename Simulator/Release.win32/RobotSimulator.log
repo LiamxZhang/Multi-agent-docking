@@ -1,0 +1,28 @@
+﻿生成启动时间为 2018/6/10 9:42:07。
+     1>项目“F:\CUHKSZ\Simulator\RobotSimulator\proj.win32\RobotSimulator.vcxproj”在节点 3 上(Build 个目标)。
+     1>ClCompile:
+         F:\VS\VC\bin\CL.exe /c /IF:\CUHKSZ\Simulator\RobotSimulator\cocos2d\cocos\2d\..\..\ /IF:\CUHKSZ\Simulator\RobotSimulator\cocos2d\cocos\2d\..\..\external /IF:\CUHKSZ\Simulator\RobotSimulator\cocos2d\cocos\2d\..\..\cocos\audio\include /IF:\CUHKSZ\Simulator\RobotSimulator\cocos2d\cocos\2d\..\..\external\chipmunk\include\chipmunk /IF:\CUHKSZ\Simulator\RobotSimulator\cocos2d\cocos\2d\..\..\extensions /I..\Classes /I.. /IF:\CUHKSZ\Simulator\RobotSimulator\cocos2d\cocos\2d\..\..\cocos /I"F:\CUHKSZ\Simulator\RobotSimulator\cocos2d\cocos\2d\..\..\cocos/editor-support" /IF:\CUHKSZ\Simulator\RobotSimulator\cocos2d\cocos\2d\..\..\external\glfw3\include\win32 /I"F:\CUHKSZ\Simulator\RobotSimulator\cocos2d\cocos\2d\..\..\external\win32-specific\gles\include\OGLES" /IF:\CUHKSZ\Simulator\RobotSimulator\cocos2d\cocos\2d\..\..\external\freetype2\include\win32\freetype2 /IF:\CUHKSZ\Simulator\RobotSimulator\cocos2d\cocos\2d\..\..\external\freetype2\include\win32\ /IF:\CUHKSZ\Simulator\RobotSimulator\cocos2d\cocos\2d\..\..\external /IF:\CUHKSZ\Simulator\RobotSimulator\cocos2d\cocos\2d\..\..\external\openssl\include\win32 /Zi /nologo /W3 /WX- /MP /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _WINDOWS /D _USE_MATH_DEFINES /D GL_GLEXT_PROTOTYPES /D CC_ENABLE_CHIPMUNK_INTEGRATION=1 /D _CRT_SECURE_NO_WARNINGS /D _SCL_SECURE_NO_WARNINGS /D _VARIADIC_MAX=10 /D _USING_V110_SDK71_ /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release.win32\\" /Fd"Release.win32\vc120.pdb" /Gd /TP /wd4267 /wd4251 /wd4244 /analyze- /errorReport:prompt C:\Users\cuhksz\Desktop\HelloWorldScene.cpp
+         HelloWorldScene.cpp
+       Link:
+         F:\VS\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"F:\CUHKSZ\Simulator\RobotSimulator\proj.win32\Release.win32\RobotSimulator.exe" /INCREMENTAL:NO /NOLOGO /LIBPATH:F:\CUHKSZ\Simulator\RobotSimulator\proj.win32\Release.win32\ /LIBPATH:F:\CUHKSZ\Simulator\RobotSimulator\proj.win32\Release.win32\ libcurl.lib opengl32.lib glew32.lib libzlib.lib libwebp.lib libiconv.lib freetype.lib winmm.lib ws2_32.lib libbox2d.lib libSpine.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"F:\CUHKSZ\Simulator\RobotSimulator\proj.win32\Release.win32\RobotSimulator.pdb" /SUBSYSTEM:WINDOWS,"5.01" /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"F:\CUHKSZ\Simulator\RobotSimulator\proj.win32\Release.win32\RobotSimulator.lib" /MACHINE:X86 /SAFESEH Release.win32\game.res
+         Release.win32\AppDelegate.obj
+         Release.win32\HelloWorldScene.obj
+         Release.win32\main.obj
+         F:\CUHKSZ\Simulator\RobotSimulator\proj.win32\Release.win32\libcocos2d.lib
+         F:\CUHKSZ\Simulator\RobotSimulator\proj.win32\Release.win32\libSpine.lib
+         F:\CUHKSZ\Simulator\RobotSimulator\proj.win32\Release.win32\libbox2d.lib
+            正在创建库 F:\CUHKSZ\Simulator\RobotSimulator\proj.win32\Release.win32\RobotSimulator.lib 和对象 F:\CUHKSZ\Simulator\RobotSimulator\proj.win32\Release.win32\RobotSimulator.exp
+         正在生成代码
+         已完成代码的生成
+         RobotSimulator.vcxproj -> F:\CUHKSZ\Simulator\RobotSimulator\proj.win32\Release.win32\RobotSimulator.exe
+       CustomBuildStep:
+         if not exist "F:\CUHKSZ\Simulator\RobotSimulator\proj.win32\Release.win32\" mkdir "F:\CUHKSZ\Simulator\RobotSimulator\proj.win32\Release.win32\"
+         xcopy "F:\CUHKSZ\Simulator\RobotSimulator\proj.win32\..\Resources" "F:\CUHKSZ\Simulator\RobotSimulator\proj.win32\Release.win32\" /D /E /I /F /Y
+               
+         :VCEnd
+         复制了 0 个文件
+     1>已完成生成项目“F:\CUHKSZ\Simulator\RobotSimulator\proj.win32\RobotSimulator.vcxproj”(Build 个目标)的操作。
+
+生成成功。
+
+已用时间 00:00:06.47
