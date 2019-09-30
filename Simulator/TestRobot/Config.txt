@@ -1,0 +1,16 @@
+Speed:1000
+Period:1000
+PeriodNumber:1000000
+OpenBulletScreen:1
+OpenGrid:1
+DesignResolutionSize:500
+GridColor:59,32,12
+ObstacleColor:128,128,128
+BulletColor:255,0,0
+BulletPosiotion:50,50
+
+
+//speed要小于Period
+//DesignResolutionSize是只宽的像素
+//Open开头的设置为1则是打开
+//BulletPosiotion代表长宽的比例(0~100)
