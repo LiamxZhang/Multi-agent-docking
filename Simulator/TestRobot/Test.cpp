@@ -19,20 +19,20 @@ bool RecordLog(string s);
 class Point{         // the point in the map
 public:
 	Point() :x(0), y(0), Leaderflag(false), Dockedflag(false) {} 
-	Point(int tx, int ty){
+	Point(int tx, int ty){                      // target points
 		x = tx;
 		y = ty;
 	}
-	bool operator==(const Point& r) const {
+	bool operator==(const Point& r) const {     // reload logic operation ==
 		return (x == r.x) && (y == r.y);
 	}
-	bool operator < (const Point &r) const {
+	bool operator < (const Point &r) const {    // reload logic operation <
 		int a = x * x + y * y;
 		int b = r.x * r.x + r.y * r.y;
 		if (a < b){
 			return true;
 		}
-		else if (a == b){
+		else if (a == b){                      // if a and b have the same distance to origin, less with less x
 			if (x < r.x)
 				return true;
 			else
@@ -66,7 +66,7 @@ public:
 private:
 };
 //权重点类的定义
-class WeightPoint{
+class WeightPoint{           // 每个机器人四邻域的值，1是能走，-1是不能走
 private:
 	int up;
 	int down;
@@ -103,12 +103,12 @@ public:
 	Point target;      // end point of task
 private:
 };
-struct CutResult
+struct CutResult           // 规划机器人对接时，对目标二分的部分
 {
 	vector<Task> Part1, Part2;
 };
 vector<Point> robotCurrentPositionCopy;
-vector<vector<int>> AvoidMap;
+vector<vector<int> > AvoidMap;              // obstacle map?? 2 dimensional vector
 int Column, Row;
 //规则类的定义
 class Rule{
@@ -125,10 +125,10 @@ private:
 	vector<Point> robotCurrentPosition;    // the current position of robot
 	vector<Point> robotTargetPosition;     // the target position of robot
 	vector<Task> ToDoTask, DoingTask, DoneTask; // three vector of task
-	vector<Task> waitToAssigned;             // 等待被分配
+	vector<Task> waitToAssigned;             // wait to be assigned
 	vector<vector<WeightPoint>> weightMap;   // the weight of map
 public:
-	vector<vector<int>> map;               // use two dimension to record the map
+	vector<vector<int> > map;               // use two dimension to record the map
 	//changed by jiaming, it supposed to be private
 
 	Rule() :mapRowNumber(0),mapColumnNumber(0),globalTime(0),robotNumber(0),taskNum(0),
@@ -138,8 +138,8 @@ public:
 	inline int getRobotNumber(){return robotNumber;}
 	inline bool setGlobalTime(int newGlobalTime){globalTime = newGlobalTime;return true;}
 	inline int getGlobalTime(){return globalTime;}
-	vector<vector<int>> getMap(){return AvoidMap;}
-	vector<vector<WeightPoint>> getWeightMap(){ return weightMap; }
+	vector<vector<int> > getMap(){return AvoidMap;}
+	vector<vector<WeightPoint> > getWeightMap(){ return weightMap; }
 	Point getRobotInitPosition(int RobotNumber){return robotInitPosition[RobotNumber];}
 	bool setRobotCurrentPosition(int RobotNumber, Point Position){
 		robotCurrentPosition[RobotNumber] = Position;
@@ -240,27 +240,28 @@ int Rule::PrintVector(vector<Task> InputVector)
 	}
 	return 0;
 }
+// 地图点的标记： 0是free,1是障碍，2是机器人
 Point Robot::Dock(Point InputNextPosition)
 {
 	Point OutNextPosition;
 	OutNextPosition.x = 0;
 	OutNextPosition.y = 0;
-	int OffsetX = 0, OffsetY = 0;
-	if (currentPosition.x > 0 && currentPosition.y > 0) {
+	int OffsetX = 0, OffsetY = 0;    // 计算对接组里各个机器人相对leader的相对偏移
+	if (currentPosition.x > 0 && currentPosition.y > 0) {  // 前后左右紧挨的一格有一个机器人，则dock
 		if (DockMap[currentPosition.x - 1][currentPosition.y] == 2 || DockMap[currentPosition.x + 1][currentPosition.y] == 2 ||
 			DockMap[currentPosition.x][currentPosition.y - 1] == 2 || DockMap[currentPosition.x][currentPosition.y + 1] == 2) {
 			currentPosition.Dockedflag = true;
 		}
 	}
-	if (currentPosition.x > 0 && currentPosition.y > 0) {
+	if (currentPosition.x > 0 && currentPosition.y > 0) {    
 		if (DockMap[currentPosition.x][currentPosition.y - 1] != 2 &&
-			DockMap[currentPosition.x + 1][currentPosition.y] != 2) {
-			currentPosition.Leaderflag = true;
+			DockMap[currentPosition.x + 1][currentPosition.y] != 2) {  // 如果 y-1 或 x+1方向上没有机器人, 那就是leader
+			currentPosition.Leaderflag = true; 
 			OutNextPosition.x = OffsetX;
 			OutNextPosition.y = OffsetY;
 			return OutNextPosition;
 		}
-		else {
+		else {    // 对接组内所有机器人的偏移
 			for (int j = 1; j < TaskNum; ++j) {
 				if (DockMap[currentPosition.x][currentPosition.y - j] != 2) {
 					OffsetY = j;
@@ -317,7 +318,7 @@ Point Robot::Dock(Point InputNextPosition)
 		//if (robotCurrentPosition[i].Dockedflag = true && robotCurrentPosition[i].y - 1 != 2 && robotCurrentPosition[i].x + 1 != 2) {
 	}*/
 }
-void Robot::Avoid(Point InputPoint)
+void Robot::Avoid(Point InputPoint)    // 输入机器人的位置，并搜索四邻域的可行解
 {
 	bool ShouldAvoidFlag = true;
 	for (int i = 0; i < TaskToDo.size(); ++i) {
@@ -361,7 +362,7 @@ void Robot::Avoid(Point InputPoint)
 		}
 	}
 }
-void Robot::AvoidClear(Point InputPoint)
+void Robot::AvoidClear(Point InputPoint) // 判断机器人下一步是否冲突，并解决冲突
 {
 	if (InputPoint.x > 1) {
 		if (AvoidMap[InputPoint.x - 2][InputPoint.y] != 1 && weightMap[InputPoint.x - 1][InputPoint.y].up == -1) {
@@ -384,11 +385,11 @@ void Robot::AvoidClear(Point InputPoint)
 		}
 	}
 }
-CutResult Rule::MoveRow(CutResult InputVector)
+CutResult Rule::MoveRow(CutResult InputVector)  // 机器人组按y方向行间纵向扩散
 {
 	int Direction1 = 0, FactorFor1 = 1, FactorFor2 = -1;//0 means up, 1 means down
 	Task TmpResult;
-	if (InputVector.Part1.size() != 1) {
+	if (InputVector.Part1.size() != 1) { // part1 还能继续分离
 		for (int i = 0; i < InputVector.Part1.size(); ++i) {
 			InputVector.Part1[i].source.x = InputVector.Part1[i].source.x + FactorFor1;
 		}
@@ -401,7 +402,7 @@ CutResult Rule::MoveRow(CutResult InputVector)
 		TmpResult.source.y = InputVector.Part1[0].source.y;
 		SingleSet.push_back(TmpResult);
 	}
-	if (InputVector.Part2.size() != 1) {
+	if (InputVector.Part2.size() != 1) { // part 2 还能继续分离
 		for (int i = 0; i < InputVector.Part2.size(); ++i) {
 			InputVector.Part2[i].source.x = InputVector.Part2[i].source.x + FactorFor2;
 		}
@@ -419,7 +420,7 @@ CutResult Rule::MoveRow(CutResult InputVector)
 	}*/
 	return InputVector;
 }
-CutResult Rule::MoveVector(CutResult InputVector)
+CutResult Rule::MoveVector(CutResult InputVector) // 机器人行内x方向横向扩散
 {
 	int Direction1 = rand() % 3, Direction2, FactorFor1, FactorFor2;
 	Task TmpResult;
@@ -490,11 +491,11 @@ CutResult Rule::MoveVector(CutResult InputVector)
 	}
 	return InputVector;
 }
-CutResult Rule::Cut(vector<Task> InputVector)
+CutResult Rule::Cut(vector<Task> InputVector) // 分割机器人组
 {
 	bool MultiRowFlag = false;
 	int CutPosition;
-	for (int i = 1; i < InputVector.size(); ++i) {
+	for (int i = 1; i < InputVector.size(); ++i) { // 判断分割位置在哪儿， i-1.source.x != i.source.x
 		if (InputVector[i - 1].source.x != InputVector[i].source.x) {
 			MultiRowFlag = true;
 			CutPosition = i;
@@ -1549,7 +1550,7 @@ int main(){
 		for (int i = 0; i < robotNumber; ++i){
 			Robot::robotPosition.insert(map<Point, int>::value_type(robot[i].currentPosition, i));
 		}//各个机器人自身的位置
-
+		// 判断机器人状态，分配任务
 		while (AllFinishFlag == false) {
 		//while (rule.ToDoTask.size() > 0 || robot[0].doingTask.size() > 0 || rule.waitToAssigned.size() > 0 || AllRobotsStatus > 0){    //系统结束条件
 			if (rule.ToDoTask.size() > 0 || rule.waitToAssigned.size() > 0) {
@@ -1581,6 +1582,7 @@ int main(){
 							}
 							int lowestPrice = INT_MAX;
 							//cout << targetRobot << endl;
+							// 机器人只能领一个目标点
 							for (int i = 0; i < robotNumber; ++i) {
 								if (RobotUsedFlag[i] == 1) {
 									continue;
@@ -1762,6 +1764,7 @@ int main(){
 				return false;
 			}
 		}
+		// 输出结果
 		int sumDis = 0;
 		for (int i = 0; i < robotNumber; ++i){
 			sumDis = sumDis + robot[i].distance;

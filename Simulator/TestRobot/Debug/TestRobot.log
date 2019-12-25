@@ -1,50 +1,50 @@
 ﻿  Test.cpp
-C:\Users\鸡毛信\Desktop\InternSoftware\TestRobot\Test.cpp(238,20): warning C4018:  “<”: 有符号/无符号不匹配
-C:\Users\鸡毛信\Desktop\InternSoftware\TestRobot\Test.cpp(323,20): warning C4018:  “<”: 有符号/无符号不匹配
-C:\Users\鸡毛信\Desktop\InternSoftware\TestRobot\Test.cpp(392,21): warning C4018:  “<”: 有符号/无符号不匹配
-C:\Users\鸡毛信\Desktop\InternSoftware\TestRobot\Test.cpp(405,21): warning C4018:  “<”: 有符号/无符号不匹配
-C:\Users\鸡毛信\Desktop\InternSoftware\TestRobot\Test.cpp(453,22): warning C4018:  “<”: 有符号/无符号不匹配
-C:\Users\鸡毛信\Desktop\InternSoftware\TestRobot\Test.cpp(458,22): warning C4018:  “<”: 有符号/无符号不匹配
-C:\Users\鸡毛信\Desktop\InternSoftware\TestRobot\Test.cpp(473,22): warning C4018:  “<”: 有符号/无符号不匹配
-C:\Users\鸡毛信\Desktop\InternSoftware\TestRobot\Test.cpp(478,22): warning C4018:  “<”: 有符号/无符号不匹配
-C:\Users\鸡毛信\Desktop\InternSoftware\TestRobot\Test.cpp(497,20): warning C4018:  “<”: 有符号/无符号不匹配
-C:\Users\鸡毛信\Desktop\InternSoftware\TestRobot\Test.cpp(515,31): warning C4018:  “<”: 有符号/无符号不匹配
-C:\Users\鸡毛信\Desktop\InternSoftware\TestRobot\Test.cpp(545,31): warning C4018:  “<”: 有符号/无符号不匹配
-C:\Users\鸡毛信\Desktop\InternSoftware\TestRobot\Test.cpp(570,31): warning C4018:  “<”: 有符号/无符号不匹配
-C:\Users\鸡毛信\Desktop\InternSoftware\TestRobot\Test.cpp(690,21): warning C4018:  “<=”: 有符号/无符号不匹配
-C:\Users\鸡毛信\Desktop\InternSoftware\TestRobot\Test.cpp(810,56): warning C4244:  “=”: 从“unsigned int”转换到“float”，可能丢失数据
-C:\Users\鸡毛信\Desktop\InternSoftware\TestRobot\Test.cpp(816,28): warning C4244:  “=”: 从“int”转换到“float”，可能丢失数据
-C:\Users\鸡毛信\Desktop\InternSoftware\TestRobot\Test.cpp(895,23): warning C4018:  “<”: 有符号/无符号不匹配
-C:\Users\鸡毛信\Desktop\InternSoftware\TestRobot\Test.cpp(904,24): warning C4018:  “<”: 有符号/无符号不匹配
-C:\Users\鸡毛信\Desktop\InternSoftware\TestRobot\Test.cpp(1032,23): warning C4018:  “<”: 有符号/无符号不匹配
-C:\Users\鸡毛信\Desktop\InternSoftware\TestRobot\Test.cpp(1041,24): warning C4018:  “<”: 有符号/无符号不匹配
-C:\Users\鸡毛信\Desktop\InternSoftware\TestRobot\Test.cpp(1186,23): warning C4018:  “<”: 有符号/无符号不匹配
-C:\Users\鸡毛信\Desktop\InternSoftware\TestRobot\Test.cpp(1195,24): warning C4018:  “<”: 有符号/无符号不匹配
-C:\Users\鸡毛信\Desktop\InternSoftware\TestRobot\Test.cpp(1485,46): warning C4305:  “参数”: 从“int”到“const _Ty”截断
-C:\Users\鸡毛信\Desktop\InternSoftware\TestRobot\Test.cpp(1485,46): warning C4305:         with
-C:\Users\鸡毛信\Desktop\InternSoftware\TestRobot\Test.cpp(1485,46): warning C4305:         [
-C:\Users\鸡毛信\Desktop\InternSoftware\TestRobot\Test.cpp(1485,46): warning C4305:             _Ty=float
-C:\Users\鸡毛信\Desktop\InternSoftware\TestRobot\Test.cpp(1485,46): warning C4305:         ]
-C:\Users\鸡毛信\Desktop\InternSoftware\TestRobot\Test.cpp(1589,41): warning C4244:  “=”: 从“_Ty”转换到“int”，可能丢失数据
-C:\Users\鸡毛信\Desktop\InternSoftware\TestRobot\Test.cpp(1589,41): warning C4244:         with
-C:\Users\鸡毛信\Desktop\InternSoftware\TestRobot\Test.cpp(1589,41): warning C4244:         [
-C:\Users\鸡毛信\Desktop\InternSoftware\TestRobot\Test.cpp(1589,41): warning C4244:             _Ty=float
-C:\Users\鸡毛信\Desktop\InternSoftware\TestRobot\Test.cpp(1589,41): warning C4244:         ]
-C:\Users\鸡毛信\Desktop\InternSoftware\TestRobot\Test.cpp(1613,51): warning C4305:  “参数”: 从“int”到“const _Ty”截断
-C:\Users\鸡毛信\Desktop\InternSoftware\TestRobot\Test.cpp(1613,51): warning C4305:         with
-C:\Users\鸡毛信\Desktop\InternSoftware\TestRobot\Test.cpp(1613,51): warning C4305:         [
-C:\Users\鸡毛信\Desktop\InternSoftware\TestRobot\Test.cpp(1613,51): warning C4305:             _Ty=float
-C:\Users\鸡毛信\Desktop\InternSoftware\TestRobot\Test.cpp(1613,51): warning C4305:         ]
-C:\Users\鸡毛信\Desktop\InternSoftware\TestRobot\Test.cpp(1628,39): warning C4244:  “=”: 从“_Ty”转换到“int”，可能丢失数据
-C:\Users\鸡毛信\Desktop\InternSoftware\TestRobot\Test.cpp(1628,39): warning C4244:         with
-C:\Users\鸡毛信\Desktop\InternSoftware\TestRobot\Test.cpp(1628,39): warning C4244:         [
-C:\Users\鸡毛信\Desktop\InternSoftware\TestRobot\Test.cpp(1628,39): warning C4244:             _Ty=float
-C:\Users\鸡毛信\Desktop\InternSoftware\TestRobot\Test.cpp(1628,39): warning C4244:         ]
-C:\Users\鸡毛信\Desktop\InternSoftware\TestRobot\Test.cpp(1650,49): warning C4305:  “参数”: 从“int”到“const _Ty”截断
-C:\Users\鸡毛信\Desktop\InternSoftware\TestRobot\Test.cpp(1650,49): warning C4305:         with
-C:\Users\鸡毛信\Desktop\InternSoftware\TestRobot\Test.cpp(1650,49): warning C4305:         [
-C:\Users\鸡毛信\Desktop\InternSoftware\TestRobot\Test.cpp(1650,49): warning C4305:             _Ty=float
-C:\Users\鸡毛信\Desktop\InternSoftware\TestRobot\Test.cpp(1650,49): warning C4305:         ]
-C:\Users\鸡毛信\Desktop\InternSoftware\TestRobot\Test.cpp(1660,24): warning C4018:  “<”: 有符号/无符号不匹配
-C:\Users\鸡毛信\Desktop\InternSoftware\TestRobot\Test.cpp(319): warning C4715:  “Robot::Dock”: 不是所有的控件路径都返回值
-  TestRobot.vcxproj -> C:\Users\鸡毛信\Desktop\InternSoftware\Debug\TestRobot.exe
+E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(238,20): warning C4018: “<”: 有符号/无符号不匹配
+E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(324,20): warning C4018: “<”: 有符号/无符号不匹配
+E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(393,21): warning C4018: “<”: 有符号/无符号不匹配
+E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(406,21): warning C4018: “<”: 有符号/无符号不匹配
+E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(454,22): warning C4018: “<”: 有符号/无符号不匹配
+E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(459,22): warning C4018: “<”: 有符号/无符号不匹配
+E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(474,22): warning C4018: “<”: 有符号/无符号不匹配
+E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(479,22): warning C4018: “<”: 有符号/无符号不匹配
+E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(498,20): warning C4018: “<”: 有符号/无符号不匹配
+E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(516,31): warning C4018: “<”: 有符号/无符号不匹配
+E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(546,31): warning C4018: “<”: 有符号/无符号不匹配
+E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(571,31): warning C4018: “<”: 有符号/无符号不匹配
+E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(691,21): warning C4018: “<=”: 有符号/无符号不匹配
+E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(811,56): warning C4244: “=”: 从“unsigned int”转换到“float”，可能丢失数据
+E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(817,28): warning C4244: “=”: 从“int”转换到“float”，可能丢失数据
+E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(896,23): warning C4018: “<”: 有符号/无符号不匹配
+E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(905,24): warning C4018: “<”: 有符号/无符号不匹配
+E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1033,23): warning C4018: “<”: 有符号/无符号不匹配
+E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1042,24): warning C4018: “<”: 有符号/无符号不匹配
+E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1187,23): warning C4018: “<”: 有符号/无符号不匹配
+E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1196,24): warning C4018: “<”: 有符号/无符号不匹配
+E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1486,46): warning C4305: “参数”: 从“int”到“const _Ty”截断
+E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1486,46): warning C4305:         with
+E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1486,46): warning C4305:         [
+E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1486,46): warning C4305:             _Ty=float
+E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1486,46): warning C4305:         ]
+E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1591,41): warning C4244: “=”: 从“_Ty”转换到“int”，可能丢失数据
+E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1591,41): warning C4244:         with
+E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1591,41): warning C4244:         [
+E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1591,41): warning C4244:             _Ty=float
+E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1591,41): warning C4244:         ]
+E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1615,51): warning C4305: “参数”: 从“int”到“const _Ty”截断
+E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1615,51): warning C4305:         with
+E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1615,51): warning C4305:         [
+E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1615,51): warning C4305:             _Ty=float
+E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1615,51): warning C4305:         ]
+E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1630,39): warning C4244: “=”: 从“_Ty”转换到“int”，可能丢失数据
+E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1630,39): warning C4244:         with
+E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1630,39): warning C4244:         [
+E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1630,39): warning C4244:             _Ty=float
+E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1630,39): warning C4244:         ]
+E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1652,49): warning C4305: “参数”: 从“int”到“const _Ty”截断
+E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1652,49): warning C4305:         with
+E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1652,49): warning C4305:         [
+E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1652,49): warning C4305:             _Ty=float
+E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1652,49): warning C4305:         ]
+E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1662,24): warning C4018: “<”: 有符号/无符号不匹配
+E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(320): warning C4715: “Robot::Dock”: 不是所有的控件路径都返回值
+  TestRobot.vcxproj -> E:\09_project\Multi-agent-docking\Simulator\Debug\TestRobot.exe
