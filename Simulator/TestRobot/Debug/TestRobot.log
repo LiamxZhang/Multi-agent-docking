@@ -1,50 +1,28 @@
-﻿  Test.cpp
-E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(238,20): warning C4018: “<”: 有符号/无符号不匹配
-E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(324,20): warning C4018: “<”: 有符号/无符号不匹配
-E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(393,21): warning C4018: “<”: 有符号/无符号不匹配
-E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(406,21): warning C4018: “<”: 有符号/无符号不匹配
-E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(454,22): warning C4018: “<”: 有符号/无符号不匹配
-E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(459,22): warning C4018: “<”: 有符号/无符号不匹配
-E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(474,22): warning C4018: “<”: 有符号/无符号不匹配
-E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(479,22): warning C4018: “<”: 有符号/无符号不匹配
-E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(498,20): warning C4018: “<”: 有符号/无符号不匹配
-E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(516,31): warning C4018: “<”: 有符号/无符号不匹配
-E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(546,31): warning C4018: “<”: 有符号/无符号不匹配
-E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(571,31): warning C4018: “<”: 有符号/无符号不匹配
-E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(691,21): warning C4018: “<=”: 有符号/无符号不匹配
-E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(811,56): warning C4244: “=”: 从“unsigned int”转换到“float”，可能丢失数据
-E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(817,28): warning C4244: “=”: 从“int”转换到“float”，可能丢失数据
-E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(896,23): warning C4018: “<”: 有符号/无符号不匹配
-E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(905,24): warning C4018: “<”: 有符号/无符号不匹配
-E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1033,23): warning C4018: “<”: 有符号/无符号不匹配
-E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1042,24): warning C4018: “<”: 有符号/无符号不匹配
-E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1187,23): warning C4018: “<”: 有符号/无符号不匹配
-E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1196,24): warning C4018: “<”: 有符号/无符号不匹配
-E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1486,46): warning C4305: “参数”: 从“int”到“const _Ty”截断
-E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1486,46): warning C4305:         with
-E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1486,46): warning C4305:         [
-E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1486,46): warning C4305:             _Ty=float
-E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1486,46): warning C4305:         ]
-E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1591,41): warning C4244: “=”: 从“_Ty”转换到“int”，可能丢失数据
-E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1591,41): warning C4244:         with
-E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1591,41): warning C4244:         [
-E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1591,41): warning C4244:             _Ty=float
-E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1591,41): warning C4244:         ]
-E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1615,51): warning C4305: “参数”: 从“int”到“const _Ty”截断
-E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1615,51): warning C4305:         with
-E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1615,51): warning C4305:         [
-E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1615,51): warning C4305:             _Ty=float
-E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1615,51): warning C4305:         ]
-E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1630,39): warning C4244: “=”: 从“_Ty”转换到“int”，可能丢失数据
-E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1630,39): warning C4244:         with
-E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1630,39): warning C4244:         [
-E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1630,39): warning C4244:             _Ty=float
-E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1630,39): warning C4244:         ]
-E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1652,49): warning C4305: “参数”: 从“int”到“const _Ty”截断
-E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1652,49): warning C4305:         with
-E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1652,49): warning C4305:         [
-E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1652,49): warning C4305:             _Ty=float
-E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1652,49): warning C4305:         ]
-E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(1662,24): warning C4018: “<”: 有符号/无符号不匹配
-E:\09_project\Multi-agent-docking\Simulator\TestRobot\Test.cpp(320): warning C4715: “Robot::Dock”: 不是所有的控件路径都返回值
-  TestRobot.vcxproj -> E:\09_project\Multi-agent-docking\Simulator\Debug\TestRobot.exe
+﻿  test1.cpp
+C:\0Projects\MultiAgentDocking\Multi-agent-docking\Simulator\TestRobot\Task.h(166,21): warning C4018: “<”: 有符号/无符号不匹配
+C:\0Projects\MultiAgentDocking\Multi-agent-docking\Simulator\TestRobot\Task.h(186,8): warning C4101: “id_pos”: 未引用的局部变量
+C:\0Projects\MultiAgentDocking\Multi-agent-docking\Simulator\TestRobot\Robot.h(269,23): warning C4018: “<”: 有符号/无符号不匹配
+C:\0Projects\MultiAgentDocking\Multi-agent-docking\Simulator\TestRobot\Robot.h(278,24): warning C4018: “<”: 有符号/无符号不匹配
+C:\0Projects\MultiAgentDocking\Multi-agent-docking\Simulator\TestRobot\Robot.h(423,23): warning C4018: “<”: 有符号/无符号不匹配
+C:\0Projects\MultiAgentDocking\Multi-agent-docking\Simulator\TestRobot\Robot.h(432,24): warning C4018: “<”: 有符号/无符号不匹配
+C:\0Projects\MultiAgentDocking\Multi-agent-docking\Simulator\TestRobot\test1.cpp(49,21): warning C4018: “<”: 有符号/无符号不匹配
+C:\0Projects\MultiAgentDocking\Multi-agent-docking\Simulator\TestRobot\test1.cpp(64,20): warning C4018: “<”: 有符号/无符号不匹配
+C:\0Projects\MultiAgentDocking\Multi-agent-docking\Simulator\TestRobot\test1.cpp(66,21): warning C4018: “<”: 有符号/无符号不匹配
+C:\0Projects\MultiAgentDocking\Multi-agent-docking\Simulator\TestRobot\test1.cpp(100,61): warning C4244: “=”: 从“int”转换到“float”，可能丢失数据
+C:\0Projects\MultiAgentDocking\Multi-agent-docking\Simulator\TestRobot\test1.cpp(106,22): warning C4018: “<”: 有符号/无符号不匹配
+C:\0Projects\MultiAgentDocking\Multi-agent-docking\Simulator\TestRobot\test1.cpp(115,34): warning C4244: “=”: 从“int”转换到“float”，可能丢失数据
+C:\0Projects\MultiAgentDocking\Multi-agent-docking\Simulator\TestRobot\test1.cpp(171,21): warning C4018: “<”: 有符号/无符号不匹配
+C:\0Projects\MultiAgentDocking\Multi-agent-docking\Simulator\TestRobot\test1.cpp(173,22): warning C4018: “<”: 有符号/无符号不匹配
+C:\0Projects\MultiAgentDocking\Multi-agent-docking\Simulator\TestRobot\test1.cpp(179,21): warning C4018: “<”: 有符号/无符号不匹配
+C:\0Projects\MultiAgentDocking\Multi-agent-docking\Simulator\TestRobot\test1.cpp(181,22): warning C4018: “<”: 有符号/无符号不匹配
+C:\0Projects\MultiAgentDocking\Multi-agent-docking\Simulator\TestRobot\test1.cpp(190,22): warning C4018: “<”: 有符号/无符号不匹配
+C:\0Projects\MultiAgentDocking\Multi-agent-docking\Simulator\TestRobot\test1.cpp(419,20): warning C4018: “<”: 有符号/无符号不匹配
+C:\0Projects\MultiAgentDocking\Multi-agent-docking\Simulator\TestRobot\test1.cpp(420,21): warning C4018: “<”: 有符号/无符号不匹配
+C:\0Projects\MultiAgentDocking\Multi-agent-docking\Simulator\TestRobot\test1.cpp(426,20): warning C4018: “<”: 有符号/无符号不匹配
+C:\0Projects\MultiAgentDocking\Multi-agent-docking\Simulator\TestRobot\test1.cpp(427,21): warning C4018: “<”: 有符号/无符号不匹配
+C:\0Projects\MultiAgentDocking\Multi-agent-docking\Simulator\TestRobot\test1.cpp(442,23): warning C4018: “<”: 有符号/无符号不匹配
+C:\0Projects\MultiAgentDocking\Multi-agent-docking\Simulator\TestRobot\test1.cpp(462,23): warning C4018: “<”: 有符号/无符号不匹配
+C:\0Projects\MultiAgentDocking\Multi-agent-docking\Simulator\TestRobot\test1.cpp(483,23): warning C4018: “<”: 有符号/无符号不匹配
+C:\0Projects\MultiAgentDocking\Multi-agent-docking\Simulator\TestRobot\test1.cpp(502,23): warning C4018: “<”: 有符号/无符号不匹配
+C:\0Projects\MultiAgentDocking\Multi-agent-docking\Simulator\TestRobot\test1.cpp(550,21): warning C4018: “<”: 有符号/无符号不匹配
+  TestRobot.vcxproj -> C:\0Projects\MultiAgentDocking\Multi-agent-docking\Simulator\Debug\TestRobot.exe

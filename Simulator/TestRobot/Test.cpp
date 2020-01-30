@@ -1447,7 +1447,7 @@ int main(){
 		logFile << "System Init ......" << endl;
 		logFile.close();
 	}
-	else
+	else 
 		cout << " Failed to open the target file . The target file is Log.txt. " << endl;
 	cout << "System Start ......" << endl;
 	int seedOfRandom = 8141106;     // Ëæ»úÖÖ×Ó

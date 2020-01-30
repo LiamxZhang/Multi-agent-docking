@@ -53,6 +53,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>C:\0Projects\MultiAgentDocking\Multi-agent-docking\Simulator\TestRobot\Lib\eigen;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -78,7 +79,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Test.cpp" />
+    <ClCompile Include="test1.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="BinTree.h" />
+    <ClInclude Include="Log.h" />
+    <ClInclude Include="Map.h" />
+    <ClInclude Include="Point.h" />
+    <ClInclude Include="Robot.h" />
+    <ClInclude Include="Rule.h" />
+    <ClInclude Include="Task.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
