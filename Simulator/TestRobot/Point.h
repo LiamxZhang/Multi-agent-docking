@@ -47,11 +47,5 @@ public:
 	friend int main();
 	int x;
 	int y;
-	//bool Dockedflag;
-	//bool Leaderflag;
-	//bool Taskflag;  
-	//bool Robotflag;
-	//bool Obstacleflag;
-	//int LeaderNum = -1;
 private:
 };

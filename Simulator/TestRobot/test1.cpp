@@ -23,7 +23,16 @@ using namespace std;
 //void ExtendTask(BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* task, MatrixMap* map);
 void ExtendTask(BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* task, MatrixMap* map, int depth, int obj);
 void ExtendAction(BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* task, MatrixMap* map);
+void AssignTaskToRobot(Task* task, vector<Robot*> robot);
+void AssignCurrrentTargetToRobot(vector<Robot*> robot, vector<TaskPoint*> allTargets);
+vector<vector<int>> IDtoIndex(vector<Robot*> robot);
+bool CheckReach(vector<RobotGroup> groups);
+vector<RobotGroup> Dock(vector<Robot*> robot, Task* task, vector<int> tID2index, int layer);
+
+// 
 bool RecordTaskPosition(vector<TaskPoint*> allTargets);
+bool RecordRobotPosition(vector<Robot*> robots);
+void Recover(Task* task);
 
 int main() {
 	// read map, the origin is in the leftmost top,  x means rows, y means columns
@@ -36,52 +45,23 @@ int main() {
 	task->ReadTask();
 	task->GenerateTree();
 	//cout << endl << "Depth: " << task->AssemblyTree.depth(task->AssemblyTree.root()) << endl;
-	//cout << endl << world->TaskCheck(1, task->AssemblyTree.leaves()[0]->data, 2) << endl; // 检查地图有效
+	//cout << endl << world->TaskCheck(1, task->AssemblyTree.leaves()[0]->data, 2) << endl; 
 
 	// move the task components, according to the assembly tree
-	//ExtendTask(task->AssemblyTree.root(),task->SegTree.root(),task,world);
 	int depth = task->AssemblyTree.depth(task->AssemblyTree.root());
-	for (int i = 0; i < depth-1; i++) { // assembly tree 的最后一层只有一个机器人不必进行
-		//
+	for (int i = 0; i < depth-1; i++) { // the leaf layer of assembly tree is not needed for extension
+		// extension task
 		ExtendTask(task->AssemblyTree.root(), task->SegTree.root(), task, world, 0, i);
-		// 
-		vector<TaskPoint*> tempTargets;
-		for (int i = 0; i < task->currentTargets.size(); i++) {
-			TaskPoint* temp = new TaskPoint();
-			temp->id = task->currentTargets[i]->id;
-			temp->taskPoint.x = task->currentTargets[i]->taskPoint.x;
-			temp->taskPoint.y = task->currentTargets[i]->taskPoint.y;
-			tempTargets.push_back(temp);
-		}
-		task->allTargets.push_back(tempTargets);
 		// display
 		cout << endl;
 		world->Display();
 		cout << endl;
+		// push currentTargets into allTargets
+		task->PushAllTargets();
 	}
-	
 	// display task positions of steps
-	for (int i = 0; i < task->allTargets.size(); i++) {
-		cout << "target step " << i << ": ";  // i denotes the ith step, j denotes the jth robot
-		for (int j = 0; j < task->allTargets[0].size(); j++)
-			cout << "("<< task->allTargets[i][j]->id << ",  " << task->allTargets[i][j]->taskPoint.x
-			<< ", " << task->allTargets[i][j]->taskPoint.y << "), ";
-		cout << endl;
-	}
-
-	/*
-	// write into file
-	vector<TaskPoint*> allTargets;
-	for (int i = 0; i < task->allTargets.size(); i++) {
-		TaskPoint* temp = new TaskPoint();
-		temp = task->allTargets.back()[i];
-		//task->allTargets[i].pop_back();
-		allTargets.push_back(temp);
-		cout << temp->id << " " << temp->taskPoint.x << " "
-			<< temp->taskPoint.y << endl;
-	}
-	RecordTaskPosition(allTargets);
-	*/
+	task->Display("all");
+	
 	// create the robots
 	vector<Robot*> robot;
 	for (int i = 0; i < task->robotNum; i++) {
@@ -90,174 +70,52 @@ int main() {
 		robot.push_back(temp);
 	}
 	// assign the task to the closest robots using optimization (or bid)
-	// from task->allTargets[j][i]->taskpoint.x(y)
-	// to robot[i]->initPosition.x(y)
-	float closestDistance;
-	float distance;
-	bool assigned;
-	vector<int> assignedTaskID;
-	for (int i = 0; i < task->robotNum; i++) {
-		closestDistance = abs(world->RowNum) + abs(world->ColNum) + 10;   // max is the whole map size
-		int roboX = robot[i]->initPosition.x;
-		int roboY = robot[i]->initPosition.y;
-		for (int j = 0; j < task->taskNum; j++) {
-			// if task has been assigned, break
-			assigned = false;
-			for (int k = 0; k < assignedTaskID.size(); k++)
-				if (assignedTaskID[k] == task->allTargets.back()[j]->id) {
-					assigned = true;
-					break;
-				}
-			if (assigned) continue;
-			// calculate the distance
-			int taskX = task->allTargets.back()[j]->taskPoint.x;
-			int taskY = task->allTargets.back()[j]->taskPoint.y;
-			distance = abs(roboX - taskX) + abs(roboY - taskY); // Manhattan distance
-			//
-			//cout << endl << "X: " << roboX << "    Y: " << roboY << "   distance: " << distance;
-			if (distance < closestDistance) {
-				closestDistance = distance;
-				robot[i]->taskID = task->allTargets.back()[j]->id;
-			}
-		}
-		assignedTaskID.push_back(robot[i]->taskID);
-	}
-	cout << endl;
-	for (int i = 0; i < task->robotNum; i++) {
-		cout << "Assign robot " << robot[i]->id << ": task ID " << robot[i]->taskID << endl;
-	}
-	cout << endl;
-	// path planning based on the rule->ShortestPath
-	// collision avoidance
-	// move the robot
-	// component移动时保证在一起
+	AssignTaskToRobot(task, robot);
+	// ID to index
+	vector<vector<int>> idToIndex = IDtoIndex(robot);
+	vector<int> tID2index = idToIndex[0];  // input: task ID  output: robot index
+	//vector<int> rID2index = idToIndex[1];  // input: robot ID output: robot index
 
-	int stepNum = task->allTargets.size(); // 应等于tree的深度
-	int roboNum = task->allTargets[0].size();  // task number = robot number
-	// task ID -> robot ID -> robot index
-	vector<int> tID2index;
-	vector<int> rID2index;
-	for (int i = 0; i <= roboNum; i++) { // task ID : 1~robot number
-		int taskID = i;
-		int index = 0;
-		for (int j = 0; j < roboNum; j++)
-			if (robot[j]->taskID == taskID) {  index = j;  break; }
-		tID2index.push_back(index);
-		cout << "task ID: " << taskID << "   index: " << index << endl;
-		int robotID = i;
-		int ind = 0;
-		for (int j = 0; j < roboNum; j++)
-			if (robot[j]->id == robotID) { ind = j;  break; }
-		rID2index.push_back(ind);
-		cout << "robot ID: " << robotID << "   index: " << ind << endl;
+	// initialize robot groups
+	vector<RobotGroup> groups;   
+	for (int i = 0; i < robot.size(); i++) {  // for each one node 
+		vector<Robot*> tempGroup;
+		tempGroup.push_back(robot[i]);
+		RobotGroup robotGroup(tempGroup);  // robot group
+		groups.push_back(robotGroup);
 	}
 
+	// robots move
+	int stepNum = task->allTargets.size(); // tree depth
+	int roboNum = task->allTargets[0].size();
 	for (int i = 0; i < stepNum; i++) { // for each one layer
-		vector<TaskPoint*> allTargets = task->allTargets[stepNum-i-1]; // get task points of all robots at the last time
-		cout << "allTargets:  ";
-		for (int j = 0; j < roboNum; j++) {
-			cout << "("<< allTargets[j]->id << ", " << allTargets[j]->taskPoint.x << ", "
-				<< allTargets[j]->taskPoint.y << "),";
-		}
-		cout << endl;
-		//RecordTaskPosition(allTargets);
-		
-		// assign leader, task->AssemblyTree
-		vector<int> leaders; // all the leaders' robot IDs
-		vector<BinNode<vector<int>>*> nodeVec; // all nodes of task tree
-		nodeVec = task->AssemblyTree.getLayerNode(task->AssemblyTree.root(), 0, stepNum - i - 1, nodeVec);
-		// see the nodes
-		cout << "all nodes: ";
-		for (int j = 0; j < nodeVec.size(); j++) {
-			cout << "(";
-			for (int k = 0; k < nodeVec[j]->data.size(); k++) {
-				cout << nodeVec[j]->data[k] << ",";
+		task->Display(stepNum - i - 1);
+		// update task
+		world->UpdateTaskmap(task->allTargets[stepNum - i - 1]);
+		// move
+		bool reach = false;
+		while (!reach) {
+			for (int j = 0; j < groups.size(); j++) {
+				groups[j].PathPlanning(world, task->allTargets[stepNum - i - 1]);
+				groups[j].TrialMove();
+				if (!world->CollisionCheck(groups[j].GetRobotPos(), groups[j].GetRobotIds())) {
+					
+					groups[j].Move(world);
+				}
 			}
-			cout << "),";
+			//world->Display();
+			// check, if leader robots reach targets, reach = true
+			reach = CheckReach(groups);
+			RecordRobotPosition(robot);
+			Sleep(3000);
 		}
-		cout << endl;
-		for (int j = 0; j < nodeVec.size(); j++) { // for each one node 
-			// find the minimum robot ID value as the leader
-			int min = 10000; // robot leader ID
-			for (int k = 0; k < nodeVec[j]->data.size(); k++) {
-				int taskID = nodeVec[j]->data[k];
-				if (robot[tID2index[taskID]]->id < min)
-					min = robot[tID2index[taskID]]->id;
-				cout << "ID: " << robot[tID2index[taskID]]->id << endl;
-			}
-			cout << "Leader: " << min << endl;
-			leaders.push_back(min);
-			
-			for (int k = 0; k < nodeVec[j]->data.size(); k++) {
-				// assign the leader value (robot ID)
-				int taskID = nodeVec[j]->data[k];
-				robot[tID2index[taskID]]->leader = min;
-				// build the mapping relation inside one component between the leader and the follower // leader + offset = robot position
-				robot[tID2index[taskID]]->offset.swap(vector<int>());
-				robot[tID2index[taskID]]->offset.push_back(robot[tID2index[taskID]]->currentPosition.x - robot[rID2index[min]]->currentPosition.x);
-				robot[tID2index[taskID]]->offset.push_back(robot[tID2index[taskID]]->currentPosition.y - robot[rID2index[min]]->currentPosition.y);
-			}
-
-			// path planning for the leaders // robot: update workmap, weightMap; 
-
-			// update robot targetPosition
-			leaders is min;
-			vector<Point> planPath;
-			planPath = robot[0]->ShortestPath(robot[0]->initPosition, robot[5]->initPosition);
-
-			cout << endl << "Path: ";
-			for (int i = 0; i < planPath.size(); i++) {
-				cout << planPath[i].x << " and " << planPath[i].y << endl;
-			}
-		
-		}
-		for (int i = 0; i < roboNum; i++) 
-			cout << "robot " << robot[i]->id << " task: " << robot[i]->taskID << " leader: " << robot[i]->leader << "  offset: " << robot[i]->offset[0] << ", " << robot[i]->offset[1] << endl;
-
-		
-
-		// map the followers
-
-		// move one step, check collision
-
-		// if collision, component with higher priority continues to move
-		// the other one add the new obstacle and replanning
-
-		// if free, continue to move
-
-		system("pause");
+		world->Display();
+		//system("pause");
+		// dock
+		groups = Dock(robot, task, tID2index, stepNum - i - 1);
 	}
-
-	/*
-	// test path planning
-	vector<Point> planPath;
-	planPath = robot[0]->ShortestPath(robot[0]->initPosition, robot[5]->initPosition);
-	cout << endl << "Path: ";
-	for (int i = 0; i < planPath.size(); i++) {
-		cout << planPath[i].x << " and " << planPath[i].y << endl;
-	}
-	// test get layer number
-	vector<int> NumPerLayer = task->AssemblyTree.countNumPerLayer();
-	cout << "number per layer: ";
-	for (int i = 0; i < NumPerLayer.size(); i++) {
-		cout << NumPerLayer[i] << ",";
-	}
-	cout << endl;
-	// test get layer nodes
-	vector<BinNode<vector<int>>*> nodeVec;
-	nodeVec = task->AssemblyTree.getLayerNode(task->AssemblyTree.root(), 0, 2, nodeVec);
-	cout << "Layer nodes are: ";
-	for (int i = 0; i < nodeVec.size(); i++) {
-		cout << "(";
-		for (int j = 0; j < nodeVec[i]->data.size(); j++) {
-			cout << nodeVec[i]->data[j] << ", ";
-		}
-		cout << "), ";
-	}
-	cout << endl;
-	*/
-
 	system("pause");
+	Recover(task);
 	return 0;
 }
 
@@ -420,7 +278,6 @@ void ExtendTask(BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* tas
 	ExtendTask(assNode->rChild, segNode->rChild, task, map, depth + 1, obj);
 }
 
-
 void ExtendAction(BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* task, MatrixMap* map) {
 	// find the position of target id in currentTargets
 	vector<int> lcomponents = assNode->lChild->data;
@@ -549,6 +406,90 @@ void ExtendAction(BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* t
 	*/
 }
 
+// assign the task to the closest robots using optimization (or bid)
+// from task->allTargets[j][i]->taskpoint.x(y)
+// to robot[i]->initPosition.x(y)
+void AssignTaskToRobot(Task* task, vector<Robot*> robot) {
+	//
+	float closestDistance;
+	float distance;   // distance between robots and tasks
+	bool assigned;
+	vector<int> assignedTaskID;
+	for (int i = 0; i < task->robotNum; i++) {
+		closestDistance = 100000;   // max is initialized as infinity
+		int roboX = robot[i]->initPosition.x;
+		int roboY = robot[i]->initPosition.y;
+		for (int j = 0; j < task->taskNum; j++) {
+			// if task has been assigned, break
+			assigned = false;
+			for (int k = 0; k < assignedTaskID.size(); k++)
+				if (assignedTaskID[k] == task->allTargets.back()[j]->id) {
+					assigned = true;
+					break;
+				}
+			if (assigned) continue;
+			// calculate the distance
+			int taskX = task->allTargets.back()[j]->taskPoint.x;
+			int taskY = task->allTargets.back()[j]->taskPoint.y;
+			distance = abs(roboX - taskX) + abs(roboY - taskY); // Manhattan distance
+			//
+			//cout << endl << "X: " << roboX << "    Y: " << roboY << "   distance: " << distance;
+			if (distance < closestDistance) {
+				closestDistance = distance;
+				robot[i]->taskID = task->allTargets.back()[j]->id;
+			}
+		}
+		assignedTaskID.push_back(robot[i]->taskID);
+	}
+	// see the assignment
+	cout << endl;
+	for (int i = 0; i < task->robotNum; i++) {
+		cout << "Assign robot " << robot[i]->id << ": task ID " << robot[i]->taskID << endl;
+	}
+	cout << endl;
+}
+
+void AssignCurrrentTargetToRobot(vector<Robot*> robot, vector<TaskPoint*> allTargets) {
+	for (int j = 0; j < robot.size(); j++) {  // assign target points
+		for (int k = 0; k < allTargets.size(); k++) {
+			if (robot[j]->taskID == allTargets[k]->id) {
+				robot[j]->targetPosition.x = allTargets[k]->taskPoint.x;
+				robot[j]->targetPosition.y = allTargets[k]->taskPoint.y;
+				break;
+			}
+		}
+	}
+}
+
+// task ID->robot index // robot ID -> robot index
+vector<vector<int>> IDtoIndex(vector<Robot*> robot) {
+	int roboNum = robot[0]->robotNumber;  // task number = robot number
+	vector<int> tID2index; // task ID->robot index
+	vector<int> rID2index; // robot ID -> robot index
+	vector<vector<int>> ID2index;  // ID2index[0] = tID2index  // ID2index[1] = rID2index; 
+	for (int i = 0; i <= roboNum; i++) {
+		{
+			int taskID = i;   // task ID : 1~task number
+			int index = 0;
+			for (int j = 0; j < roboNum; j++)
+				if (robot[j]->taskID == taskID) { index = j;  break; }
+			tID2index.push_back(index);
+			//cout << "task ID: " << taskID << "   index: " << index << endl;
+		}
+		{
+			int robotID = i;   // robot ID : 1~robot number
+			int index = 0;
+			for (int j = 0; j < roboNum; j++)
+				if (robot[j]->id == robotID) { index = j;  break; }
+			rID2index.push_back(index);
+			//cout << "robot ID: " << robotID << "   index: " << ind << endl;
+		}
+	}
+	ID2index.push_back(tID2index);
+	ID2index.push_back(rID2index);
+	return ID2index;
+}
+
 // write the task point into txt file
 bool RecordTaskPosition(vector<TaskPoint*> allTargets) {
 	// allTargets is the vector of the current task points
@@ -567,21 +508,20 @@ bool RecordTaskPosition(vector<TaskPoint*> allTargets) {
 	else return false;
 }
 
-/*
 // record the current position of robots
-bool RecordCurrentAndTargetPosition(int size) {
+bool RecordRobotPosition(vector<Robot*> robots) {
 	ofstream f;
 	f.open("../TestRobot/Robot_Current_Position.txt", ofstream::out);
 	if (f) {
-		f << robotCurrentPosition.size() << endl;
+		f << robots.size() << endl;
 		RecordLog("RecordCurrentAndTargetPosition:");
 		RecordLog("RobotId   CurrentPosition   TargetPosition");
-		for (int i = 1; i <= robotCurrentPosition.size(); ++i) {
-			f << i << "," << robotCurrentPosition[i - 1].x + 1 << "," << robotCurrentPosition[i - 1].y + 1 << ","
-				<< robotTargetPosition[i - 1].x + 1 << "," << robotTargetPosition[i - 1].y + 1 << endl;
-			RecordLog("   " + to_string(i) + "          [" + to_string(robotCurrentPosition[i - 1].x + 1) + ","
-				+ to_string(robotCurrentPosition[i - 1].y + 1) + "]              [" + to_string(robotTargetPosition[i - 1].x + 1) +
-				"," + to_string(robotTargetPosition[i - 1].y + 1) + "]");
+		for (int i = 0; i < robots.size(); ++i) {
+			f << robots[i]->id << "," << robots[i]->currentPosition.x << "," << robots[i]->currentPosition.y << ","
+				<< robots[i]->targetPosition.x << "," << robots[i]->targetPosition.y << endl;
+			//RecordLog("   " + to_string(i) + "          [" + to_string(robotCurrentPosition[i - 1].x + 1) + ","
+			//	+ to_string(robotCurrentPosition[i - 1].y + 1) + "]              [" + to_string(robotTargetPosition[i - 1].x + 1) +
+			//	"," + to_string(robotTargetPosition[i - 1].y + 1) + "]");
 		}
 	}
 	else
@@ -590,4 +530,76 @@ bool RecordCurrentAndTargetPosition(int size) {
 	return true;
 }
 
-*/
+// recover the task and robot data
+void Recover(Task* task) {
+	ofstream f;
+	f.open("../TestRobot/Robot_Current_Position.txt", ofstream::out);
+	if (f) {
+		f << task->robotNum << endl;
+		for (int i = 0; i < task->robotNum; ++i) {
+			f << task->startPoints[i]->id << "," << task->startPoints[i]->taskPoint.x << "," 
+				<< task->startPoints[i]->taskPoint.y << "," << task->finalTargets[i]->taskPoint.x 
+				<< "," << task->finalTargets[i]->taskPoint.y << endl;
+		}
+	}
+	f.close();
+	/*
+	f.open("../TestRobot/Task.txt", ofstream::out);
+	if (f) {
+		f << task->taskNum << endl;
+		for (int i = 0; i < task->taskNum; i++) {
+			//
+			f << task->finalTargets[i]->id << " " << task->finalTargets[i]->taskPoint.x << " "
+				<< task->finalTargets[i]->taskPoint.y << endl;
+			// Log
+		}
+	}
+	f.close();
+	*/
+}
+
+// check all the robots whether reach their targets
+bool CheckReach(vector<RobotGroup> groups) {
+	for (int i = 0; i < groups.size(); i++) {
+		if (groups[i].robot[0]->currentPosition.x != groups[i].robot[0]->targetPosition.x
+			|| groups[i].robot[0]->currentPosition.y != groups[i].robot[0]->targetPosition.y) {
+			return false;
+		}
+	}
+	return true;
+}
+
+// dock // put robots into one group
+vector<RobotGroup> Dock(vector<Robot*> robot, Task* task, vector<int> tID2index, int layer) {  // layer = stepNum - i - 1
+	// get nodes of one layer, task->AssemblyTree  // all nodes of one layer of task tree
+	vector<BinNode<vector<int>>*> nodeVec = task->AssemblyTree.getLayerNode(task->AssemblyTree.root(), 0, layer, nodeVec);
+	// see the nodes
+	cout << "all nodes: ";
+	for (int j = 0; j < nodeVec.size(); j++) {
+		cout << "(";
+		for (int k = 0; k < nodeVec[j]->data.size(); k++) {
+			cout << nodeVec[j]->data[k] << ",";
+		}
+		cout << "),";
+	}
+	cout << endl;
+
+	// push robots into one group
+	vector<RobotGroup> groups;
+	for (int j = 0; j < nodeVec.size(); j++) {  // for each one node 
+		vector<Robot*> tempGroup;
+		for (int k = 0; k < nodeVec[j]->data.size(); k++) {  // for each one robot
+			int taskID = nodeVec[j]->data[k];
+			tempGroup.push_back(robot[tID2index[taskID]]);
+		}
+		RobotGroup robotGroup(tempGroup);  // robot group
+		groups.push_back(robotGroup);
+	}
+	// see the groups // assign the leaders 
+	for (int j = 0; j < groups.size(); j++) {
+		cout << "group " << j << ":";  groups[j].Display();  cout << endl;
+		groups[j].AssignLeaders();
+	}
+
+	return groups;
+}

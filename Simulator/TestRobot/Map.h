@@ -5,7 +5,6 @@
 #include <Eigen/Dense>
 #include <fstream>
 
-//#include "Point.h"
 #include "Log.h"
 
 using namespace Eigen;
@@ -19,14 +18,14 @@ public:
 		cout << endl << "Obstacle Map: " << endl;
 		//cout << map_obstacle << endl;
 		cout << endl << "Robot Map: " << endl;
-		//cout << map_robot << endl;
+		cout << map_robot << endl;
 		cout << endl << "Task Map: " << endl;
 		cout << map_task << endl;
 	}
 	bool UpdateTaskmap(vector<TaskPoint*>);  // after every move, update the Map.
-	bool RobotCheck(int ID, vector<int> component, int range); // check collision with robots and obstacles
 	bool TaskCheck(int, int, vector<int>, int);
-	vector<int> findWhere(int, char); // find the position according to ID
+	bool CollisionCheck(vector<Point> positions, vector<int> ids);  // check collision with robots and obstacles
+	vector<int> FindWhere(int, char); // find the position according to ID
 	// variables
 	int RowNum, ColNum;
 	MatrixXi map_obstacle; // 障碍物地图，自由点为0，障碍物为1
@@ -110,6 +109,7 @@ MatrixMap::ReadMap() {
 	RecordLog("Success to read the Map of obstacle, robot and task.");
 }
 
+/*
 bool 
 MatrixMap::RobotCheck(int ID, vector<int> component, int range) {
 	// range 是探测的范围
@@ -148,9 +148,10 @@ MatrixMap::RobotCheck(int ID, vector<int> component, int range) {
 		}
 	return true;
 }
+*/
 
 bool
-MatrixMap::TaskCheck(int row, int col, vector<int> component, int range) {
+MatrixMap::TaskCheck(int row, int col, vector<int> ids, int range) {
 	// row, col是探测起点, map从0，0开始
 	// component是免检的同组点
 	// range 是探测的范围
@@ -167,13 +168,33 @@ MatrixMap::TaskCheck(int row, int col, vector<int> component, int range) {
 		for (int j = colMin; j <= colMax; j++) {
 			//cout << "row and column：   " << i << "    " << j << endl;
 			if (map_task(i, j) > 0) {
-				vector<int>::iterator it = find(component.begin(), component.end(), map_task(i, j));
-				if (it == component.end()) {   // 不在component中
+				vector<int>::iterator it = find(ids.begin(), ids.end(), map_task(i, j));
+				if (it == ids.end()) {   // 不在component中
 					return false;
 				}
 			}
 		}
 	return true;
+}
+
+bool
+MatrixMap::CollisionCheck(vector<Point> positions, vector<int> ids) { // component is a group of robot
+	bool collision;
+	for (int i = 0; i < positions.size(); ++i) {
+		if (map_obstacle(positions[i].x, positions[i].y)) // obstacles
+			return true;
+		else if (map_robot(positions[i].x, positions[i].y) != 0) {  // if there's no obstacle, check robot
+			collision = true;  // assume existing robot
+			for (int j = 0; j < ids.size(); ++j) {  // if one ID exists in the component，no collision
+				if (ids[j] == map_robot(positions[i].x, positions[i].y)) {
+					collision = false;
+					break;
+				}
+			}
+			if (collision) return true;
+		}
+	}
+	return false;
 }
 
 bool 
@@ -202,7 +223,7 @@ MatrixMap::UpdateTaskmap(vector<TaskPoint*> newTasks) {
 }
 
 vector<int>
-MatrixMap::findWhere(int ID, char RorT) {
+MatrixMap::FindWhere(int ID, char RorT) {
 	// RorT denotes robot or task
 	MatrixXi Map;
 	if (RorT == 'r')

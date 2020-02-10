@@ -58,7 +58,9 @@ public:
 	bool GenerateTree();
 	void Bisect(BinNode<vector<int>>*, BinNode<char>*);
 	bool GetNode();
-	void StoreSteps();    // Store the current task Point for every components
+	void PushAllTargets();    // Store the currentTargets in allTargets
+	void Display(string);      // display task positions of steps
+	void Display(int);
 private:
 };
 
@@ -75,9 +77,10 @@ Task::ReadTask() {
 			f >> task_id >> task_x >> task_y;
 			TaskPoint* target = new TaskPoint(task_id, task_x, task_y);
 			finalTargets.push_back(target);
+			TaskPoint* temp = new TaskPoint(task_id, task_x, task_y);
+			currentTargets.push_back(temp);
 		}
 		allTargets.push_back(finalTargets);
-		currentTargets.assign(finalTargets.begin(), finalTargets.end());
 		//BinNode<vector<TaskPoint*>>* root = allTargets.insertASRoot(finalTargets);
 	}
 	else
@@ -100,10 +103,10 @@ Task::ReadTask() {
 			task_id = tempdata;
 			f >> tempchar;  // ","
 			f >> tempdata;
-			task_x = tempdata - 1;  // 
+			task_x = tempdata;  // 
 			f >> tempchar;  // ","
 			f >> tempdata;
-			task_y = tempdata - 1;
+			task_y = tempdata;
 			TaskPoint* start = new TaskPoint(task_id, task_x, task_y);
 			startPoints.push_back(start);
 			//cout << " start points:" << task_x << " and " << task_y;
@@ -261,4 +264,40 @@ Task::GenerateTree() {
 bool
 Task::GetNode() {
 	return true;
+}
+
+void 
+Task::PushAllTargets() {  // after extending task in each loop
+	vector<TaskPoint*> tempTargets;
+	for (int i = 0; i < taskNum; i++) {
+		TaskPoint* temp = new TaskPoint();
+		temp->id = currentTargets[i]->id;
+		temp->taskPoint.x = currentTargets[i]->taskPoint.x;
+		temp->taskPoint.y = currentTargets[i]->taskPoint.y;
+		tempTargets.push_back(temp);
+	}
+	allTargets.push_back(tempTargets);
+}
+
+void 
+Task::Display(string str) {
+	if (str == "all") {
+		for (int i = 0; i < allTargets.size(); i++) {
+			cout << "Target step " << i << ": ";  // i denotes the ith step, j denotes the jth robot
+			for (int j = 0; j < robotNum; j++)
+				cout << "(" << allTargets[i][j]->id << ",  " << allTargets[i][j]->taskPoint.x
+				<< ", " << allTargets[i][j]->taskPoint.y << "), ";
+			cout << endl;
+		}
+	}
+}
+
+void
+Task::Display(int step) {
+	cout << endl << "allTargets  " << step << ": ";
+	for (int j = 0; j < allTargets[step].size(); j++) {
+		cout << "(" << allTargets[step][j]->id << ", " << allTargets[step][j]->taskPoint.x << ", "
+			<< allTargets[step][j]->taskPoint.y << "),";
+	}
+	cout << endl;
 }

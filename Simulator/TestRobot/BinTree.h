@@ -287,4 +287,3 @@ void BinTree<T>::DisplayTree() {
     printf("\n");
 }
 #endif // BINNODE_H_MY
-
