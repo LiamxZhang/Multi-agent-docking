@@ -1,11 +1,11 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include <cstdlib>
+//#include <cstdlib>
 #include <time.h>
 #include <ctime>
-#include <string>
-#include <thread>
+//#include <string>
+//#include <thread>
 #include <math.h>
 #include <algorithm>
 #include <queue>
@@ -30,7 +30,6 @@ bool CheckReach(vector<RobotGroup> groups);
 vector<RobotGroup> Dock(vector<Robot*> robot, Task* task, vector<int> tID2index, int layer);
 
 // 
-bool RecordTaskPosition(vector<TaskPoint*> allTargets);
 bool RecordRobotPosition(vector<Robot*> robots);
 void Recover(Task* task);
 
@@ -119,152 +118,6 @@ int main() {
 	return 0;
 }
 
-
-// functions
-// input: task, map, rule
-// task: assembly tree, segmentation tree
-// map: check collision
-/*
-void ExtendTask(BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* task, MatrixMap* map) {
-	// end condition
-	if (!assNode) return;   // tree node empty
-	if (assNode->data.size() <= 1) return;  // cannot be extended anymore
-
-	// find the position of target id in currentTargets
-	vector<int> lcomponents = assNode->lChild->data; 
-	vector<int> left_ids;
-	for (int i = 0; i < lcomponents.size(); i++)
-		for (int j = 0; j < task->currentTargets.size(); j++)
-			if (task->currentTargets[j]->id == lcomponents[i])    // ids[i] <-> components[i]
-				left_ids.push_back(j);
-	//
-	vector<int> rcomponents = assNode->rChild->data;
-	vector<int> right_ids;
-	for (int i = 0; i < rcomponents.size(); i++)
-		for (int j = 0; j < task->currentTargets.size(); j++)
-			if (task->currentTargets[j]->id == rcomponents[i])    // ids[i] <-> components[i]
-				right_ids.push_back(j);
-
-	// 移动一步，记录一次
-	int step = 2; // 步长
-	bool done = false;   // flag indicates the movement finish
-	int total_move = 0;
-	
-	while (!done) {
-		if (segNode->data == 'x') {   // 沿x方向分离  // lcomponent的targets点都x+1, rcomponent都x-1
-			{// left
-				done = true;  // 是否 没有障碍
-				vector<TaskPoint*> tempTargets(task->currentTargets); // 佯装移动
-				for (int i = 0; i < lcomponents.size(); i++) {
-					cout << " xl " << i << endl;
-					int temp_pos = tempTargets[left_ids[i]]->taskPoint.x + step;
-					// collision, check map. 遇到任务点与遇到障碍物的反应应当不同
-					if (map->TaskCheck(temp_pos, tempTargets[left_ids[i]]->taskPoint.y, lcomponents, step))  // 如果没有障碍
-						tempTargets[left_ids[i]]->taskPoint.x = temp_pos;
-					else   // 如果附近有障碍
-						done = false;
-				}
-				
-				if (done) {  // 如果整个component都没有遇到障碍
-					task->currentTargets.assign(tempTargets.begin(), tempTargets.end());
-					total_move += step;
-					// update map
-					map->UpdateTaskmap(tempTargets);
-				}
-			}
-			{// right
-				done = true;  // 是否 没有障碍
-				vector<TaskPoint*> tempTargets(task->currentTargets);
-				for (int i = 0; i < rcomponents.size(); i++) {
-					cout << " rl " << i << endl;
-					int temp_pos = tempTargets[right_ids[i]]->taskPoint.x - step;
-					//
-					if (map->TaskCheck(temp_pos, tempTargets[left_ids[i]]->taskPoint.y, rcomponents, step))   // 如果没有障碍
-						tempTargets[right_ids[i]]->taskPoint.x = temp_pos;
-					else   // 如果有障碍
-						done = false;
-				}
-				if (done) {  // 如果整个component都没有遇到障碍
-					task->currentTargets.assign(tempTargets.begin(), tempTargets.end());
-					total_move += step;
-					// update map
-					map->UpdateTaskmap(tempTargets);
-				}
-			}
-		}
-		else if (segNode->data == 'y') {  // 沿y方向分离
-			{// left
-				done = true;  // 是否 没有障碍
-				vector<TaskPoint*> tempTargets(task->currentTargets); // 佯装移动
-				for (int i = 0; i < lcomponents.size(); i++) {
-					cout << " yl " << i << endl;
-					int temp_pos = tempTargets[left_ids[i]]->taskPoint.y + step;
-					// collision, check map. 遇到任务点与遇到障碍物的反应应当不同
-					if (map->TaskCheck(tempTargets[left_ids[i]]->taskPoint.x, temp_pos, lcomponents, step))   // 如果没有障碍
-						tempTargets[left_ids[i]]->taskPoint.y = temp_pos;
-					else   // 如果有障碍
-						done = false;
-				}
-				if (done) {  // 如果整个component都没有遇到障碍
-					task->currentTargets.assign(tempTargets.begin(), tempTargets.end());
-					total_move += step;
-					// update map
-					map->UpdateTaskmap(tempTargets);
-				}
-			}
-			{// right
-				done = true;  // 是否 没有障碍
-				vector<TaskPoint*> tempTargets(task->currentTargets);
-				for (int i = 0; i < rcomponents.size(); i++) {
-					cout << " yr " << i << endl;
-					int temp_pos = tempTargets[right_ids[i]]->taskPoint.y - step;
-					//
-					if (map->TaskCheck(tempTargets[left_ids[i]]->taskPoint.x, temp_pos, rcomponents, step))   // 如果没有障碍
-						tempTargets[right_ids[i]]->taskPoint.y = temp_pos;
-					else   // 如果有障碍
-						done = false;
-				}
-				if (done) {  // 如果整个component都没有遇到障碍
-					task->currentTargets.assign(tempTargets.begin(), tempTargets.end());
-					total_move += step;
-					// update map
-					map->UpdateTaskmap(tempTargets);
-				}
-			}
-		}
-		// else segNode containes nonsenses
-		// end condition: if displacement >= Num, done = true
-		if (total_move >= step * 2) break;
-		else done = false;
-	}
-	if (done) {// displacement 足够远,更新alltargets
-		vector<TaskPoint*> tempTargets;
-		for (int i = 0; i < task->currentTargets.size(); i++) {
-			TaskPoint* temp = new TaskPoint();
-			temp->id = task->currentTargets[i]->id;
-			temp->taskPoint.x = task->currentTargets[i]->taskPoint.x;
-			temp->taskPoint.y = task->currentTargets[i]->taskPoint.y;
-			tempTargets.push_back(temp);
-		}
-		task->allTargets.push_back(tempTargets);
-	}
-	// display
-	cout << endl; // monitor allTargets
-	for (int i = 0; i < task->allTargets.size(); i++) {
-		cout << "Current step " << i << ": ";  // i denotes the ith step, j denotes the jth robot
-		for (int j = 0; j < task->allTargets[0].size(); j++)
-			cout << "(" << task->allTargets[i][j]->id << ",  " << task->allTargets[i][j]->taskPoint.x
-			<< ", " << task->allTargets[i][j]->taskPoint.y << "), ";
-		cout << endl;
-	}
-	cout << endl;
-	map->Display();
-	cout << endl;
-	// recursion resumes
-	ExtendTask(assNode->lChild, segNode->lChild, task, map);
-	ExtendTask(assNode->rChild, segNode->rChild, task, map);
-}
-*/
 
 void ExtendTask(BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* task, MatrixMap* map, int depth, int obj) {
 	// end condition
@@ -488,24 +341,6 @@ vector<vector<int>> IDtoIndex(vector<Robot*> robot) {
 	ID2index.push_back(tID2index);
 	ID2index.push_back(rID2index);
 	return ID2index;
-}
-
-// write the task point into txt file
-bool RecordTaskPosition(vector<TaskPoint*> allTargets) {
-	// allTargets is the vector of the current task points
-	ofstream f;
-	f.open("../TestRobot/Task.txt", ofstream::out);
-	if (f) {
-		f << allTargets.size() << endl;
-		for (int i = 0; i < allTargets.size(); i++) {
-			//
-			f << allTargets[i]->id << " " << allTargets[i]->taskPoint.x << " "
-				<< allTargets[i]->taskPoint.y << endl;
-			// Log
-		}
-		return true;
-	}
-	else return false;
 }
 
 // record the current position of robots
