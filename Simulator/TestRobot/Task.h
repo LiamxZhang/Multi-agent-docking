@@ -54,7 +54,6 @@ public:
 	BinTree<char> SegTree;  //  record the segmentation line for every component
 	// functions
 	bool ReadTask();
-	bool GenerateTask();
 	bool GenerateTree();
 	void Bisect(BinNode<vector<int>>*, BinNode<char>*);
 	bool GetNode();
@@ -83,17 +82,19 @@ Task::ReadTask() {
 		allTargets.push_back(finalTargets);
 		//BinNode<vector<TaskPoint*>>* root = allTargets.insertASRoot(finalTargets);
 	}
-	else
-		cout << "Failed to open the task file . Please check the filename ." << endl;
+	else {
+		cout << "Read task: Failed to open the task file. Please check the filename." << endl;
+		RecordLog("Read task: Failed to open the task file. Please check the filename.");
+	}
 	f.close();
-	cout << "Finish to read task" << endl;
-	RecordLog("Finish to read task.");
+	
 	//// read the start points
 	f.open("../TestRobot/Robot_Init_Position.txt", ifstream::in);
 	if (f) {
 		f >> robotNum;
-		if (robotNum != taskNum){
-			cout << "The robot NO. does not equal to task NO. Please check the robot NO.!" << endl;
+		if (robotNum != taskNum) {
+			cout << "The robot NO. is not equal to task NO. Please check the robot NO.!" << endl;
+			RecordLog("The robot NO. is not equal to task NO. Please check the robot NO.!");
 		}
 		int task_id, task_x, task_y;
 		for (int i = 0; i < robotNum; ++i) {
@@ -112,56 +113,20 @@ Task::ReadTask() {
 			//cout << " start points:" << task_x << " and " << task_y;
 		}
 	}
-	else
-		cout << "Failed to open the Robot_Init_Position file . Please check the filename ." << endl;
-	f.close();
-	cout << "Finish to read the robot initial position." << endl;
-	RecordLog("Finish to read task the robot initial position.");
-	return true;
-}
-
-bool
-Task::GenerateTask() {
-	// 生成任务函数
-	cout << "Please input the taskNum:" << endl;
-	cin >> taskNum;
-	/*ofstream f;
-	int ptime = 0;
-	f.open("../TestRobot/Task.txt", ofstream::out);
-	if (f){
-		f << taskNum << endl;
-		for (int i = 1; i <= taskNum; ++i){
-			Task tempTask;
-			tempTask.id = taskId + 1;
-			++ taskId;
-			tempTask.publishTime = ptime;
-			tempTask.waitTime = rand() % 3 + 2;
-			do{
-				tempTask.source.x = rand() % (mapRowNumber - 1) + 1;
-				tempTask.source.y = rand() % mapColumnNumber;
-				tempTask.target.x = rand() % (mapRowNumber - 1) + 1;
-				tempTask.target.y = rand() % mapColumnNumber;
-			} while (tempTask.source == tempTask.target ||
-				map[tempTask.source.x][tempTask.source.y] == 1 ||
-				map[tempTask.target.x][tempTask.target.y] == 1);
-			ptime += tempTask.waitTime;
-			f << tempTask.id << " " << tempTask.publishTime << " " <<
-				tempTask.waitTime << " " << tempTask.source.x << " " <<
-				tempTask.source.y << " " << tempTask.target.x << " " <<
-				tempTask.target.y << endl;
-		}
+	else {
+		cout << "Read task: Failed to open the Robot_Init_Position file. Please check the filename." << endl;
+		RecordLog("Read task: Failed to open the Robot_Init_Position file. Please check the filename.");
 	}
-	else
-		cout << "Failed to open the target file . Please check the filename . " << endl;
-	f.close();*/
-	cout << "Success to generate task" << endl;
+	f.close();
+	cout << "Finish to read the task and the robot initial position." << endl;
+	RecordLog("Finish to read the task and the robot initial position.");
 	return true;
 }
 
 void
 Task::Bisect(BinNode<vector<int>>* node, BinNode<char>* segNode) {
 	if (!node) return;
-	vector<int> components = node->data;  // componnets是 node中包含的targets的ID
+	vector<int> components = node->data;  // components (robot group)是 node中包含的targets的ID
 	int compSize = components.size();
 	if (compSize <= 1) return;  // components 元素仅一个时，停止分割
 	vector<int> ids;   // 找到ID对应的targets在finalTargets中的位置，存入ids中
@@ -171,11 +136,12 @@ Task::Bisect(BinNode<vector<int>>* node, BinNode<char>* segNode) {
 				ids.push_back(j);
 	
 	//cout << "Component size: " << compSize << endl;
+	/*
 	cout << "components:  ";
 	for (const int& k : components)
 		cout << k << "  ";
 	cout << endl;
-
+	*/
 	// initialization
 	int max = 0;
 	int line = 0;
@@ -209,16 +175,15 @@ Task::Bisect(BinNode<vector<int>>* node, BinNode<char>* segNode) {
 	vector<int> left;
 	vector<int> right;
 	if (xory == 'x') {
-		cout << "Split line: x = " << finalTargets[line]->taskPoint.x << endl;
+		//cout << "Split line: x = " << finalTargets[line]->taskPoint.x << endl;
 		for (int i = 0; i < compSize; i++) {
 			if (finalTargets[ids[i]]->taskPoint.x > finalTargets[line]->taskPoint.x)
 				left.push_back(components[i]);
 			else right.push_back(components[i]);
 		}
-		
 	}
 	else {
-		cout << "Split line: y = " << finalTargets[line]->taskPoint.y << endl;
+		//cout << "Split line: y = " << finalTargets[line]->taskPoint.y << endl;
 		for (int i = 0; i < compSize; i++) {
 			if (finalTargets[ids[i]]->taskPoint.y > finalTargets[line]->taskPoint.y)
 				left.push_back(components[i]);
@@ -231,6 +196,7 @@ Task::Bisect(BinNode<vector<int>>* node, BinNode<char>* segNode) {
 	segNode->lChild = new BinNode<char>('a'); // a means nonsense
 	segNode->rChild = new BinNode<char>('a');
 
+	/*
 	cout << "left:  ";
 	for (const int& k : left)
 		cout << k << " ";
@@ -238,6 +204,7 @@ Task::Bisect(BinNode<vector<int>>* node, BinNode<char>* segNode) {
 	for (const int& k : right)
 		cout << k << " ";
 	cout << endl;
+	*/
 	//
 	Bisect(node->lChild, segNode->lChild);
 	Bisect(node->rChild, segNode->rChild);
@@ -248,17 +215,22 @@ Task::GenerateTree() {
 	// Initially, all ids into root
 	vector<int> ids;
 	for (int i = 0; i < taskNum; i++) ids.push_back(finalTargets[i]->id);
-	if (ids.size() == 0) return false;
+	if (ids.size() == 0) {
+		cout << "Generate tree: Task NO. is 0. Failed to generate the assembly tree!" << endl;
+		RecordLog("Generate tree: Task NO. is 0. Failed to generate the assembly tree!");
+		return false;
+	}
 	else {
 		BinNode<vector<int>>* root = AssemblyTree.insertASRoot(ids);
 		BinNode<char>* segRoot = SegTree.insertASRoot('x');
 		Bisect(root, segRoot);
 		AssemblyTree.DisplayTree();
-		cout << endl;
+		cout << "Flattern Tree:" << endl;
 		SegTree.display(SegTree.root());
+		cout << endl;
+		RecordLog("Success to generate the assembly tree!");
 		return true;
 	}
-
 }
 
 bool
@@ -289,6 +261,9 @@ Task::Display(string str) {
 				<< ", " << allTargets[i][j]->taskPoint.y << "), ";
 			cout << endl;
 		}
+	}
+	else {
+		cout << "Display input parameter is wrong!" << endl;
 	}
 }
 

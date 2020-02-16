@@ -18,9 +18,9 @@
 #include "Task.h"
 #include "Map.h"
 #include "Robot.h"
+#include "Log.h"
 using namespace std;
 
-//void ExtendTask(BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* task, MatrixMap* map);
 void ExtendTask(BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* task, MatrixMap* map, int depth, int obj);
 void ExtendAction(BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* task, MatrixMap* map);
 void AssignTaskToRobot(Task* task, vector<Robot*> robot);
@@ -52,14 +52,15 @@ int main() {
 		// extension task
 		ExtendTask(task->AssemblyTree.root(), task->SegTree.root(), task, world, 0, i);
 		// display
-		cout << endl;
+		cout << endl << "Extend step " << i << " : " << endl;
 		world->Display();
 		cout << endl;
 		// push currentTargets into allTargets
 		task->PushAllTargets();
 	}
-	// display task positions of steps
-	task->Display("all");
+	RecordLog("Finished to extend the task!");
+	// display task positions in steps
+	//task->Display("all");
 	
 	// create the robots
 	vector<Robot*> robot;
@@ -76,7 +77,7 @@ int main() {
 	//vector<int> rID2index = idToIndex[1];  // input: robot ID output: robot index
 
 	// initialize robot groups
-	vector<RobotGroup> groups;   
+	vector<RobotGroup> groups;
 	for (int i = 0; i < robot.size(); i++) {  // for each one node 
 		vector<Robot*> tempGroup;
 		tempGroup.push_back(robot[i]);
@@ -88,6 +89,7 @@ int main() {
 	int stepNum = task->allTargets.size(); // tree depth
 	int roboNum = task->allTargets[0].size();
 	for (int i = 0; i < stepNum; i++) { // for each one layer
+		cout << "In step " << i+1 << " of move:"<< endl;
 		task->Display(stepNum - i - 1);
 		// update task
 		world->UpdateTaskmap(task->allTargets[stepNum - i - 1]);
@@ -98,7 +100,6 @@ int main() {
 				groups[j].PathPlanning(world, task->allTargets[stepNum - i - 1]);
 				groups[j].TrialMove();
 				if (!world->CollisionCheck(groups[j].GetRobotPos(), groups[j].GetRobotIds())) {
-					
 					groups[j].Move(world);
 				}
 			}
@@ -106,14 +107,18 @@ int main() {
 			// check, if leader robots reach targets, reach = true
 			reach = CheckReach(groups);
 			RecordRobotPosition(robot);
-			Sleep(3000);
+			Sleep(3);
 		}
 		world->Display();
+		string str1 = "Finished to move all robots to the targets of layer ";
+		string str2 = to_string(stepNum - i - 1);
+		RecordLog(str1 + str2);
+		cout << str1 + str2 << endl;
 		//system("pause");
 		// dock
 		groups = Dock(robot, task, tID2index, stepNum - i - 1);
 	}
-	system("pause");
+	//system("pause");
 	Recover(task);
 	return 0;
 }
@@ -159,7 +164,7 @@ void ExtendAction(BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* t
 				done = true;  // 是否 没有障碍
 				vector<TaskPoint*> tempTargets(task->currentTargets); // 佯装移动
 				for (int i = 0; i < lcomponents.size(); i++) {   // component移动
-					cout << " xl " << i << endl;
+					//cout << " xl " << i << endl;
 					int temp_pos = tempTargets[left_ids[i]]->taskPoint.x + step;
 					// collision, check map. 遇到任务点与遇到障碍物的反应应当不同
 					if (map->TaskCheck(temp_pos, tempTargets[left_ids[i]]->taskPoint.y, assNode->data, detect_dist))  // 如果没有障碍
@@ -179,7 +184,7 @@ void ExtendAction(BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* t
 				done = true;  // 是否 没有障碍
 				vector<TaskPoint*> tempTargets(task->currentTargets);
 				for (int i = 0; i < rcomponents.size(); i++) {
-					cout << " rl " << i << endl;
+					//cout << " rl " << i << endl;
 					int temp_pos = tempTargets[right_ids[i]]->taskPoint.x - step;
 					//
 					if (map->TaskCheck(temp_pos, tempTargets[right_ids[i]]->taskPoint.y, assNode->data, detect_dist))   // 如果没有障碍
@@ -200,7 +205,7 @@ void ExtendAction(BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* t
 				done = true;  // 是否 没有障碍
 				vector<TaskPoint*> tempTargets(task->currentTargets); // 佯装移动
 				for (int i = 0; i < lcomponents.size(); i++) {
-					cout << " yl " << i << endl;
+					//cout << " yl " << i << endl;
 					int temp_pos = tempTargets[left_ids[i]]->taskPoint.y + step;
 					// collision, check map. 遇到任务点与遇到障碍物的反应应当不同
 					if (map->TaskCheck(tempTargets[left_ids[i]]->taskPoint.x, temp_pos, assNode->data, detect_dist))   // 如果没有障碍
@@ -219,7 +224,7 @@ void ExtendAction(BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* t
 				done = true;  // 是否 没有障碍
 				vector<TaskPoint*> tempTargets(task->currentTargets);
 				for (int i = 0; i < rcomponents.size(); i++) {
-					cout << " yr " << i << endl;
+					//cout << " yr " << i << endl;
 					int temp_pos = tempTargets[right_ids[i]]->taskPoint.y - step;
 					//
 					if (map->TaskCheck(tempTargets[right_ids[i]]->taskPoint.x, temp_pos, assNode->data, detect_dist))   // 如果没有障碍
@@ -300,6 +305,7 @@ void AssignTaskToRobot(Task* task, vector<Robot*> robot) {
 		cout << "Assign robot " << robot[i]->id << ": task ID " << robot[i]->taskID << endl;
 	}
 	cout << endl;
+	RecordLog("Success to assign tasks to robots!");
 }
 
 void AssignCurrrentTargetToRobot(vector<Robot*> robot, vector<TaskPoint*> allTargets) {
@@ -409,7 +415,7 @@ vector<RobotGroup> Dock(vector<Robot*> robot, Task* task, vector<int> tID2index,
 	// get nodes of one layer, task->AssemblyTree  // all nodes of one layer of task tree
 	vector<BinNode<vector<int>>*> nodeVec = task->AssemblyTree.getLayerNode(task->AssemblyTree.root(), 0, layer, nodeVec);
 	// see the nodes
-	cout << "all nodes: ";
+	cout << "all groups in nodes: ";
 	for (int j = 0; j < nodeVec.size(); j++) {
 		cout << "(";
 		for (int k = 0; k < nodeVec[j]->data.size(); k++) {
@@ -432,9 +438,10 @@ vector<RobotGroup> Dock(vector<Robot*> robot, Task* task, vector<int> tID2index,
 	}
 	// see the groups // assign the leaders 
 	for (int j = 0; j < groups.size(); j++) {
-		cout << "group " << j << ":";  groups[j].Display();  cout << endl;
+		//cout << "group " << j << ":";  groups[j].Display();  cout << endl;
 		groups[j].AssignLeaders();
 	}
-
+	RecordLog("Finished to dock!");
+	cout << endl << "Finished to dock!" << endl;
 	return groups;
 }

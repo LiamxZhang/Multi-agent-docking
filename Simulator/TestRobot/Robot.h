@@ -103,8 +103,8 @@ Robot::ReadMap() {    // Read the map from given file and form the weight map
 		}
 	}
 	else {
-		cout << " Failed to open the InitMap.txt! " << endl;
-		RecordLog("Failed to open the InitMap.txt!");
+		cout << "Read Robot: Failed to open the InitMap.txt! " << endl;
+		RecordLog("Read Robot: Failed to open the InitMap.txt!");
 		return false;
 	}
 	f.close();
@@ -377,7 +377,7 @@ Robot::TrialStep() {   // change tendPosition
 	if (planPath.size() > 1) {
 		tendPosition.x = planPath[1].x;
 		tendPosition.y = planPath[1].y;
-		cout << endl << "Robot " << id << " first element: (" << planPath[0].x << ", " << planPath[0].y << "), " << endl;
+		//cout << endl << "Robot " << id << " trial step: (" << planPath[0].x << ", " << planPath[0].y << ");     " << endl;
 		return true;
 	}
 	else {  // planPath.size() == 0
@@ -428,9 +428,12 @@ RobotGroup::AssignLeaders() {
 		robot[k]->offset.push_back(robot[k]->currentPosition.x - robot[0]->currentPosition.x);
 		robot[k]->offset.push_back(robot[k]->currentPosition.y - robot[0]->currentPosition.y);
 	}
+	// see the assignments
+	/*
 	for (int i = 0; i < robotNumber; i++)
 		cout << "robot " << robot[i]->id << " task: " << robot[i]->taskID << " leader: " 
 		<< robot[i]->leader << "  offset: " << robot[i]->offset[0] << ", " << robot[i]->offset[1] << endl;
+	*/
 	return true;
 }
 
@@ -453,11 +456,13 @@ RobotGroup::PathPlanning(MatrixMap* world, vector<TaskPoint*> allTargets) {
 	for (int i = 1; i < robotNumber; i++) 
 		robot[i]->MappingPath(planPath);
 	// see the path
+	/*
 	for (int i = 0; i < robotNumber; i++) {
 		cout << endl << "Path of robot " << robot[i]->id << ": ";
 		for (int j = 0; j < robot[i]->planPath.size(); j++)
 			cout << "(" << robot[i]->planPath[j].x << " and " << robot[i]->planPath[j].y << "), ";
 	}
+	*/
 }
 
 void 

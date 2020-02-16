@@ -61,8 +61,8 @@ MatrixMap::ReadMap() {
 		}
 	}
 	else {
-		cout << " Failed to open the InitMap.txt! " << endl;
-		RecordLog("Failed to open the InitMap.txt!");
+		cout << "Read map: Failed to open the InitMap.txt! " << endl;
+		RecordLog("Read map: Failed to open the InitMap.txt!");
 		return;
 	}
 	f.close();
@@ -81,8 +81,8 @@ MatrixMap::ReadMap() {
 		//TaskToDo = ToDoTask;
 	}
 	else {
-		cout << "Failed to open the task file . Please check the filename ." << endl;
-		RecordLog("Failed to read task map!");
+		cout << "Read map: Failed to open the task file . Please check the filename ." << endl;
+		RecordLog("Read map: Failed to read task map!");
 		return;
 	}
 	f.close();
@@ -101,11 +101,12 @@ MatrixMap::ReadMap() {
 		//TaskToDo = ToDoTask;
 	}
 	else {
-		cout << "Failed to open the task file . Please check the filename ." << endl;
-		RecordLog("Failed to read task map!");
+		cout << "Read map: Failed to open the task file . Please check the filename ." << endl;
+		RecordLog("Read map: Failed to read task map!");
 		return;
 	}
 	f.close();
+	cout << "Success to read the Map of obstacle, robot and task." << endl;
 	RecordLog("Success to read the Map of obstacle, robot and task.");
 }
 

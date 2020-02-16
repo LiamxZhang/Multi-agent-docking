@@ -282,8 +282,7 @@ void BinTree<T>::DisplayTree() {
             QI.push_back(info);
             preInfo = info;
         }
-
     }
-    printf("\n");
+    printf("\n\n\n");
 }
 #endif // BINNODE_H_MY
