@@ -13,18 +13,14 @@ class MatrixMap {
 public:
 	// functions
 	MatrixMap() : RowNum(0), ColNum(0) {} // ÐÐÎª
+	MatrixMap(int row, int col) : RowNum(row), ColNum(col) {
+		map_obstacle = MatrixXi::Zero(row, col); map_robot = MatrixXi::Zero(row, col); map_task = MatrixXi::Zero(row, col); }
+
 	void ReadMap();
-	void Display() {
-		cout << endl << "Obstacle Map: " << endl;
-		//cout << map_obstacle << endl;
-		cout << endl << "Robot Map: " << endl;
-		cout << map_robot << endl;
-		cout << endl << "Task Map: " << endl;
-		cout << map_task << endl;
-	}
+	void Display(string str); 
 	bool UpdateTaskmap(vector<TaskPoint*>);  // after every move, update the Map.
 	bool TaskCheck(int, int, vector<int>, int);
-	bool CollisionCheck(vector<Point> positions, vector<int> ids);  // check collision with robots and obstacles
+	bool CollisionCheck(vector<Point> positions, vector<int> ids, vector<int> peerIDs);  // check collision with robots and obstacles
 	vector<int> FindWhere(int, char); // find the position according to ID
 	// variables
 	int RowNum, ColNum;
@@ -43,10 +39,10 @@ MatrixMap::ReadMap() {
 	if (f) {
 		char c;
 		f >> RowNum >> c >> ColNum;
-		// construct map
 		map_obstacle = MatrixXi::Zero(RowNum, ColNum);
 		map_robot = MatrixXi::Zero(RowNum, ColNum);
 		map_task = MatrixXi::Zero(RowNum, ColNum);
+		// construct map
 		for (int r = 0; r < RowNum; r++) {
 			for (int c = 0; c < ColNum; c++) {
 				int onepoint;
@@ -108,6 +104,32 @@ MatrixMap::ReadMap() {
 	f.close();
 	cout << "Success to read the Map of obstacle, robot and task." << endl;
 	RecordLog("Success to read the Map of obstacle, robot and task.");
+}
+
+void 
+MatrixMap::Display(string str) {
+	if (str == "all") {
+		cout << endl << "Obstacle Map: " << endl;
+		cout << map_obstacle << endl;
+		cout << endl << "Robot Map: " << endl;
+		cout << map_robot << endl;
+		cout << endl << "Task Map: " << endl;
+		cout << map_task << endl;
+	}
+	else if (str == "obstacle") {
+		cout << endl << "Obstacle Map: " << endl;
+		cout << map_obstacle << endl;
+	}
+	else if (str == "robot") {
+		cout << endl << "Robot Map: " << endl;
+		cout << map_robot << endl;
+	}
+	else if (str == "task") {
+		cout << endl << "Task Map: " << endl;
+		cout << map_task << endl;
+	}
+	else
+		cout << "Wrong input! Only 'all', 'obstacle', 'robot', 'task' are accepted!" << endl;
 }
 
 /*
@@ -179,20 +201,42 @@ MatrixMap::TaskCheck(int row, int col, vector<int> ids, int range) {
 }
 
 bool
-MatrixMap::CollisionCheck(vector<Point> positions, vector<int> ids) { // component is a group of robot
-	bool collision;
-	for (int i = 0; i < positions.size(); ++i) {
+MatrixMap::CollisionCheck(vector<Point> positions, vector<int> ids, vector<int> peerIDs) { // a group of robots // false : no collision, true : collision
+	for (int i = 0; i < positions.size(); ++i) {  // for each robot
 		if (map_obstacle(positions[i].x, positions[i].y)) // obstacles
 			return true;
-		else if (map_robot(positions[i].x, positions[i].y) != 0) {  // if there's no obstacle, check robot
-			collision = true;  // assume existing robot
-			for (int j = 0; j < ids.size(); ++j) {  // if one ID exists in the component£¬no collision
-				if (ids[j] == map_robot(positions[i].x, positions[i].y)) {
-					collision = false;
-					break;
+		else { // if there's no obstacle, check robot at nearby
+			bool collision;
+			int minX, maxX, minY, maxY;
+			(positions[i].x - 1 > 0) ? minX = positions[i].x - 1 : minX = 0;
+			(positions[i].x + 1 < RowNum - 1) ? maxX = positions[i].x + 1 : maxX = RowNum - 1;
+			(positions[i].y - 1 > 0) ? minY = positions[i].y - 1 : minY = 0;
+			(positions[i].y + 1 < ColNum - 1) ? maxY = positions[i].y + 1 : maxY = ColNum - 1;
+			for (int x = minX; x <= maxX; ++x) {
+				for (int y = minY; y <= maxY; ++y) {
+					if (map_robot(x, y) != 0) { // robot exists
+						collision = true;  // assume existing robot
+						if (x == positions[i].x && y == positions[i].y) { // at the center position
+							for (int j = 0; j < ids.size(); ++j) {  // if one ID exists in the component£¬no collision
+								if (ids[j] == map_robot(x, y)) {
+									collision = false;
+									break;
+								}
+							}
+						}
+						else { // not the center
+							for (int j = 0; j < peerIDs.size(); ++j) {  // if one ID exists in the component£¬no collision
+								if (peerIDs[j] == map_robot(x, y)) {
+									collision = false;
+									break;
+								}
+							}
+						}
+						if (collision) return true;
+					}
 				}
 			}
-			if (collision) return true;
+			
 		}
 	}
 	return false;

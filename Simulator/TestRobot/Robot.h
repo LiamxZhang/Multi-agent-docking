@@ -58,8 +58,8 @@ public:
 		cout << "Construct Robot Number " << robotNumber << endl;
 		//RecordLog("Construct Robot Number " + to_string(robotNumber));
 	}
-	Robot(int robotnum, int ID, Point position) : robotNumber(robotnum), id(ID), 
-		mapRowNumber(0), mapColumnNumber(0), currentPosition(), targetPosition() {
+	Robot(int robotnum, int ID, Point position, int row, int col) : robotNumber(robotnum), id(ID), 
+		mapRowNumber(row), mapColumnNumber(col), currentPosition(), targetPosition() {
 		initPosition.x = position.x;
 		initPosition.y = position.y;
 		currentPosition.x = position.x;
@@ -71,7 +71,7 @@ public:
 	bool ReadMap();
 	vector<Point> AStarPath();   // plan the route of robot, from currentPosition to targetPosition
 	vector<Point> MappingPath(vector<Point>);  // mapping the path from leader's path
-	void UpdateMap(MatrixMap*, vector<int>);    // update workmap and weightMap
+	void UpdateMap(MatrixMap*, vector<int>, vector<int>);    // update workmap and weightMap
 	bool TrialStep();
 	void OneStep();         // robot move
 
@@ -108,55 +108,6 @@ Robot::ReadMap() {    // Read the map from given file and form the weight map
 		return false;
 	}
 	f.close();
-	//
-	for (int i = 0; i < mapRowNumber; ++i) {
-		vector<WeightPoint> oneRow;
-		for (int j = 0; j < mapColumnNumber; ++j) {
-			WeightPoint t;
-			if (workmap[i][j] == 1) {
-				t.up = -1;
-				t.down = -1;
-				t.left = -1;
-				t.right = -1;
-			}
-			else {
-				if ((i - 1) >= 0 && (i - 1) < mapRowNumber) {
-					if (workmap[i - 1][j] == 0)
-						t.up = 1;
-					else
-						t.up = -1;
-				}
-				else
-					t.up = -1;
-				if ((i + 1) >= 0 && (i + 1) < mapRowNumber) {
-					if (workmap[i + 1][j] == 0)
-						t.down = 1;
-					else
-						t.down = -1;
-				}
-				else
-					t.down = -1;
-				if ((j - 1) >= 0 && (j - 1) < mapColumnNumber) {
-					if (workmap[i][j - 1] == 0)
-						t.left = 1;
-					else
-						t.left = -1;
-				}
-				else
-					t.left = -1;
-				if ((j + 1) >= 0 && (j + 1) < mapColumnNumber) {
-					if (workmap[i][j + 1] == 0)
-						t.right = 1;
-					else
-						t.right = -1;
-				}
-				else
-					t.right = -1;
-			}
-			oneRow.push_back(t);
-		}
-		weightMap.push_back(oneRow);
-	}
 	//cout << "Success to read the map from file InitMap.txt" << endl;
 	//RecordLog("Success to read the map from file InitMap.txt");
 	return true;
@@ -329,26 +280,72 @@ Robot::MappingPath(vector<Point> leaderPath) {   // prerequest offset and leader
 }
 
 void 
-Robot::UpdateMap(MatrixMap* world, vector<int> peer) {
+Robot::UpdateMap(MatrixMap* world, vector<int> member, vector<int> peers) {
 	// clear the maps
 	workmap.swap(vector<vector<int>>());
 	weightMap.swap(vector<vector<WeightPoint>>());
+	// find all robots // deal with members, peers, and others
+	MatrixMap* mapForPlan = new MatrixMap(world->RowNum, world->ColNum);
+	for (int r = 0; r < mapRowNumber; ++r) {
+		for (int c = 0; c < mapColumnNumber; ++c) {
+			if (world->map_obstacle(r, c) == 1) // obstacle
+				mapForPlan->map_obstacle(r, c) = 1; 
+			else if (world->map_robot(r, c) != 0) { // robots
+				int tempRobot = world->map_robot(r, c);
+				bool isMember = false;
+				for (int i = 0; i < member.size(); ++i) { // members
+					if (member[i] == tempRobot) {
+						isMember = true;
+						break;
+					}
+				}
+				if (isMember) continue;
+				// not in members
+				bool isPeer = false;
+				for (int i = 0; i < peers.size(); ++i) { // peers
+					if (peers[i] == tempRobot) {
+						isPeer = true;
+						break;
+					}
+				}
+				if (isPeer) {
+					mapForPlan->map_robot(r, c) = 2;
+					continue;
+				}
+				// not in peers
+				{ // others
+					int minX, maxX, minY, maxY;
+					r - 1 > 0 ? minX = r - 1 : minX = 0;
+					r + 1 < mapRowNumber - 1 ? maxX = r + 1 : maxX = mapRowNumber - 1;
+					c - 1 > 0 ? minY = c - 1 : minY = 0;
+					c + 1 < mapColumnNumber - 1 ? maxY = c + 1 : maxY = mapColumnNumber - 1;
+					for (int i = minX; i <= maxX; ++i) {
+						for (int j = minY; j <= maxY; ++j) {
+							if (mapForPlan->map_robot(i, j) == 0 && mapForPlan->map_obstacle(i, j) == 0) 
+								mapForPlan->map_robot(i, j) = 2;
+						}
+					}
+					
+				}
+			}
+			
+		}
+	}
 	// update workmap
 	for (int r = 0; r < mapRowNumber; ++r) {
 		vector<int> oneRow;
 		for (int c = 0; c < mapColumnNumber; ++c) {
-			if (world->map_obstacle(r, c))  // if obstacle, 1
+			if (mapForPlan->map_obstacle(r, c) == 1)  // if obstacle, 1
 				oneRow.push_back(1);
-			else if (world->map_robot(r, c) != 0 && world->map_robot(r, c) != id) {  // if other robots, 2
-				bool isPeer = false;
-				for (int i = 0; i < peer.size(); ++i) if (peer[i] == world->map_robot(r, c)) isPeer = true;
-				(isPeer)? oneRow.push_back(0): oneRow.push_back(2);
-			}
+			else if (mapForPlan->map_robot(r, c) == 2)  // if other robots, 2
+				oneRow.push_back(2);
 			else
 				oneRow.push_back(0);
 		}
 		workmap.push_back(oneRow);
 	}
+	//cout << "Weighted map of robot" << id << " for planning: " << endl;
+	//mapForPlan->Display("robot");
 	// update current weightMap
 	for (int i = 0; i < mapRowNumber; ++i) {
 		vector<WeightPoint> oneRow;
@@ -403,7 +400,7 @@ public:
 	RobotGroup(vector<Robot*> r) : robotNumber(r.size()), robot(r){}
 	bool AssignLeaders();
 	void Display() { for (int k = 0; k < robot.size(); k++)   cout << robot[k]->id << ", "; }
-	void PathPlanning(MatrixMap*, vector<TaskPoint*>);
+	void PathPlanning(MatrixMap*, vector<TaskPoint*>, vector<int>);
 	void TrialMove();
 	void Move(MatrixMap*);
 	vector<Point> GetRobotPos();
@@ -439,9 +436,9 @@ RobotGroup::AssignLeaders() {
 
 // update the robot workmap, weightMap and targetPosition
 void 
-RobotGroup::PathPlanning(MatrixMap* world, vector<TaskPoint*> allTargets) {
+RobotGroup::PathPlanning(MatrixMap* world, vector<TaskPoint*> allTargets, vector<int> peers) {
 	// leader update robot workmap, weightMap
-	robot[0]->UpdateMap(world, GetRobotIds());
+	robot[0]->UpdateMap(world, GetRobotIds(), peers);
 	// update all robot targetPosition
 	for (int i = 0; i < robot.size(); i++)
 		for (int j = 0; j < allTargets.size(); j++)

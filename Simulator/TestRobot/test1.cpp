@@ -19,6 +19,7 @@
 #include "Map.h"
 #include "Robot.h"
 #include "Log.h"
+
 using namespace std;
 
 void ExtendTask(BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* task, MatrixMap* map, int depth, int obj);
@@ -28,6 +29,7 @@ void AssignCurrrentTargetToRobot(vector<Robot*> robot, vector<TaskPoint*> allTar
 vector<vector<int>> IDtoIndex(vector<Robot*> robot);
 bool CheckReach(vector<RobotGroup> groups);
 vector<RobotGroup> Dock(vector<Robot*> robot, Task* task, vector<int> tID2index, int layer);
+vector<int> GetPeers(RobotGroup group, vector<Robot*> robot, Task* task, vector<int> tID2index, int layer);
 
 // 
 bool RecordRobotPosition(vector<Robot*> robots);
@@ -53,7 +55,7 @@ int main() {
 		ExtendTask(task->AssemblyTree.root(), task->SegTree.root(), task, world, 0, i);
 		// display
 		cout << endl << "Extend step " << i << " : " << endl;
-		world->Display();
+		world->Display("task");
 		cout << endl;
 		// push currentTargets into allTargets
 		task->PushAllTargets();
@@ -65,8 +67,7 @@ int main() {
 	// create the robots
 	vector<Robot*> robot;
 	for (int i = 0; i < task->robotNum; i++) {
-		Robot* temp = new Robot(task->robotNum,task->startPoints[i]->id, task->startPoints[i]->taskPoint);
-		temp->ReadMap();
+		Robot* temp = new Robot(task->robotNum,task->startPoints[i]->id, task->startPoints[i]->taskPoint, world->RowNum, world->ColNum);
 		robot.push_back(temp);
 	}
 	// assign the task to the closest robots using optimization (or bid)
@@ -97,19 +98,19 @@ int main() {
 		bool reach = false;
 		while (!reach) {
 			for (int j = 0; j < groups.size(); j++) {
-				groups[j].PathPlanning(world, task->allTargets[stepNum - i - 1]);
+				vector<int> peers = GetPeers(groups[j], robot, task, tID2index, stepNum - i - 1); // same group and to be docked group
+				groups[j].PathPlanning(world, task->allTargets[stepNum - i - 1], peers);
 				groups[j].TrialMove();
-				if (!world->CollisionCheck(groups[j].GetRobotPos(), groups[j].GetRobotIds())) {
+				if (!world->CollisionCheck(groups[j].GetRobotPos(), groups[j].GetRobotIds(),peers)) {
 					groups[j].Move(world);
 				}
 			}
-			//world->Display();
 			// check, if leader robots reach targets, reach = true
 			reach = CheckReach(groups);
-			RecordRobotPosition(robot);
+			//RecordRobotPosition(robot);
 			Sleep(3);
 		}
-		world->Display();
+		world->Display("all");
 		string str1 = "Finished to move all robots to the targets of layer ";
 		string str2 = to_string(stepNum - i - 1);
 		RecordLog(str1 + str2);
@@ -119,7 +120,7 @@ int main() {
 		groups = Dock(robot, task, tID2index, stepNum - i - 1);
 	}
 	//system("pause");
-	Recover(task);
+	//Recover(task);
 	return 0;
 }
 
@@ -349,6 +350,23 @@ vector<vector<int>> IDtoIndex(vector<Robot*> robot) {
 	return ID2index;
 }
 
+// get the peers' IDs of robot group
+vector<int> GetPeers(RobotGroup group, vector<Robot*> robot, Task* task, vector<int> tID2index, int layer) {
+	vector<BinNode<vector<int>>*> nodeVec = task->AssemblyTree.getLayerNode(task->AssemblyTree.root(), 0, layer, nodeVec);
+	vector<int> peerIDs;
+	for (int i = 0; i < nodeVec.size(); i++) { // check each group
+		bool isPeer = false;
+		for (int j = 0; j < nodeVec[i]->data.size(); j++) { // each ID
+			int robotID = robot[tID2index[nodeVec[i]->data[j]]]->id;
+			peerIDs.push_back(robotID);
+			if (group.robot[0]->id == robotID) isPeer = true; // pair the group
+		}
+		if (isPeer) return peerIDs;
+		peerIDs.swap(vector<int>());
+	}
+	return peerIDs;
+}
+
 // record the current position of robots
 bool RecordRobotPosition(vector<Robot*> robots) {
 	ofstream f;
@@ -358,8 +376,8 @@ bool RecordRobotPosition(vector<Robot*> robots) {
 		RecordLog("RecordCurrentAndTargetPosition:");
 		RecordLog("RobotId   CurrentPosition   TargetPosition");
 		for (int i = 0; i < robots.size(); ++i) {
-			f << robots[i]->id << "," << robots[i]->currentPosition.x << "," << robots[i]->currentPosition.y << ","
-				<< robots[i]->targetPosition.x << "," << robots[i]->targetPosition.y << endl;
+			f << robots[i]->id << "," << robots[i]->currentPosition.x << "," << robots[i]->currentPosition.y+1 << ","
+				<< robots[i]->targetPosition.x << "," << robots[i]->targetPosition.y+1 << endl;
 			//RecordLog("   " + to_string(i) + "          [" + to_string(robotCurrentPosition[i - 1].x + 1) + ","
 			//	+ to_string(robotCurrentPosition[i - 1].y + 1) + "]              [" + to_string(robotTargetPosition[i - 1].x + 1) +
 			//	"," + to_string(robotTargetPosition[i - 1].y + 1) + "]");
@@ -430,8 +448,7 @@ vector<RobotGroup> Dock(vector<Robot*> robot, Task* task, vector<int> tID2index,
 	for (int j = 0; j < nodeVec.size(); j++) {  // for each one node 
 		vector<Robot*> tempGroup;
 		for (int k = 0; k < nodeVec[j]->data.size(); k++) {  // for each one robot
-			int taskID = nodeVec[j]->data[k];
-			tempGroup.push_back(robot[tID2index[taskID]]);
+			tempGroup.push_back(robot[tID2index[nodeVec[j]->data[k]]]); // int taskID = nodeVec[j]->data[k];
 		}
 		RobotGroup robotGroup(tempGroup);  // robot group
 		groups.push_back(robotGroup);
