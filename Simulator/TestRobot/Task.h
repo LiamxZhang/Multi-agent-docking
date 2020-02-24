@@ -74,9 +74,9 @@ Task::ReadTask() {
 		int task_id, task_x, task_y;
 		for (int i = 0; i < taskNum; i++) {
 			f >> task_id >> task_x >> task_y;
-			TaskPoint* target = new TaskPoint(task_id, task_x, task_y);
+			TaskPoint* target = new TaskPoint(task_id, task_x-1, task_y-1);
 			finalTargets.push_back(target);
-			TaskPoint* temp = new TaskPoint(task_id, task_x, task_y);
+			TaskPoint* temp = new TaskPoint(task_id, task_x-1, task_y-1);
 			currentTargets.push_back(temp);
 		}
 		allTargets.push_back(finalTargets);
@@ -96,19 +96,19 @@ Task::ReadTask() {
 			cout << "The robot NO. is not equal to task NO. Please check the robot NO.!" << endl;
 			RecordLog("The robot NO. is not equal to task NO. Please check the robot NO.!");
 		}
-		int task_id, task_x, task_y;
+		int robot_id, robot_x, robot_y;
 		for (int i = 0; i < robotNum; ++i) {
 			int tempdata;
 			char tempchar;
 			f >> tempdata;
-			task_id = tempdata;
+			robot_id = tempdata;
 			f >> tempchar;  // ","
 			f >> tempdata;
-			task_x = tempdata;  // 
+			robot_x = tempdata;  // 
 			f >> tempchar;  // ","
 			f >> tempdata;
-			task_y = tempdata;
-			TaskPoint* start = new TaskPoint(task_id, task_x, task_y);
+			robot_y = tempdata;
+			TaskPoint* start = new TaskPoint(robot_id, robot_x - 1, robot_y - 1);
 			startPoints.push_back(start);
 			//cout << " start points:" << task_x << " and " << task_y;
 		}

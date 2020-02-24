@@ -107,8 +107,8 @@ int main() {
 			}
 			// check, if leader robots reach targets, reach = true
 			reach = CheckReach(groups);
-			//RecordRobotPosition(robot);
-			Sleep(3);
+			RecordRobotPosition(robot);
+			Sleep(3000);
 		}
 		world->Display("all");
 		string str1 = "Finished to move all robots to the targets of layer ";
@@ -120,7 +120,7 @@ int main() {
 		groups = Dock(robot, task, tID2index, stepNum - i - 1);
 	}
 	//system("pause");
-	//Recover(task);
+	Recover(task);
 	return 0;
 }
 
@@ -376,8 +376,8 @@ bool RecordRobotPosition(vector<Robot*> robots) {
 		RecordLog("RecordCurrentAndTargetPosition:");
 		RecordLog("RobotId   CurrentPosition   TargetPosition");
 		for (int i = 0; i < robots.size(); ++i) {
-			f << robots[i]->id << "," << robots[i]->currentPosition.x << "," << robots[i]->currentPosition.y+1 << ","
-				<< robots[i]->targetPosition.x << "," << robots[i]->targetPosition.y+1 << endl;
+			f << robots[i]->id << "," << robots[i]->currentPosition.x+1 << "," << robots[i]->currentPosition.y+1 << ","
+				<< robots[i]->targetPosition.x+1 << "," << robots[i]->targetPosition.y+1 << endl;
 			//RecordLog("   " + to_string(i) + "          [" + to_string(robotCurrentPosition[i - 1].x + 1) + ","
 			//	+ to_string(robotCurrentPosition[i - 1].y + 1) + "]              [" + to_string(robotTargetPosition[i - 1].x + 1) +
 			//	"," + to_string(robotTargetPosition[i - 1].y + 1) + "]");
@@ -396,9 +396,9 @@ void Recover(Task* task) {
 	if (f) {
 		f << task->robotNum << endl;
 		for (int i = 0; i < task->robotNum; ++i) {
-			f << task->startPoints[i]->id << "," << task->startPoints[i]->taskPoint.x << "," 
-				<< task->startPoints[i]->taskPoint.y << "," << task->finalTargets[i]->taskPoint.x 
-				<< "," << task->finalTargets[i]->taskPoint.y << endl;
+			f << task->startPoints[i]->id << "," << task->startPoints[i]->taskPoint.x + 1 << "," 
+				<< task->startPoints[i]->taskPoint.y + 1 << "," << task->finalTargets[i]->taskPoint.x + 1
+				<< "," << task->finalTargets[i]->taskPoint.y + 1 << endl;
 		}
 	}
 	f.close();
