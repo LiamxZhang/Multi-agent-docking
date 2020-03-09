@@ -187,14 +187,44 @@ MatrixMap::TaskCheck(int row, int col, vector<int> ids, int range) {
 	row + range < RowNum ? rowMax = row + range : rowMax = RowNum;
 	col - range > 0 ? colMin = col - range : colMin = 0;
 	col + range < ColNum ? colMax = col + range : colMax = ColNum;
+	/*
+	for (int i = rowMin; i <= rowMax; i++) {
+		// 最左一列
+		if (map_task(i, colMin) > 0) {
+			vector<int>::iterator it = find(ids.begin(), ids.end(), map_task(i, colMin));
+			if (it == ids.end()) {   // 不在component中
+				return false;
+			}
+		}
+		// 最右一列
+		if (map_task(i, colMax) > 0) {
+			vector<int>::iterator it = find(ids.begin(), ids.end(), map_task(i, colMax));
+			if (it == ids.end())
+				return false;
+		}
+	}
+	
+	for (int j = colMin + 1; j < colMax; j++) {
+		// 最上一行
+		if (map_task(rowMin, j) > 0) {
+			vector<int>::iterator it = find(ids.begin(), ids.end(), map_task(rowMin, j));
+			if (it == ids.end())
+				return false;
+		}
+		// 最下一行
+		if (map_task(rowMax, j) > 0) {
+			vector<int>::iterator it = find(ids.begin(), ids.end(), map_task(rowMax, j));
+			if (it == ids.end())
+				return false;
+		}
+	}
+	*/
 	for (int i = rowMin; i <= rowMax; i++)
 		for (int j = colMin; j <= colMax; j++) {
-			//cout << "row and column：   " << i << "    " << j << endl;
 			if (map_task(i, j) > 0) {
 				vector<int>::iterator it = find(ids.begin(), ids.end(), map_task(i, j));
-				if (it == ids.end()) {   // 不在component中
+				if (it == ids.end())
 					return false;
-				}
 			}
 		}
 	return true;

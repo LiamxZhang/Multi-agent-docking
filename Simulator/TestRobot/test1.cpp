@@ -23,9 +23,10 @@
 using namespace std;
 
 void ExtendTask(BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* task, MatrixMap* map, int depth, int obj);
-void ExtendAction(BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* task, MatrixMap* map);
-void AssignTaskToRobot(Task* task, vector<Robot*> robot);
-void AssignCurrrentTargetToRobot(vector<Robot*> robot, vector<TaskPoint*> allTargets);
+void ExtendAction(BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* task, MatrixMap* map, int curDepth);
+vector<int> AssignTaskToRobot(Task* task, vector<Robot*> robot);
+void RecordTaskExtend(Task* task, vector<Robot*> robots, int n);
+//void AssignCurrrentTargetToRobot(vector<Robot*> robot, vector<TaskPoint*> allTargets);
 vector<vector<int>> IDtoIndex(vector<Robot*> robot);
 bool CheckReach(vector<RobotGroup> groups);
 vector<RobotGroup> Dock(vector<Robot*> robot, Task* task, vector<int> tID2index, int layer);
@@ -40,6 +41,7 @@ int main() {
 	MatrixMap* world = new MatrixMap();
 	world->ReadMap();
 	//world.Display();
+	world->Display("obstacle");
 
 	// read task, generate assembly tree
 	Task* task = new Task();
@@ -51,7 +53,7 @@ int main() {
 	// move the task components, according to the assembly tree
 	int depth = task->AssemblyTree.depth(task->AssemblyTree.root());
 	for (int i = 0; i < depth-1; i++) { // the leaf layer of assembly tree is not needed for extension
-		// extension task
+		// extend task
 		ExtendTask(task->AssemblyTree.root(), task->SegTree.root(), task, world, 0, i);
 		// display
 		cout << endl << "Extend step " << i << " : " << endl;
@@ -59,6 +61,7 @@ int main() {
 		cout << endl;
 		// push currentTargets into allTargets
 		task->PushAllTargets();
+		
 	}
 	RecordLog("Finished to extend the task!");
 	// display task positions in steps
@@ -72,6 +75,11 @@ int main() {
 	}
 	// assign the task to the closest robots using optimization (or bid)
 	AssignTaskToRobot(task, robot);
+	for (int i = 0; i < task->allTargets.size(); ++i) {
+		RecordTaskExtend(task, robot, i);
+		Sleep(2000);
+	}
+	
 	// ID to index
 	vector<vector<int>> idToIndex = IDtoIndex(robot);
 	vector<int> tID2index = idToIndex[0];  // input: task ID  output: robot index
@@ -103,12 +111,14 @@ int main() {
 				groups[j].TrialMove();
 				if (!world->CollisionCheck(groups[j].GetRobotPos(), groups[j].GetRobotIds(),peers)) {
 					groups[j].Move(world);
+					world->Display("robot");
 				}
 			}
+			
 			// check, if leader robots reach targets, reach = true
 			reach = CheckReach(groups);
 			RecordRobotPosition(robot);
-			Sleep(3000);
+			Sleep(2000);
 		}
 		world->Display("all");
 		string str1 = "Finished to move all robots to the targets of layer ";
@@ -131,13 +141,13 @@ void ExtendTask(BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* tas
 	if (assNode->data.size() <= 1) return;  // cannot be extended anymore
 
 	if (depth == obj) {
-		ExtendAction(assNode, segNode, task, map);
+		ExtendAction(assNode, segNode, task, map, obj);
 	}
 	ExtendTask(assNode->lChild, segNode->lChild, task, map, depth + 1, obj);
 	ExtendTask(assNode->rChild, segNode->rChild, task, map, depth + 1, obj);
 }
 
-void ExtendAction(BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* task, MatrixMap* map) {
+void ExtendAction(BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* task, MatrixMap* map, int curDepth) {
 	// find the position of target id in currentTargets
 	vector<int> lcomponents = assNode->lChild->data;
 	vector<int> left_ids;
@@ -154,8 +164,8 @@ void ExtendAction(BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* t
 				right_ids.push_back(j);
 
 	// 移动一步，记录一次, 探测距离=截止距离
-	int step = 1; // 步长
-	int detect_dist = 2;  // 探测距离
+	int step = 2; // 移动步长
+	int detect_dist = 4;  // 探测距离 2*(总深度-当前深度) //*(task->AssemblyTree.depth(task->AssemblyTree.root()) - curDepth + 1)
 	bool done = false;   // flag indicates the movement finish
 	int total_move = 0;  // 单次总移动距离
 
@@ -202,7 +212,7 @@ void ExtendAction(BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* t
 			}
 		}
 		else if (segNode->data == 'y') {  // 沿y方向分离
-			{// left
+			{// up
 				done = true;  // 是否 没有障碍
 				vector<TaskPoint*> tempTargets(task->currentTargets); // 佯装移动
 				for (int i = 0; i < lcomponents.size(); i++) {
@@ -221,7 +231,7 @@ void ExtendAction(BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* t
 					map->UpdateTaskmap(tempTargets);
 				}
 			}
-			{// right
+			{// down
 				done = true;  // 是否 没有障碍
 				vector<TaskPoint*> tempTargets(task->currentTargets);
 				for (int i = 0; i < rcomponents.size(); i++) {
@@ -268,7 +278,7 @@ void ExtendAction(BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* t
 // assign the task to the closest robots using optimization (or bid)
 // from task->allTargets[j][i]->taskpoint.x(y)
 // to robot[i]->initPosition.x(y)
-void AssignTaskToRobot(Task* task, vector<Robot*> robot) {
+vector<int> AssignTaskToRobot(Task* task, vector<Robot*> robot) {
 	//
 	float closestDistance;
 	float distance;   // distance between robots and tasks
@@ -307,8 +317,11 @@ void AssignTaskToRobot(Task* task, vector<Robot*> robot) {
 	}
 	cout << endl;
 	RecordLog("Success to assign tasks to robots!");
+
+	return assignedTaskID;
 }
 
+/*
 void AssignCurrrentTargetToRobot(vector<Robot*> robot, vector<TaskPoint*> allTargets) {
 	for (int j = 0; j < robot.size(); j++) {  // assign target points
 		for (int k = 0; k < allTargets.size(); k++) {
@@ -319,6 +332,31 @@ void AssignCurrrentTargetToRobot(vector<Robot*> robot, vector<TaskPoint*> allTar
 			}
 		}
 	}
+}
+*/
+
+// record the extended position of task points
+void RecordTaskExtend(Task* task, vector<Robot*> robots, int n) {
+	cout << "alltargets size:  " << task->allTargets.size() << endl;
+	vector<int> tIDs;
+	for (int i = 0; i < robots.size(); ++i)
+		for (int j = 0; j < task->allTargets[0].size(); ++j)
+			if (task->allTargets[0][j]->id == robots[i]->taskID) {
+				tIDs.push_back(j);
+				break;
+			}
+	// tIDs依次保存robot[0]-[end]的对应的allTargets的ID
+	ofstream f;
+	f.open("../TestRobot/Robot_Current_Position.txt", ofstream::out);
+	if (f) {
+		f << robots.size() << endl;
+		//RecordLog("RecordCurrentAndTargetPosition:");
+		for (int i = 0; i < robots.size(); ++i) {
+			f << robots[i]->id << "," << robots[i]->currentPosition.x + 1 << "," << robots[i]->currentPosition.y + 1 << ","
+				<< task->allTargets[n][tIDs[i]]->taskPoint.x + 1 << "," << task->allTargets[n][tIDs[i]]->taskPoint.y + 1 << endl;
+		}
+	}
+	f.close();
 }
 
 // task ID->robot index // robot ID -> robot index

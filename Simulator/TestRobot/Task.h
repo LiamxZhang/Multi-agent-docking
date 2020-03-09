@@ -6,6 +6,7 @@
 #include <iostream>
 #include <fstream>
 #include <math.h>
+#include <numeric>
 
 #include "BinTree.h"
 #include "Point.h"
@@ -36,8 +37,37 @@ public:
 	int publishTime;   // the time generating task
 	int waitTime;      // the time next task wait
 	Point taskPoint;     // point information
-private:
+	vector<int> neighborWeight;  // probability of moving to 4 neighbor, normalized sum to 1, up, down, left, right
+	vector<int> TuneNeighbor(char str); // up: u, d, l r
 };
+
+vector<int>
+TaskPoint::TuneNeighbor(char str) {
+	//
+	int incre = 0.1;
+	switch(str) {
+	case 'u':
+		neighborWeight[0] += incre;
+		break;
+	case 'd':
+		neighborWeight[1] += incre;
+		break;
+	case 'l':
+		neighborWeight[2] += incre;
+		break;
+	case 'r':
+		neighborWeight[3] += incre;
+		break;
+	default:
+		cout << "Error: wrong input!";
+	}
+	int sum = accumulate(neighborWeight.begin(), neighborWeight.end(), 0);
+	neighborWeight[0] = neighborWeight[0] / sum;
+	neighborWeight[1] = neighborWeight[1] / sum;
+	neighborWeight[2] = neighborWeight[2] / sum;
+	neighborWeight[3] = neighborWeight[3] / sum;
+	return neighborWeight;
+}
 
 class Task {
 public:
@@ -46,9 +76,9 @@ public:
 	// variables
 	int taskNum;
 	int robotNum;
-	vector<TaskPoint*> startPoints;       // starting points of task
+	vector<TaskPoint*> startPoints;       // starting points of task , i.e., the robots
 	vector<TaskPoint*> finalTargets;     // end points of task
-	vector<TaskPoint*> currentTargets;       // current and temporary task points, IDs are identical to finalTargets
+	vector<TaskPoint*> currentTargets;       // current and temporary task points during the extension, IDs are identical to finalTargets
 	vector<vector<TaskPoint*>> allTargets; // ids and positions of targets points for every step division, saved from currentTargets
 	BinTree<vector<int>> AssemblyTree; // data is the robot IDs
 	BinTree<char> SegTree;  //  record the segmentation line for every component
