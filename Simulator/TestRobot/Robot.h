@@ -79,6 +79,7 @@ public:
 	friend class Rule;
 };
 
+/*
 bool
 Robot::ReadMap() {    // Read the map from given file and form the weight map
 	ifstream f;
@@ -112,6 +113,7 @@ Robot::ReadMap() {    // Read the map from given file and form the weight map
 	//RecordLog("Success to read the map from file InitMap.txt");
 	return true;
 }
+*/
 
 vector<Point>
 Robot::AStarPath() {   // find a route from currentPosition to targetPosition

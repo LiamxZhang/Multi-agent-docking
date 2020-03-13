@@ -72,7 +72,7 @@ MatrixMap::ReadMap() {
 		for (int i = 0; i < taskNum; i++) {
 			int id, x, y;
 			f >> id >> x >> y;
-			map_task(x, y) = id;
+			map_task(x - 1, y - 1) = id;
 		}
 		//TaskToDo = ToDoTask;
 	}
@@ -92,7 +92,7 @@ MatrixMap::ReadMap() {
 			int id, x, y;
 			char c;   // to not accept the comma
 			f >> id >> c >> x >> c >> y;
-			map_robot(x, y) = id;
+			map_robot(x - 1, y - 1) = id;
 		}
 		//TaskToDo = ToDoTask;
 	}
@@ -131,47 +131,6 @@ MatrixMap::Display(string str) {
 	else
 		cout << "Wrong input! Only 'all', 'obstacle', 'robot', 'task' are accepted!" << endl;
 }
-
-/*
-bool 
-MatrixMap::RobotCheck(int ID, vector<int> component, int range) {
-	// range 是探测的范围
-	// 找到ID对应的robot位置  row, col
-	int row, col;  
-	for (int i = 0; i < RowNum; i++)
-		for (int j = 0; j < ColNum; j++) {
-			if (map_robot(i, j) == ID) {
-				row = i;
-				col = j;
-				i = RowNum; // 跳出外层循环
-				break;
-			}
-		}
-	// 检查obstacle map
-	if (map_obstacle(row, col))
-		return false;
-	// 检查robot map
-	int rowMax, rowMin, colMax, colMin;
-	if (row - range > 0) rowMin = row - range;  // 改？：语句
-	else rowMin = 0;
-	if (row + range < RowNum) rowMax = row + range;
-	else rowMax = RowNum;
-	if (col - range > 0) colMin = col - range;
-	else colMin = 0;
-	if (col + range < ColNum) colMax = col + range;
-	else colMax = ColNum;
-	for (int i = rowMin; i < rowMax; i++)
-		for (int j = colMin; j < colMax; j++) {
-			if (map_robot(i, j) > 0) {
-				vector<int>::iterator it = find(component.begin(), component.end(), map_robot(i, j));
-				if (it == component.end()) {   // 不在component中
-					return false;
-				}
-			}			
-		}
-	return true;
-}
-*/
 
 bool
 MatrixMap::TaskCheck(int row, int col, vector<int> ids, int range) {

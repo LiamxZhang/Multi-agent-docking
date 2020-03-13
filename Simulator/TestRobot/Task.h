@@ -7,39 +7,44 @@
 #include <fstream>
 #include <math.h>
 #include <numeric>
+#include <cstdlib>
+#include <ctime>
 
 #include "BinTree.h"
 #include "Point.h"
 #include "Log.h"
 
+#define random() (rand() / double(RAND_MAX))
+
 using namespace std;
 
 class TaskPoint {            // class TaskPoint to describe the ponit details of the task
 public:
-	TaskPoint() :id(0), publishTime(0), waitTime(0), taskPoint() {}
-	TaskPoint(int i, int x, int y) :id(i), publishTime(0), waitTime(0) { 
+	TaskPoint() :id(0), taskPoint(), stuck(false) {}
+	TaskPoint(int i, int x, int y) :id(i), stuck(false) {
 		taskPoint.x = x; taskPoint.y = y;
 	}
 	bool operator == (const TaskPoint& r) const {
 		return (id == r.id) &&
-			(publishTime == r.publishTime) &&
-			(waitTime == r.waitTime) &&
 			(taskPoint == r.taskPoint);
 	}
-	bool operator == (const int& i) const {
-		return (id == i);
-	}
+
+	// variables
+	int id;            // task point id
+	Point taskPoint;     // point information
+	Point tendlPosition;  // one step of trial move
+	vector<bool> stucks; // stuck state at different directions
+	bool stuck;         // flag indicates stuck state
+	vector<int> neighborWeight;  // probability of moving to 4 neighbor, normalized sum to 1, up, down, left, right
+	// functions
+	vector<int> TuneNeighbor(char str); // up: u, d, l r
+
+	friend int main();
 	friend class Rule;
 	friend class Robot;
 	friend class Task;
-	friend int main();
-	int id;            // task point id
-	int publishTime;   // the time generating task
-	int waitTime;      // the time next task wait
-	Point taskPoint;     // point information
-	vector<int> neighborWeight;  // probability of moving to 4 neighbor, normalized sum to 1, up, down, left, right
-	vector<int> TuneNeighbor(char str); // up: u, d, l r
 };
+
 
 vector<int>
 TaskPoint::TuneNeighbor(char str) {
@@ -69,6 +74,115 @@ TaskPoint::TuneNeighbor(char str) {
 	return neighborWeight;
 }
 
+class TaskSubgroup {
+public:
+	// variables
+	int taskNumber;
+	int leader;    // leaer ID, while index always be 0
+	vector<int> taskCenter;
+	vector<TaskPoint*> tasks; // group members
+
+	// functions
+	TaskSubgroup(vector<TaskPoint*> t) : taskNumber(t.size()), tasks(t) {
+		if (t.size()) leader = t[0]->id; // assign the leader ID
+	}
+	TaskSubgroup(vector<TaskPoint*> t, vector<int> center, char segDir, char LorR) : 
+		taskNumber(t.size()), tasks(t), taskCenter(center) {
+		if (t.size()) {
+			leader = t[0]->id; // assign the leader ID
+			InitWeights(segDir, LorR);
+		}
+	}
+	void InitWeights(char segDir, char LorR);
+	void UpdatePro();
+	void TrialMove();
+	void Move();
+	vector<vector<int>>  GetTaskPos();
+	vector<int> GetTaskIds();
+};
+
+void TaskSubgroup::InitWeights(char segDir, char LorR) {
+	tasks[0]->neighborWeight.swap(vector<int>()); // leader
+	tasks[0]->neighborWeight.push_back(0);  // up
+	tasks[0]->neighborWeight.push_back(0);  // down
+	tasks[0]->neighborWeight.push_back(0);  // left
+	tasks[0]->neighborWeight.push_back(0);  // right
+	if (segDir == 'x') {
+		if (LorR == 'r')   // which side
+			tasks[0]->neighborWeight[2] = 1;  // right
+		else if (LorR == 'l')
+			tasks[0]->neighborWeight[3] = 1;  // left
+	}
+	else if (segDir == 'y') {
+		if (LorR == 'r')
+			tasks[0]->neighborWeight[1] = 1;  // down
+		else if (LorR == 'l')
+			tasks[0]->neighborWeight[0] = 1;  // up
+	}
+}
+
+void TaskSubgroup::UpdatePro() {}
+
+void TaskSubgroup::TrialMove() {
+	srand((int)time(0));
+	float oneStep = random();
+	// leader is tasks[0]
+	float interval1 = tasks[0]->neighborWeight[0];
+	float interval2 = interval1 + tasks[0]->neighborWeight[1];
+	float interval3 = interval2 + tasks[0]->neighborWeight[2];
+	float interval4 = interval3 + tasks[0]->neighborWeight[3];
+	if (0 < oneStep && oneStep < interval1) {   // up
+		for (int i = 0; i < tasks.size(); ++i) {
+			tasks[i]->tendlPosition.y += 1;
+		}
+	}
+	else if (interval1 < oneStep && oneStep < interval2) {  // down
+		for (int i = 0; i < tasks.size(); ++i) {
+			tasks[i]->tendlPosition.y -= 1;
+		}
+	}
+	else if (interval2 < oneStep && oneStep < interval3) {  // left
+		for (int i = 0; i < tasks.size(); ++i) {
+			tasks[i]->tendlPosition.x += 1;
+		}
+	}
+	else if (interval3 < oneStep && oneStep < interval4) {  // right
+		for (int i = 0; i < tasks.size(); ++i) {
+			tasks[i]->tendlPosition.x -= 1;
+		}
+	}
+}
+
+
+void TaskSubgroup::Move() {
+	// move
+	for (int i = 0; i < tasks.size(); ++i) {
+		tasks[i]->taskPoint.x = tasks[i]->tendlPosition.x;
+		tasks[i]->taskPoint.y = tasks[i]->tendlPosition.y;
+	}
+	// map
+}
+
+vector<vector<int>>  TaskSubgroup::GetTaskPos() {
+	// collect the tendPosition (x,y)
+	vector<vector<int>> taskPos;
+	for (int i = 0; i < tasks.size(); ++i) {
+		vector<int> oneTask;
+		oneTask.push_back(tasks[i]->tendlPosition.x);
+		oneTask.push_back(tasks[i]->tendlPosition.y);
+		taskPos.push_back(oneTask);
+	}
+	return taskPos;
+}
+
+vector<int>  TaskSubgroup::GetTaskIds() {
+	vector<int> taskIDs;
+	for (int i = 0; i < tasks.size(); ++i) {
+		taskIDs.push_back(tasks[i]->id);
+	}
+	return taskIDs;
+}
+
 class Task {
 public:
 	Task() : taskNum(0), robotNum(0), startPoints(), finalTargets() {}
@@ -76,6 +190,7 @@ public:
 	// variables
 	int taskNum;
 	int robotNum;
+	vector<int> centerPoint;   // center of all task points (x,y)
 	vector<TaskPoint*> startPoints;       // starting points of task , i.e., the robots
 	vector<TaskPoint*> finalTargets;     // end points of task
 	vector<TaskPoint*> currentTargets;       // current and temporary task points during the extension, IDs are identical to finalTargets
@@ -90,6 +205,8 @@ public:
 	void PushAllTargets();    // Store the currentTargets in allTargets
 	void Display(string);      // display task positions of steps
 	void Display(int);
+
+	void Group();
 private:
 };
 
@@ -102,15 +219,21 @@ Task::ReadTask() {
 		f >> taskNum;
 		//TaskPoint tempTask;
 		int task_id, task_x, task_y;
+		int x_sum = 0;
+		int y_sum = 0;
 		for (int i = 0; i < taskNum; i++) {
 			f >> task_id >> task_x >> task_y;
 			TaskPoint* target = new TaskPoint(task_id, task_x-1, task_y-1);
 			finalTargets.push_back(target);
 			TaskPoint* temp = new TaskPoint(task_id, task_x-1, task_y-1);
 			currentTargets.push_back(temp);
+			x_sum += task_x - 1;
+			y_sum += task_y - 1;
 		}
 		allTargets.push_back(finalTargets);
 		//BinNode<vector<TaskPoint*>>* root = allTargets.insertASRoot(finalTargets);
+		centerPoint.push_back(x_sum / taskNum);
+		centerPoint.push_back(y_sum / taskNum);
 	}
 	else {
 		cout << "Read task: Failed to open the task file. Please check the filename." << endl;

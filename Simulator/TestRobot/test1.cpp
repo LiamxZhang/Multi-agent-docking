@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-//#include <cstdlib>
+#include <cstdlib>
 #include <time.h>
 #include <ctime>
 //#include <string>
@@ -20,19 +20,20 @@
 #include "Robot.h"
 #include "Log.h"
 
+#define random() (rand() / double(RAND_MAX))
+#define WaitTime 20
+
 using namespace std;
 
 void ExtendTask(BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* task, MatrixMap* map, int depth, int obj);
 void ExtendAction(BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* task, MatrixMap* map, int curDepth);
 vector<int> AssignTaskToRobot(Task* task, vector<Robot*> robot);
-void RecordTaskExtend(Task* task, vector<Robot*> robots, int n);
-//void AssignCurrrentTargetToRobot(vector<Robot*> robot, vector<TaskPoint*> allTargets);
 vector<vector<int>> IDtoIndex(vector<Robot*> robot);
 bool CheckReach(vector<RobotGroup> groups);
 vector<RobotGroup> Dock(vector<Robot*> robot, Task* task, vector<int> tID2index, int layer);
 vector<int> GetPeers(RobotGroup group, vector<Robot*> robot, Task* task, vector<int> tID2index, int layer);
-
 // 
+void RecordTaskExtend(Task* task, vector<Robot*> robots, int n);
 bool RecordRobotPosition(vector<Robot*> robots);
 void Recover(Task* task);
 
@@ -61,7 +62,6 @@ int main() {
 		cout << endl;
 		// push currentTargets into allTargets
 		task->PushAllTargets();
-		
 	}
 	RecordLog("Finished to extend the task!");
 	// display task positions in steps
@@ -75,9 +75,10 @@ int main() {
 	}
 	// assign the task to the closest robots using optimization (or bid)
 	AssignTaskToRobot(task, robot);
-	for (int i = 0; i < task->allTargets.size(); ++i) {
+	// see the task extension process
+	for (int i = 0; i < task->allTargets.size(); ++i) {  
 		RecordTaskExtend(task, robot, i);
-		Sleep(2000);
+		Sleep(WaitTime);
 	}
 	
 	// ID to index
@@ -118,7 +119,7 @@ int main() {
 			// check, if leader robots reach targets, reach = true
 			reach = CheckReach(groups);
 			RecordRobotPosition(robot);
-			Sleep(2000);
+			Sleep(WaitTime);
 		}
 		world->Display("all");
 		string str1 = "Finished to move all robots to the targets of layer ";
@@ -140,11 +141,76 @@ void ExtendTask(BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* tas
 	if (!assNode) return;   // tree node empty
 	if (assNode->data.size() <= 1) return;  // cannot be extended anymore
 
-	if (depth == obj) {
+	if (depth == obj) 
 		ExtendAction(assNode, segNode, task, map, obj);
-	}
+
 	ExtendTask(assNode->lChild, segNode->lChild, task, map, depth + 1, obj);
 	ExtendTask(assNode->rChild, segNode->rChild, task, map, depth + 1, obj);
+}
+
+void ExtendAction(BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* task, MatrixMap* map, int curDepth) {
+	// 分离方向，segNode->data
+	// x: left > right    y: up > down
+	srand((int)time(0));
+	// build the task subgroups for the two parts
+	vector<int> lcomponents = assNode->lChild->data;
+	vector<int> rcomponents = assNode->rChild->data;
+	vector<TaskPoint*> ltask;
+	vector<TaskPoint*> rtask;
+	bool belongToLeft;
+	bool lfull = false;
+	bool rfull = false;
+	for (int i = 0; i < task->currentTargets.size(); ++i) {
+		// lcomponents
+		belongToLeft = false;
+		if (ltask.size() < lcomponents.size()) {
+			for (int j = 0; j < lcomponents.size(); ++j)
+				if (task->currentTargets[i]->id == lcomponents[j]) {
+					ltask.push_back(task->currentTargets[i]);
+					belongToLeft = true;
+					break;
+				}
+		}
+		else
+			lfull = true;
+		if (belongToLeft) continue;
+		// rcomponents
+		if (rtask.size() < rcomponents.size()) {
+			for (int j = 0; j < rcomponents.size(); ++j)
+				if (task->currentTargets[i]->id == rcomponents[j]) {
+					rtask.push_back(task->currentTargets[i]);
+					break;
+				}
+		}
+		else
+			rfull = true;
+		if (lfull && rfull) break;
+	}
+	TaskSubgroup lgroup(ltask, task->centerPoint, segNode->data, 'l');
+	TaskSubgroup rgroup(rtask, task->centerPoint, segNode->data, 'r');
+
+	//
+	bool done = false;
+	while (!done) {
+		// left
+		lgroup.TrialMove();
+		if (!map->TaskCheck(lgroup.GetTaskPos(), lgroup.GetTaskIds(), rgroup.GetTaskIds())) {
+			lgroup.Move(map);
+			map->Display("task");
+		}
+		else { // 如遇障碍
+			// stuck
+
+			// update weights
+
+		}
+		// right
+
+	}
+				
+
+	//
+
 }
 
 void ExtendAction(BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* task, MatrixMap* map, int curDepth) {
@@ -278,6 +344,7 @@ void ExtendAction(BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* t
 // assign the task to the closest robots using optimization (or bid)
 // from task->allTargets[j][i]->taskpoint.x(y)
 // to robot[i]->initPosition.x(y)
+// return the assigned task IDs corresponding to the robot index
 vector<int> AssignTaskToRobot(Task* task, vector<Robot*> robot) {
 	//
 	float closestDistance;
@@ -320,20 +387,6 @@ vector<int> AssignTaskToRobot(Task* task, vector<Robot*> robot) {
 
 	return assignedTaskID;
 }
-
-/*
-void AssignCurrrentTargetToRobot(vector<Robot*> robot, vector<TaskPoint*> allTargets) {
-	for (int j = 0; j < robot.size(); j++) {  // assign target points
-		for (int k = 0; k < allTargets.size(); k++) {
-			if (robot[j]->taskID == allTargets[k]->id) {
-				robot[j]->targetPosition.x = allTargets[k]->taskPoint.x;
-				robot[j]->targetPosition.y = allTargets[k]->taskPoint.y;
-				break;
-			}
-		}
-	}
-}
-*/
 
 // record the extended position of task points
 void RecordTaskExtend(Task* task, vector<Robot*> robots, int n) {
