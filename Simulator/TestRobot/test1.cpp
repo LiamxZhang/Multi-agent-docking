@@ -21,7 +21,7 @@
 #include "Log.h"
 
 #define random() (rand() / double(RAND_MAX))
-#define WaitTime 20
+#define WaitTime 100
 
 using namespace std;
 
@@ -33,7 +33,8 @@ bool CheckReach(vector<RobotGroup> groups);
 vector<RobotGroup> Dock(vector<Robot*> robot, Task* task, vector<int> tID2index, int layer);
 vector<int> GetPeers(RobotGroup group, vector<Robot*> robot, Task* task, vector<int> tID2index, int layer);
 // 
-void RecordTaskExtend(Task* task, vector<Robot*> robots, int n);
+void RecordTaskExtendRT(Task* task, vector<Robot*> robots);
+void RecordTaskExtend(Task* task, vector<Robot*> robots);
 bool RecordRobotPosition(vector<Robot*> robots);
 void Recover(Task* task);
 
@@ -51,35 +52,43 @@ int main() {
 	//cout << endl << "Depth: " << task->AssemblyTree.depth(task->AssemblyTree.root()) << endl;
 	//cout << endl << world->TaskCheck(1, task->AssemblyTree.leaves()[0]->data, 2) << endl; 
 
-	// move the task components, according to the assembly tree
+	// create the robots
+	vector<Robot*> robot;
+	for (int i = 0; i < task->robotNum; i++) {
+		Robot* temp = new Robot(task->robotNum, task->startPoints[i]->id, task->startPoints[i]->taskPoint, world->RowNum, world->ColNum);
+		robot.push_back(temp);
+	}
+
+	// Extend the task components, according to the assembly tree
 	int depth = task->AssemblyTree.depth(task->AssemblyTree.root());
 	for (int i = 0; i < depth-1; i++) { // the leaf layer of assembly tree is not needed for extension
+		// initialization
+		task->Initialization();  // step, complete flag, stuck, weights
 		// extend task
-		ExtendTask(task->AssemblyTree.root(), task->SegTree.root(), task, world, 0, i);
+		while (!task->ExtensionComplete) {  // one step in one loop
+			cout << endl << "Begin  !!!" << endl;
+			ExtendTask(task->AssemblyTree.root(), task->SegTree.root(), task, world, 0, i);
+			task->UpdateWeightAndFlag();  // update the Probability, Step and ExtensionComplete flag
+			//RecordTaskExtendRT(task, robot);
+			task->PushAll("allExtendedPoints");
+
+			world->Display("task");
+			cout << "End  !!!" << endl << endl;
+		}
 		// display
 		cout << endl << "Extend step " << i << " : " << endl;
 		world->Display("task");
 		cout << endl;
-		// push currentTargets into allTargets
-		task->PushAllTargets();
+		task->PushAll("allTargets");
 	}
 	RecordLog("Finished to extend the task!");
 	// display task positions in steps
 	//task->Display("all");
 	
-	// create the robots
-	vector<Robot*> robot;
-	for (int i = 0; i < task->robotNum; i++) {
-		Robot* temp = new Robot(task->robotNum,task->startPoints[i]->id, task->startPoints[i]->taskPoint, world->RowNum, world->ColNum);
-		robot.push_back(temp);
-	}
 	// assign the task to the closest robots using optimization (or bid)
 	AssignTaskToRobot(task, robot);
-	// see the task extension process
-	for (int i = 0; i < task->allTargets.size(); ++i) {  
-		RecordTaskExtend(task, robot, i);
-		Sleep(WaitTime);
-	}
+	
+	RecordTaskExtend(task, robot); // show the task extension process
 	
 	// ID to index
 	vector<vector<int>> idToIndex = IDtoIndex(robot);
@@ -102,15 +111,15 @@ int main() {
 		cout << "In step " << i+1 << " of move:"<< endl;
 		task->Display(stepNum - i - 1);
 		// update task
-		world->UpdateTaskmap(task->allTargets[stepNum - i - 1]);
+		task->UpdateTaskmap(world, stepNum - i - 1);
 		// move
 		bool reach = false;
 		while (!reach) {
 			for (int j = 0; j < groups.size(); j++) {
-				vector<int> peers = GetPeers(groups[j], robot, task, tID2index, stepNum - i - 1); // same group and to be docked group
-				groups[j].PathPlanning(world, task->allTargets[stepNum - i - 1], peers);
+				vector<int> peersIDs = GetPeers(groups[j], robot, task, tID2index, stepNum - i - 1); // same group and to be docked group
+				groups[j].PathPlanning(world, task->allTargets[stepNum - i - 1], peersIDs);
 				groups[j].TrialMove();
-				if (!world->CollisionCheck(groups[j].GetRobotPos(), groups[j].GetRobotIds(),peers)) {
+				if (!world->CollisionCheck(groups[j].GetRobotPos(), groups[j].GetRobotIds(), peersIDs)) {
 					groups[j].Move(world);
 					world->Display("robot");
 				}
@@ -119,7 +128,6 @@ int main() {
 			// check, if leader robots reach targets, reach = true
 			reach = CheckReach(groups);
 			RecordRobotPosition(robot);
-			Sleep(WaitTime);
 		}
 		world->Display("all");
 		string str1 = "Finished to move all robots to the targets of layer ";
@@ -141,9 +149,9 @@ void ExtendTask(BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* tas
 	if (!assNode) return;   // tree node empty
 	if (assNode->data.size() <= 1) return;  // cannot be extended anymore
 
-	if (depth == obj) 
+	if (depth == obj) {
 		ExtendAction(assNode, segNode, task, map, obj);
-
+	}
 	ExtendTask(assNode->lChild, segNode->lChild, task, map, depth + 1, obj);
 	ExtendTask(assNode->rChild, segNode->rChild, task, map, depth + 1, obj);
 }
@@ -186,33 +194,42 @@ void ExtendAction(BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* t
 			rfull = true;
 		if (lfull && rfull) break;
 	}
-	TaskSubgroup lgroup(ltask, task->centerPoint, segNode->data, 'l');
-	TaskSubgroup rgroup(rtask, task->centerPoint, segNode->data, 'r');
-
-	//
-	bool done = false;
-	while (!done) {
-		// left
-		lgroup.TrialMove();
-		if (!map->TaskCheck(lgroup.GetTaskPos(), lgroup.GetTaskIds(), rgroup.GetTaskIds())) {
-			lgroup.Move(map);
-			map->Display("task");
-		}
-		else { // 如遇障碍
-			// stuck
-
-			// update weights
-
-		}
-		// right
-
+	TaskSubgroup lgroup(ltask);
+	TaskSubgroup rgroup(rtask);
+	// initialization
+	if (!ltask[0]->step) {
+		cout << "Init weights: " << segNode->data << ", " << endl;
+		cout << "ltask size: " << ltask.size() << "  rtask size:  " << rtask.size() << endl;
+		lgroup.InitWeights(segNode->data, 'l');
+		rgroup.InitWeights(segNode->data, 'r');
 	}
-				
 
-	//
+	// left
+	char ldir = lgroup.TrialMove();
+	if (map->TaskCheck(lgroup.GetTaskPos(), lgroup.GetTaskIds(), rgroup.GetTaskIds(), 1)) {
+		lgroup.Move(map);  // move, update map, update stuck flag
+		cout << "Left move!" << endl;
+	}
+	else { // 如遇障碍
+		lgroup.UpdateStuck(ldir);  // update stuck
+	}
+	// right
+	char rdir = rgroup.TrialMove();
+	if (map->TaskCheck(rgroup.GetTaskPos(), rgroup.GetTaskIds(), lgroup.GetTaskIds(), 1)) {
+		rgroup.Move(map);  // move, update map, update stuck flag
+		cout << "Right move!" << endl;
+	}
+	else {
+		rgroup.UpdateStuck(rdir);	// update stuck
+	}
 
+	// check condition, comlete
+	bool End1 = lgroup.EndCheck(map, 2);
+	bool End2 = rgroup.EndCheck(map, 2);
+	cout << "End check: " << End1 << ", " << End2 << endl;
 }
 
+/*
 void ExtendAction(BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* task, MatrixMap* map, int curDepth) {
 	// find the position of target id in currentTargets
 	vector<int> lcomponents = assNode->lChild->data;
@@ -338,8 +355,9 @@ void ExtendAction(BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* t
 	cout << endl;
 	map->Display();
 	cout << endl;
-	*/
+	////
 }
+*/
 
 // assign the task to the closest robots using optimization (or bid)
 // from task->allTargets[j][i]->taskpoint.x(y)
@@ -388,17 +406,7 @@ vector<int> AssignTaskToRobot(Task* task, vector<Robot*> robot) {
 	return assignedTaskID;
 }
 
-// record the extended position of task points
-void RecordTaskExtend(Task* task, vector<Robot*> robots, int n) {
-	cout << "alltargets size:  " << task->allTargets.size() << endl;
-	vector<int> tIDs;
-	for (int i = 0; i < robots.size(); ++i)
-		for (int j = 0; j < task->allTargets[0].size(); ++j)
-			if (task->allTargets[0][j]->id == robots[i]->taskID) {
-				tIDs.push_back(j);
-				break;
-			}
-	// tIDs依次保存robot[0]-[end]的对应的allTargets的ID
+void RecordTaskExtendRT(Task* task, vector<Robot*> robots) {
 	ofstream f;
 	f.open("../TestRobot/Robot_Current_Position.txt", ofstream::out);
 	if (f) {
@@ -406,10 +414,39 @@ void RecordTaskExtend(Task* task, vector<Robot*> robots, int n) {
 		//RecordLog("RecordCurrentAndTargetPosition:");
 		for (int i = 0; i < robots.size(); ++i) {
 			f << robots[i]->id << "," << robots[i]->currentPosition.x + 1 << "," << robots[i]->currentPosition.y + 1 << ","
-				<< task->allTargets[n][tIDs[i]]->taskPoint.x + 1 << "," << task->allTargets[n][tIDs[i]]->taskPoint.y + 1 << endl;
+				<< task->currentTargets[i]->taskPoint.x + 1 << "," << task->currentTargets[i]->taskPoint.y + 1 << endl;
 		}
 	}
 	f.close();
+	Sleep(WaitTime);
+}
+
+// record the extended position of task points
+void RecordTaskExtend(Task* task, vector<Robot*> robots) {
+	vector<int> tIDs;
+	for (int i = 0; i < robots.size(); ++i)
+		for (int j = 0; j < task->allExtendedPoints[0].size(); ++j)
+			if (task->allExtendedPoints[0][j]->id == robots[i]->taskID) {
+				tIDs.push_back(j);
+				break;
+			}
+	// tIDs依次保存robot[0]-[end]的对应的allTargets的ID
+	for (int time = 0; time < task->allExtendedPoints.size(); ++time) {
+		ofstream f;
+		f.open("../TestRobot/Robot_Current_Position.txt", ofstream::out);
+		if (f) {
+			f << robots.size() << endl;
+			//RecordLog("RecordCurrentAndTargetPosition:");
+			for (int i = 0; i < robots.size(); ++i) {
+				f << robots[i]->id << "," << robots[i]->currentPosition.x + 1 << "," 
+					<< robots[i]->currentPosition.y + 1 << ","
+					<< task->allExtendedPoints[time][tIDs[i]]->taskPoint.x + 1 << "," 
+					<< task->allExtendedPoints[time][tIDs[i]]->taskPoint.y + 1 << endl;
+			}
+		}
+		f.close();
+		Sleep(WaitTime);
+	}
 }
 
 // task ID->robot index // robot ID -> robot index
@@ -477,6 +514,7 @@ bool RecordRobotPosition(vector<Robot*> robots) {
 	else
 		return false;
 	f.close();
+	Sleep(WaitTime);
 	return true;
 }
 
