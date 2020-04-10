@@ -21,25 +21,19 @@ using namespace std;
 
 class TaskPoint {            // class TaskPoint to describe the ponit details of the task
 public:
-	TaskPoint() :id(0), taskPoint(), stuck(false) {}
-	TaskPoint(int i, int x, int y) :id(i), stuck(false) {
+	TaskPoint() :id(0), taskPoint() {}
+	TaskPoint(int i, int x, int y) :id(i) {
 		taskPoint.x = x; taskPoint.y = y;
 		tendPosition.x = x; tendPosition.y = y;
 	}
 	bool operator == (const TaskPoint& r) const {
-		return (id == r.id) &&
-			(taskPoint == r.taskPoint);
+		return (id == r.id) && (taskPoint.x == r.taskPoint.x) && (taskPoint.y == r.taskPoint.y);
 	}
 
 	// variables
 	int id;            // task point id
-	int step;          // steps in one layer
-	Point taskPoint;     // point information
+	Point taskPoint;     // current position
 	Point tendPosition;  // one step of trial move
-	vector<bool> stuck4; // stuck state at different directions, up, down, left, right
-	bool stuck;         // flag indicates stuck state
-	bool complete;
-	vector<float> neighborWeight;  // probability of moving to 4 neighbor, normalized sum to 1, up, down, left, right
 
 	friend int main();
 	friend class Rule;
@@ -47,211 +41,527 @@ public:
 	friend class Task;
 };
 
-
-class TaskSubgroup {
+////////////////////////////////////////////////////////////////////////////////
+class TaskSubgroup {  // include the two groups to be segmented (left, right)
 public:
 	// variables
-	int taskNumber;
-	int leader;    // leaer ID, while index always be 0
-	vector<int> taskCenter;
-	vector<TaskPoint*> tasks; // group members
+	int taskNumber;  // total number
+	int leader;    // leader ID, while index always be 0
+
+	// for separation
+	int targetSepDistance;  // target separation distance between two groups
+	int currentSepDistance; // current separation distance
+	int range;     // separation range between single robot
+	char segDir;   // the separation line could only be x or y;
+	bool sepDone;   // flag: the separation process is finished
+	bool sepStuck;  // flag: the separation process is stuck
+	
+	// for group moving
+	int moveStep;          // moving steps in one layer
+	vector<bool> stuck4; // stuck state at 4 different directions, up, down, left, right
+	bool moveStuck;         // flag indicates whether stuck
+	vector<float> neighborWeight;  // probability of moving to 4 neighbor, normalized sum to 1, up, down, left, right
+
+	// left
+	int ltaskNumber;
+	int lleader;
+	vector<int> ltaskCenter;  // x,y
+	vector<TaskPoint*> ltasks; // group members
+	vector<int> lboundary; // max X, min X, max Y, min Y
+	// right
+	int rtaskNumber;
+	int rleader;
+	vector<int> rtaskCenter; // x,y
+	vector<TaskPoint*> rtasks;
+	vector<int> rboundary; // max X, min X, max Y, min Y
 
 	// functions
-	TaskSubgroup(vector<TaskPoint*> t) : taskNumber(t.size()), tasks(t) {
-		if (t.size()) leader = t[0]->id; // assign the leader ID
+	TaskSubgroup(vector<TaskPoint*> left, vector<TaskPoint*> right, char c, int r) : 
+		ltasks(left), ltaskNumber(left.size()), rtasks(right), rtaskNumber(right.size()), segDir(c), range(r) {
+		taskNumber = ltaskNumber + rtaskNumber;
+		if (left.size()) {
+			leader = left[0]->id; // assign the leader ID
+			lleader = left[0]->id;
+		}
+		if (right.size()) { rleader = right[0]->id; }
+		Boundary();
+		SepDistance(); // must after Boundary()
+		// initialization
+		InitWeights(); // initial weights and stuck flags
+
 		srand(unsigned(time(NULL)));
 	}
-	TaskSubgroup(vector<TaskPoint*> t, vector<int> center, char segDir, char LorR) : 
-		taskNumber(t.size()), tasks(t), taskCenter(center) {
-		if (t.size()) {
-			leader = t[0]->id; // assign the leader ID
-			InitWeights(segDir, LorR);
-		}
-	}
-	void InitWeights(char segDir, char LorR);
-	void UpdateStuck(char);
-	char TrialMove();
-	void Move(MatrixMap* world);
-	bool EndCheck(MatrixMap* world, int range);
-	vector<vector<int>>  GetTaskPos();
-	vector<int> GetTaskIds();
+
+	void InitWeights();
+	void UpdateFlags(vector<int>, bool);
+	vector<int> TrialMove();
+	void Move(MatrixMap* world, vector<int> trial_left, vector<int> trial_right, vector<int> permission);
+	bool MoveCheck(MatrixMap* world, vector<int> trial);
+	vector<int> SepCheck(MatrixMap* world, vector<int> trial_left, vector<int> trial_right);
+	void Separation(MatrixMap* world);
+	void SepDistance();
+	void Boundary();
+	vector<vector<int>> GetTaskPos(string);
+	vector<int> GetTaskIds(string);
 };
 
-void TaskSubgroup::InitWeights(char segDir, char LorR) {
-	tasks[0]->neighborWeight.swap(vector<float>()); // leader
-	for (int j = 0; j < 4; ++j)
-		tasks[0]->neighborWeight.push_back(0.0);  // up, down, left, right
+void TaskSubgroup::InitWeights() {
+	neighborWeight.swap(vector<float>()); // leader
+	for (int i = 0; i < 4; ++i)
+		neighborWeight.push_back(0.0);  // up, down, left, right
+
+	moveStuck = false;
+	for (int i = 0; i < 4; ++i)
+		stuck4.push_back(false);
+
+	sepDone = false;
+	sepStuck = false;
+	currentSepDistance = 0;
+	moveStep = 0;
+	/*
 	if (segDir == 'x') {
 		if (LorR == 'r')   // which side
-			tasks[0]->neighborWeight[3] = 1.0;  // right
+			neighborWeight[3] = 1.0;  // right
 		else if (LorR == 'l')
-			tasks[0]->neighborWeight[2] = 1.0;  // left
+			neighborWeight[2] = 1.0;  // left
 	}
 	else if (segDir == 'y') {
 		if (LorR == 'r')
-			tasks[0]->neighborWeight[1] = 1.0;  // down
+			neighborWeight[1] = 1.0;  // down
 		else if (LorR == 'l')
-			tasks[0]->neighborWeight[0] = 1.0;  // up
+			neighborWeight[0] = 1.0;  // up
+	}
+	*/
+}
+
+void TaskSubgroup::Boundary() {
+	// left
+	lboundary.push_back(0);   // max X
+	lboundary.push_back(INT_MAX);   // min X
+	lboundary.push_back(0);   // max Y
+	lboundary.push_back(INT_MAX);   // min Y
+	for (int i = 0; i < ltaskNumber; ++i) {
+		if (ltasks[i]->taskPoint.x > lboundary[0]) { lboundary[0] = ltasks[i]->taskPoint.x; }
+		if (ltasks[i]->taskPoint.x < lboundary[1]) { lboundary[1] = ltasks[i]->taskPoint.x; }
+		if (ltasks[i]->taskPoint.y > lboundary[2]) { lboundary[2] = ltasks[i]->taskPoint.y; }
+		if (ltasks[i]->taskPoint.y < lboundary[3]) { lboundary[3] = ltasks[i]->taskPoint.y; }
+	}
+	// right
+	rboundary.push_back(0);   // max X
+	rboundary.push_back(INT_MAX);   // min X
+	rboundary.push_back(0);   // max Y
+	rboundary.push_back(INT_MAX);   // min Y
+	for (int i = 0; i < rtaskNumber; ++i) {
+		if (rtasks[i]->taskPoint.x > rboundary[0]) { rboundary[0] = rtasks[i]->taskPoint.x; }
+		if (rtasks[i]->taskPoint.x < rboundary[1]) { rboundary[1] = rtasks[i]->taskPoint.x; }
+		if (rtasks[i]->taskPoint.y > rboundary[2]) { rboundary[2] = rtasks[i]->taskPoint.y; }
+		if (rtasks[i]->taskPoint.y < rboundary[3]) { rboundary[3] = rtasks[i]->taskPoint.y; }
 	}
 }
 
-void TaskSubgroup::UpdateStuck(char dir) {
-	int n = 0;
-	switch (dir) {
-	case 'u': n = 0; break;
-	case 'd': n = 1; break;
-	case 'l': n = 2; break;
-	case 'r': n = 3; break;
+void TaskSubgroup::UpdateFlags(vector<int> trial, bool OK) {  // is move OK?
+	if (OK) {
+		for (int i = 0; i < 4; ++i)
+			stuck4[i] = false;
+		moveStuck = false;
+		sepStuck = false;
 	}
-	for (int i = 0; i < taskNumber; ++i) {
-		tasks[i]->stuck4[n] = true;
+	else if (!OK) {
+		if (trial[1] == 1) stuck4[0] = true;       // up
+		else if (trial[1] == -1) stuck4[1] = true; // down
+		else if (trial[0] == 1) stuck4[2] = true;  // left
+		else if (trial[0] == -1) stuck4[3] = true; // right
+
 		// only if all 4 stuck is true, stuck flag is true
-		tasks[i]->stuck = true;
-		for (int j = 0; j < 4; ++j) {
-			if (!tasks[i]->stuck4[j]) {
-				tasks[i]->stuck = false;
-				break;
-			}
-		}
+		moveStuck = true;
+		for (int i = 0; i < 4; ++i)
+			if (stuck4[i] == false) { moveStuck = false; break; }
+		sepStuck = false;
 	}
-
 }
 
-char TaskSubgroup::TrialMove() {
+vector<int> TaskSubgroup::TrialMove() {
 	//srand((int)time(0));
 	float oneStep = random();
-	// leader is tasks[0]
-	float interval1 = tasks[0]->neighborWeight[0];
-	float interval2 = interval1 + tasks[0]->neighborWeight[1];
-	float interval3 = interval2 + tasks[0]->neighborWeight[2];
-	float interval4 = interval3 + tasks[0]->neighborWeight[3];
 	char move = ' ';
-	if (0 < oneStep && oneStep < interval1) {   // up
-		for (int i = 0; i < taskNumber; ++i) {
-			tasks[i]->tendPosition.y = tasks[i]->taskPoint.y + 1;
-		}
-		move = 'u';
+	vector<int> trial(2, 0); // x, y
+
+	float interval1 = neighborWeight[0];
+	float interval2 = interval1 + neighborWeight[1];
+	float interval3 = interval2 + neighborWeight[2];
+	float interval4 = interval3 + neighborWeight[3];
+	if (0 < oneStep && oneStep < interval1) { trial[1] = 1; move = 'u'; }               // up
+	else if (interval1 < oneStep && oneStep < interval2) { trial[1] = -1; move = 'd'; } // down
+	else if (interval2 < oneStep && oneStep < interval3) { trial[0] = 1; move = 'l'; }  // left
+	else if (interval3 < oneStep && oneStep < interval4) { trial[0] = -1; move = 'r'; } // right
+
+	for (int i = 0; i < ltaskNumber; ++i) {
+		ltasks[i]->tendPosition.x = ltasks[i]->taskPoint.x + trial[0];
+		ltasks[i]->tendPosition.y = ltasks[i]->taskPoint.y + trial[1];
 	}
-	else if (interval1 < oneStep && oneStep < interval2) {  // down
-		for (int i = 0; i < taskNumber; ++i) {
-			tasks[i]->tendPosition.y = tasks[i]->taskPoint.y - 1;
-		}
-		move = 'd';
-	}
-	else if (interval2 < oneStep && oneStep < interval3) {  // left
-		for (int i = 0; i < taskNumber; ++i) {
-			tasks[i]->tendPosition.x = tasks[i]->taskPoint.x + 1;
-		}
-		move = 'l';
-	}
-	else if (interval3 < oneStep && oneStep < interval4) {  // right
-		for (int i = 0; i < taskNumber; ++i) {
-			tasks[i]->tendPosition.x = tasks[i]->taskPoint.x - 1;
-		}
-		move = 'r';
+	for (int i = 0; i < rtaskNumber; ++i) {
+		rtasks[i]->tendPosition.x = rtasks[i]->taskPoint.x + trial[0];
+		rtasks[i]->tendPosition.y = rtasks[i]->taskPoint.y + trial[1];
 	}
 	cout << "Section of choice: (0, " << interval1 << "), (" << interval1 << ", " << interval2 <<
 		"), (" << interval2 << ", " << interval3 << "), (" << interval3 << ", " << interval4 << ")" << endl;
 	cout << "Trial move choice:  " << oneStep << ", " << move << endl;
-	return move;
+	return trial;
 }
 
-void TaskSubgroup::Move(MatrixMap* world) {
+void TaskSubgroup::Move(MatrixMap* world, vector<int> trial_left, vector<int> trial_right, vector<int> permission) {
 	// map
-	for (int i = 0; i < taskNumber; ++i) 
-		world->map_task(tasks[i]->taskPoint.x, tasks[i]->taskPoint.y) = 0;
-	for (int i = 0; i < taskNumber; ++i) {
-		// map
-		world->map_task(tasks[i]->tendPosition.x, tasks[i]->tendPosition.y) = tasks[i]->id;
-		// move
-		tasks[i]->taskPoint.x = tasks[i]->tendPosition.x;
-		tasks[i]->taskPoint.y = tasks[i]->tendPosition.y;
-		// update the stuck flag
-		tasks[i]->stuck = false;
-		for (int j = 0; j < 4; ++j)
-			tasks[i]->stuck4[j] = false;
+	if (permission[0]) {
+		for (int i = 0; i < ltaskNumber; ++i)  // left
+			world->map_task(ltasks[i]->taskPoint.x, ltasks[i]->taskPoint.y) = 0;
+	}
+	if (permission[1]) {
+		for (int i = 0; i < rtaskNumber; ++i)  // right
+			world->map_task(rtasks[i]->taskPoint.x, rtasks[i]->taskPoint.y) = 0;
+	}
+	// move
+	if (permission[0]) {
+		for (int i = 0; i < ltaskNumber; ++i) {   // left
+			world->map_task(ltasks[i]->tendPosition.x, ltasks[i]->tendPosition.y) = ltasks[i]->id;
+			ltasks[i]->taskPoint.x = ltasks[i]->tendPosition.x;
+			ltasks[i]->taskPoint.y = ltasks[i]->tendPosition.y;
+		}
+		// update the boundary
+		lboundary[0] = lboundary[0] + trial_left[0];  // max X 
+		lboundary[1] = lboundary[1] + trial_left[0];  // min X
+		lboundary[2] = lboundary[2] + trial_left[1];  // max Y
+		lboundary[3] = lboundary[3] + trial_left[1];  // min Y
+	}
+	if (permission[1]) {
+		for (int i = 0; i < rtaskNumber; ++i) {  // right
+			world->map_task(rtasks[i]->tendPosition.x, rtasks[i]->tendPosition.y) = rtasks[i]->id;
+			rtasks[i]->taskPoint.x = rtasks[i]->tendPosition.x;
+			rtasks[i]->taskPoint.y = rtasks[i]->tendPosition.y;
+		}
+		// update the boundary
+		rboundary[0] = rboundary[0] + trial_right[0];  // max X 
+		rboundary[1] = rboundary[1] + trial_right[0];  // min X
+		rboundary[2] = rboundary[2] + trial_right[1];  // max Y
+		rboundary[3] = rboundary[3] + trial_right[1];  // min Y
 	}
 }
 
-bool TaskSubgroup::EndCheck(MatrixMap* world, int range) {
-	vector<int> peerIDs = GetTaskIds();
-	// check neighbor
-	bool complete = true;
-	for (int i = 0; i < taskNumber; ++i) {
-		// tasks[i]
-		int minX, maxX, minY, maxY;
-		int X = tasks[i]->taskPoint.x;
-		int Y = tasks[i]->taskPoint.y;
-		X - range > 0 ? minX = X - range : minX = 0;
-		X + range < world->ColNum - 1 ? maxX = X + range : maxX = world->ColNum - 1;
-		Y - range > 0 ? minY = Y - range : minY = 0;
-		Y + range < world->RowNum - 1? maxY = Y + range : maxY = world->RowNum - 1;
+bool TaskSubgroup::MoveCheck(MatrixMap* world, vector<int> trial) {
+	// simply move, true means there is collision
+	// trial_left, trial_right, the trial moves of left and right
+	vector<int> ltendboundary; 
+	ltendboundary.push_back(lboundary[0] + trial[0]);  // max X
+	ltendboundary.push_back(lboundary[1] + trial[0]);  // min X 
+	ltendboundary.push_back(lboundary[2] + trial[1]);  // max Y
+	ltendboundary.push_back(lboundary[3] + trial[1]);  // min Y
+	vector<int> rtendboundary;
+	rtendboundary.push_back(rboundary[0] + trial[0]);  // max X
+	rtendboundary.push_back(rboundary[1] + trial[0]);  // min X 
+	rtendboundary.push_back(rboundary[2] + trial[1]);  // max Y
+	rtendboundary.push_back(rboundary[3] + trial[1]);  // min Y
 
-		int Y_array[2] = { minY, maxY };
+	// check whether points cross the border
+	if ((ltendboundary[0] > world->ColNum - 1) || (ltendboundary[1] < 0) ||
+		(ltendboundary[2] > world->RowNum - 1) || (ltendboundary[3] < 0) ||
+		(rtendboundary[0] > world->ColNum - 1) || (rtendboundary[1] < 0) ||
+		(rtendboundary[2] > world->RowNum - 1) || (rtendboundary[3] < 0)) {
+		cout << "Caution: Out of map border!!!" << endl;
+		return true;
+	}
+	// check obstacle // check the new places
+	// left
+	for (int x = ltendboundary[1]; x <= ltendboundary[0]; ++x) {
+		if (world->map_obstacle(x, ltendboundary[2])) { cout << "Caution: obstacle!!!" << endl; return true; } // up most
+		if (world->map_obstacle(x, ltendboundary[3])) { cout << "Caution: obstacle!!!" << endl; return true; } // down most
+	}
+	for (int y = ltendboundary[3]; y <= ltendboundary[2]; ++y) {  
+		if (world->map_obstacle(ltendboundary[0], y)) { cout << "Caution: obstacle!!!" << endl; return true; } // left most
+		if (world->map_obstacle(ltendboundary[1], y)) { cout << "Caution: obstacle!!!" << endl; return true; } // right most
+	}
+	// right
+	for (int x = rtendboundary[1]; x <= rtendboundary[0]; ++x) {
+		if (world->map_obstacle(x, rtendboundary[2])) { cout << "Caution: obstacle!!!" << endl; return true; } // up most
+		if (world->map_obstacle(x, rtendboundary[3])) { cout << "Caution: obstacle!!!" << endl; return true; } // down most
+	}
+	for (int y = rtendboundary[3]; y <= rtendboundary[2]; ++y) {
+		if (world->map_obstacle(rtendboundary[0], y)) { cout << "Caution: obstacle!!!" << endl; return true; } // left most
+		if (world->map_obstacle(rtendboundary[1], y)) { cout << "Caution: obstacle!!!" << endl; return true; } // right most
+	}
+	
+	// check other task points
+	int minX, maxX, minY, maxY;  // include left and right
+	ltendboundary[0] + range < world->ColNum - 1 ? maxX = ltendboundary[0] + range : maxX = world->ColNum - 1;
+	rtendboundary[1] - range > 0 ? minX = rtendboundary[1] - range : minX = 0;
+	ltendboundary[2] + range < world->RowNum - 1 ? maxY = ltendboundary[2] + range : maxY = world->RowNum - 1;
+	rtendboundary[3] - range > 0 ? minY = rtendboundary[3] - range : minY = 0;
+
+	if (trial[1] > 0) {  // move up
 		for (int x = minX; x <= maxX; ++x) {
-			for (int& y : Y_array) {         // up, down
+			for (int y = maxY; y > ltendboundary[2]; --y) { // up most
 				if (world->map_task(x, y)) {
-					vector<int>::iterator it = find(peerIDs.begin(), peerIDs.end(), world->map_task(x, y));
-					if (it == peerIDs.end()) {   // not in component
-						complete = false;
+					cout << "Caution: other tasks above !!!" << endl;
+					return true;
+				}
+			}
+		}
+	}
+	else if (trial[1] < 0) {  // move down
+		for (int x = minX; x <= maxX; ++x) {
+			for (int y = minY; y < rtendboundary[3]; ++y) {  // down most
+				if (world->map_task(x, y)) {
+					cout << "Caution: other tasks below at ( " << x << ", " << y << " ) !!!" << endl;
+					return true;
+				}
+			}
+		}
+	}
+	else if (trial[0] > 0) { // move left
+		for (int y = minY; y <= maxY; ++y) {
+			for (int x = maxX; x > ltendboundary[0]; --x) {  // left most
+				if (world->map_task(x, y)) {
+					cout << "Caution: other tasks at left !!!" << endl;
+					return true;
+				}
+			}
+		}
+	}
+	else if (trial[0] < 0) {  // move right
+		for (int y = minY; y <= maxY; ++y) {
+			for (int x = minX; x < rtendboundary[1]; ++x) {  // right most
+				if (world->map_task(x, y)) {
+					cout << "Caution: other tasks at right !!!" << endl;
+					return true;
+				}
+			}
+		}
+	}
+	// everything is OK
+	return false;
+}
+
+vector<int> TaskSubgroup::SepCheck(MatrixMap* world, vector<int> trial_left, vector<int> trial_right) {
+	vector<int> OK{1, 1}; // 1 means ok to move, 0 means not ok to move // left, right
+	// trial_left is {1, 0} or {0, 1}, trial_right is {-1, 0} or {0, -1} // x, y
+	vector<int> ltendboundary{ lboundary[0] + trial_left[0], lboundary[1] + trial_left[0], 
+		lboundary[2] + trial_left[1], lboundary[3] + trial_left[1] }; // max X, min X, max Y, min Y 
+	vector<int> rtendboundary{ rboundary[0] + trial_right[0], rboundary[1] + trial_right[0],
+		rboundary[2] + trial_right[1], rboundary[3] + trial_right[1] }; // max X, min X, max Y, min Y
+	// secure range outside
+	int minX, maxX, minY, maxY;
+	ltendboundary[0] + range < world->ColNum - 1 ? maxX = ltendboundary[0] + range : maxX = world->ColNum - 1; // max X
+	rtendboundary[1] - range > 0 ? minX = rtendboundary[1] - range : minX = 0;                                 // min X
+	ltendboundary[2] + range < world->RowNum - 1 ? maxY = ltendboundary[2] + range : maxY = world->RowNum - 1; // max Y
+	rtendboundary[3] - range > 0 ? minY = rtendboundary[3] - range : minY = 0;                                 // min Y
+
+	if (trial_left[0] && trial_right[0]) { // x separation
+		// check whether points cross the border
+		if ((ltendboundary[0] > world->ColNum - 1)) { cout << "Caution: Out of left border !!!" << endl; OK[0] = 0; } // left
+		if ((rtendboundary[1] < 0)) { cout << "Caution: Out of right border !!!" << endl; OK[1] = 0; } // right
+		// check obstacle
+		if (OK[0] && trial_left[0]) { 
+			for (int y = ltendboundary[3]; y <= ltendboundary[2]; ++y) {
+				if (world->map_obstacle(ltendboundary[0], y)) { cout << "Caution: obstacle at left !!!" << endl; OK[0] = 0; break; } // left most
+			}
+		}
+		if (OK[1] && trial_right[0]) {
+			for (int y = rtendboundary[3]; y <= rtendboundary[2]; ++y) {
+				if (world->map_obstacle(rtendboundary[1], y)) { cout << "Caution: obstacle at right !!!" << endl; OK[1] = 0; break; } // right most
+			}
+		}
+		// check other task points
+		if (OK[0] && trial_left[0]) { // move left
+			for (int y = minY; y <= maxY; ++y) {
+				for (int x = maxX; x > ltendboundary[0]; --x) {  // left most
+					if (world->map_task(x, y)) {
+						cout << "Caution: other tasks at left !!!" << endl;
+						OK[0] = 0; 
+						y = maxY + 1;
+						break;
+					}
+				}
+			}
+		}
+		if (OK[1] && trial_right[0]) {  // move right
+			for (int y = minY; y <= maxY; ++y) {
+				for (int x = minX; x < rtendboundary[1]; ++x) {  // right most
+					if (world->map_task(x, y)) {
+						cout << "Caution: other tasks at right !!!" << endl;
+						OK[1] = 0; 
+						y = maxY + 1;
+						break;
+					}
+				}
+			}
+		}
+	}
+	else if (trial_left[1] && trial_right[1]) { // y separation
+		// check whether points cross the border
+		if ((ltendboundary[2] > world->RowNum - 1)) { cout << "Caution: Out of up border!!!" << endl; OK[0] = 0; } // up
+		if ((rtendboundary[3] < 0)) { cout << "Caution: Out of down border!!!" << endl; OK[1] = 0; } // down
+		// check obstacle
+		if (OK[0] && trial_left[1]) {
+			for (int x = ltendboundary[1]; x <= ltendboundary[0]; ++x) {
+				if (world->map_obstacle(x, ltendboundary[2])) { cout << "Caution: obstacle!!!" << endl; OK[0] = 0; break; } // up most
+			}
+		}
+		if (OK[1] && trial_right[1]) {
+			for (int x = rtendboundary[1]; x <= rtendboundary[0]; ++x) {
+				if (world->map_obstacle(x, rtendboundary[3])) { cout << "Caution: obstacle!!!" << endl; OK[1] = 0; break; } // down most
+			}
+		}
+		// check other task points
+		if (OK[0] && trial_left[1] > 0) {  // move up
+			for (int x = minX; x <= maxX; ++x) {
+				for (int y = maxY; y > ltendboundary[2]; --y) { // up most
+					if (world->map_task(x, y)) {
+						cout << "Caution: other tasks above !!!" << endl;
+						OK[0] = 0; 
 						x = maxX + 1;
 						break;
 					}
 				}
 			}
 		}
-		if (!complete) break;
-		//
-		int X_array[2] = { minX, maxX };
-		for (int y = minY + 1; y < maxY; ++y) {
-			for (int& x : X_array) {         // left, right
-				if (world->map_task(x, y)) {
-					vector<int>::iterator it = find(peerIDs.begin(), peerIDs.end(), world->map_task(x, y));
-					if (it == peerIDs.end()) {   // not in component
-						complete = false;
-						y = maxY;
+		if (OK[1] && trial_right[1] < 0) {  // move down
+			for (int x = minX; x <= maxX; ++x) {
+				for (int y = minY; y < rtendboundary[3]; ++y) {  // down most
+					if (world->map_task(x, y)) {
+						cout << "Caution: other tasks below at ( " << x << ", " << y << " ) !!!" << endl;
+						OK[1] = 0; 
+						x = maxX + 1;
 						break;
 					}
 				}
 			}
 		}
-		if (!complete) break;
 	}
-	// assign complete
-	for (int i = 0; i < taskNumber; ++i)
-		tasks[i]->complete = complete;
-	return complete;
+	//
+	return OK;
 }
 
-vector<vector<int>>  TaskSubgroup::GetTaskPos() {
+void TaskSubgroup::Separation(MatrixMap* world) { // only separation, if sepStuck, explore
+	while (!sepDone && !sepStuck) {  // if not done and not stuck
+		// trial separation move
+		int delta_x = 0;
+		int delta_y = 0;
+		if (segDir == 'x') delta_x = 1;
+		else if (segDir == 'y') delta_y = 1;
+		for (int i = 0; i < ltaskNumber; ++i) {
+			ltasks[i]->tendPosition.x = ltasks[i]->taskPoint.x + delta_x;
+			ltasks[i]->tendPosition.y = ltasks[i]->taskPoint.y + delta_y;
+		}
+		for (int i = 0; i < rtaskNumber; ++i) {
+			rtasks[i]->tendPosition.x = rtasks[i]->taskPoint.x - delta_x;
+			rtasks[i]->tendPosition.y = rtasks[i]->taskPoint.y - delta_y;
+		}
+		// check collision
+		vector<int> trial_left = { delta_x, delta_y };
+		vector<int> trial_right = { -1 * delta_x, -1 * delta_y };
+		// move the two subgroups for one step
+		vector<int> permission = SepCheck(world, trial_left, trial_right);
+		cout << "Trial move of left: " << trial_left[0] << " , " << trial_left[1] << endl;
+		cout << "Trial move of right: " << trial_right[0] << " , " << trial_right[1] << endl;
+		cout << "Collision check: " << permission[0] << " , " << permission[1] << endl;
+		if (permission[0] || permission[1]) {  // at least one part faces no collision
+			cout << "Real move: " << endl;
+			Move(world, trial_left, trial_right, permission);
+			// Endcheck, update the flags: sepDone, sepStuck
+			currentSepDistance += accumulate(permission.begin(), permission.end(), 0);
+			if (currentSepDistance >= targetSepDistance)
+				sepDone = true;
+			sepStuck = false;
+		 }
+		else {    // collision
+			sepStuck = true;
+		}
+	}
+}
+
+void TaskSubgroup::SepDistance() {  //  calculate the separation distance
+	int lwidth = 0;
+	int rwidth = 0;
+	if (segDir == 'x') {
+		lwidth = lboundary[0] - lboundary[1];  // left
+		rwidth = rboundary[0] - rboundary[1];  // right
+	}
+	else if (segDir == 'y') {
+		lwidth = lboundary[2] - lboundary[3];  // left
+		rwidth = rboundary[2] - rboundary[3];  // right
+	}
+	//cout << "Left boundary:  " << lboundary[0] << " , " << lboundary[1] << " , " << lboundary[2] << " , " << lboundary[3] << endl;
+	//cout << "Right boundary:  " << rboundary[0] << " , " << rboundary[1] << " , " << rboundary[2] << " , " << rboundary[3] << endl;
+	//cout << "Width:  " << lwidth << " , " << rwidth << endl;
+	targetSepDistance = int((float(lwidth) / 2 + float(rwidth) / 2 + 1) * float(range));
+}
+
+vector<vector<int>>  TaskSubgroup::GetTaskPos(string who) {
 	// collect the tendPosition (x,y)
 	vector<vector<int>> taskPos;
-	for (int i = 0; i < tasks.size(); ++i) {
-		vector<int> oneTask;
-		oneTask.push_back(tasks[i]->tendPosition.x);
-		oneTask.push_back(tasks[i]->tendPosition.y);
-		taskPos.push_back(oneTask);
+	if (who == "left") {
+		for (int i = 0; i < ltaskNumber; ++i) {
+			vector<int> oneTask;
+			oneTask.push_back(ltasks[i]->tendPosition.x);
+			oneTask.push_back(ltasks[i]->tendPosition.y);
+			taskPos.push_back(oneTask);
+		}
+	}
+	else if (who == "right") {
+		for (int i = 0; i < rtaskNumber; ++i) {
+			vector<int> oneTask;
+			oneTask.push_back(rtasks[i]->tendPosition.x);
+			oneTask.push_back(rtasks[i]->tendPosition.y);
+			taskPos.push_back(oneTask);
+		}
+	}
+	else if (who == "all") {
+		for (int i = 0; i < ltaskNumber; ++i) {
+			vector<int> oneTask;
+			oneTask.push_back(ltasks[i]->tendPosition.x);
+			oneTask.push_back(ltasks[i]->tendPosition.y);
+			taskPos.push_back(oneTask);
+		}
+		for (int i = 0; i < rtaskNumber; ++i) {
+			vector<int> oneTask;
+			oneTask.push_back(rtasks[i]->tendPosition.x);
+			oneTask.push_back(rtasks[i]->tendPosition.y);
+			taskPos.push_back(oneTask);
+		}
 	}
 	return taskPos;
 }
 
-vector<int>  TaskSubgroup::GetTaskIds() {
+vector<int>  TaskSubgroup::GetTaskIds(string who) {
 	vector<int> taskIDs;
-	for (int i = 0; i < tasks.size(); ++i) {
-		taskIDs.push_back(tasks[i]->id);
+	if (who == "left") {
+		for (int i = 0; i < ltaskNumber; ++i) {
+			taskIDs.push_back(ltasks[i]->id);
+		}
+	}
+	else if (who == "right") {
+		for (int i = 0; i < rtaskNumber; ++i) {
+			taskIDs.push_back(rtasks[i]->id);
+		}
+	}
+	else if (who == "all") {
+		for (int i = 0; i < ltaskNumber; ++i) {
+			taskIDs.push_back(ltasks[i]->id);
+		}
+		for (int i = 0; i < rtaskNumber; ++i) {
+			taskIDs.push_back(rtasks[i]->id);
+		}
 	}
 	return taskIDs;
 }
 
+/////////////////////////////////////////////////////////////////////////
 
 class Task {
 public:
-	Task() : taskNum(0), robotNum(0), startPoints(), finalTargets() { SegNum.push_back(0); SegNum.push_back(0);}
+	Task() : taskNum(0), robotNum(0), startPoints(), finalTargets() {}
 
 	// variables
 	int taskNum;
 	int robotNum;
-	vector<int> SegNum;   // total times of segmentation in direction (x,y)
 	vector<int> centerPoint;   // center of all task points (x,y)
 	vector<vector<int>> stuckPoints;    // all stuck points (x,y)
 	vector<TaskPoint*> startPoints;       // starting points of task , i.e., the robots
@@ -261,15 +571,14 @@ public:
 	vector<vector<TaskPoint*>> allExtendedPoints; // record all process
 	BinTree<vector<int>> AssemblyTree; // data is the robot IDs
 	BinTree<char> SegTree;  //  record the segmentation line for every component
-	bool ExtensionComplete; // extension complete flag
+	//bool ExtensionComplete; // extension complete flag
+
 	// functions
 	void Initialization();
 	bool ReadTask();
 	bool GenerateTree();
 	void Bisect(BinNode<vector<int>>*, BinNode<char>*);
-	bool GetNode();
-	void PushAll(string);    // Store the currentTargets in allTargets or allExtendedPoints;
-
+	void PushAll(string);      // Store the currentTargets in allTargets or allExtendedPoints;
 	void Display(string);      // display task positions of steps
 	void Display(int);
 	bool UpdateTaskmap(MatrixMap*, int);
@@ -278,6 +587,7 @@ public:
 private:
 };
 
+/*
 void 
 Task::Initialization() {
 	for (int i = 0; i < taskNum; ++i) {
@@ -296,6 +606,7 @@ Task::Initialization() {
 	ExtensionComplete = false;  // overal complete flag
 	stuckPoints.swap(vector<vector<int>>());  // clear the stuckPoints
 }
+*/
 
 bool
 Task::ReadTask() {
@@ -421,7 +732,6 @@ Task::Bisect(BinNode<vector<int>>* node, BinNode<char>* segNode) {
 				left.push_back(components[i]);
 			else right.push_back(components[i]);
 		}
-		SegNum[0] += 1;  // x
 	}
 	else {
 		//cout << "Split line: y = " << finalTargets[line]->taskPoint.y << endl;
@@ -430,7 +740,6 @@ Task::Bisect(BinNode<vector<int>>* node, BinNode<char>* segNode) {
 				left.push_back(components[i]);
 			else right.push_back(components[i]);
 		}
-		SegNum[1] += 1;  // y
 	}
 	node->lChild = new BinNode<vector<int>>(left);
 	node->rChild = new BinNode<vector<int>>(right);
@@ -474,11 +783,6 @@ Task::GenerateTree() {
 		RecordLog("Success to generate the assembly tree!");
 		return true;
 	}
-}
-
-bool
-Task::GetNode() {
-	return true;
 }
 
 void 
@@ -538,6 +842,7 @@ Task::UpdateTaskmap(MatrixMap* world, int num) {
 	return true;
 }
 
+/*
 void 
 Task::UpdateWeightAndFlag() {
 	// update the stuck points
@@ -566,7 +871,7 @@ Task::UpdateWeightAndFlag() {
 	// update the probability
 	for (int i = 0; i < taskNum; ++i) {
 		currentTargets[i]->neighborWeight.swap(vector<float> ());
-		cout << "stuck points size:  " << stuckPoints.size() << endl;
+		//cout << "stuck points size:  " << stuckPoints.size() << endl;
 		if (currentTargets[i]->complete && stuckPoints.size()) { // complete, stuck points
 			for (int j = 0; j < 4; ++j)
 				currentTargets[i]->neighborWeight.push_back(1.0);
@@ -603,3 +908,4 @@ Task::UpdateWeightAndFlag() {
 	}
 	
 }
+*/

@@ -21,12 +21,15 @@
 #include "Log.h"
 
 #define random() (rand() / double(RAND_MAX))
-#define WaitTime 100
+#define WaitTime 500
 
 using namespace std;
 
-void ExtendTask(BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* task, MatrixMap* map, int depth, int obj);
-void ExtendAction(BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* task, MatrixMap* map, int curDepth);
+//void ExtendTask(BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* task, MatrixMap* map, int depth, int obj);
+//void ExtendAction(BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* task, MatrixMap* map, int curDepth);
+void TaskExtension(Task* task, MatrixMap* map);
+void AssignWeights(vector<TaskSubgroup>* taskGroups, vector<int> sepStuckGroups);
+void GetTaskSubgroups(vector<TaskSubgroup>* taskGroups, BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* task, int depth, int obj);
 vector<int> AssignTaskToRobot(Task* task, vector<Robot*> robot);
 vector<vector<int>> IDtoIndex(vector<Robot*> robot);
 bool CheckReach(vector<RobotGroup> groups);
@@ -42,8 +45,7 @@ int main() {
 	// read map, the origin is in the leftmost top,  x means rows, y means columns
 	MatrixMap* world = new MatrixMap();
 	world->ReadMap();
-	//world.Display();
-	world->Display("obstacle");
+	world->Display("obstacle"); //world.Display();
 
 	// read task, generate assembly tree
 	Task* task = new Task();
@@ -51,44 +53,21 @@ int main() {
 	task->GenerateTree();
 	//cout << endl << "Depth: " << task->AssemblyTree.depth(task->AssemblyTree.root()) << endl;
 	//cout << endl << world->TaskCheck(1, task->AssemblyTree.leaves()[0]->data, 2) << endl; 
-
+	
 	// create the robots
 	vector<Robot*> robot;
 	for (int i = 0; i < task->robotNum; i++) {
 		Robot* temp = new Robot(task->robotNum, task->startPoints[i]->id, task->startPoints[i]->taskPoint, world->RowNum, world->ColNum);
 		robot.push_back(temp);
 	}
-
+	
 	// Extend the task components, according to the assembly tree
-	int depth = task->AssemblyTree.depth(task->AssemblyTree.root());
-	for (int i = 0; i < depth-1; i++) { // the leaf layer of assembly tree is not needed for extension
-		// initialization
-		task->Initialization();  // step, complete flag, stuck, weights
-		// extend task
-		while (!task->ExtensionComplete) {  // one step in one loop
-			cout << endl << "Begin  !!!" << endl;
-			ExtendTask(task->AssemblyTree.root(), task->SegTree.root(), task, world, 0, i);
-			task->UpdateWeightAndFlag();  // update the Probability, Step and ExtensionComplete flag
-			//RecordTaskExtendRT(task, robot);
-			task->PushAll("allExtendedPoints");
-
-			world->Display("task");
-			cout << "End  !!!" << endl << endl;
-		}
-		// display
-		cout << endl << "Extend step " << i << " : " << endl;
-		world->Display("task");
-		cout << endl;
-		task->PushAll("allTargets");
-	}
-	RecordLog("Finished to extend the task!");
-	// display task positions in steps
-	//task->Display("all");
+	TaskExtension(task, world);
 	
 	// assign the task to the closest robots using optimization (or bid)
 	AssignTaskToRobot(task, robot);
-	
-	RecordTaskExtend(task, robot); // show the task extension process
+	// show the task extension process
+	RecordTaskExtend(task, robot); 
 	
 	// ID to index
 	vector<vector<int>> idToIndex = IDtoIndex(robot);
@@ -143,7 +122,7 @@ int main() {
 	return 0;
 }
 
-
+/*
 void ExtendTask(BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* task, MatrixMap* map, int depth, int obj) {
 	// end condition
 	if (!assNode) return;   // tree node empty
@@ -227,6 +206,167 @@ void ExtendAction(BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* t
 	bool End1 = lgroup.EndCheck(map, 2);
 	bool End2 = rgroup.EndCheck(map, 2);
 	cout << "End check: " << End1 << ", " << End2 << endl;
+}
+*/
+
+void TaskExtension(Task* task, MatrixMap* map) {
+	task->PushAll("allExtendedPoints");
+	vector<int> sepStuckGroups;
+	vector<int> moveStuckGroups;
+	int depth = task->AssemblyTree.depth(task->AssemblyTree.root());
+	for (int i = 0; i < depth - 1; i++) { // the leaf layer of assembly tree is not needed for extension
+		// construct the task subgroups
+		vector<TaskSubgroup>* taskGroups = new vector<TaskSubgroup>();
+		GetTaskSubgroups(taskGroups, task->AssemblyTree.root(), task->SegTree.root(), task, 0, i);
+
+		bool sepComplete = false;
+		while (!sepComplete) {
+			// separation
+			for (int i = 0; i < taskGroups->size(); ++i) {
+				cout << "size: " << taskGroups->size() << "  taskGroups " << i << " : " << (*taskGroups)[i].leader << endl
+					<< " separation distance: " << (*taskGroups)[i].targetSepDistance 
+					<< " current distance: " << (*taskGroups)[i].currentSepDistance << endl;
+				(*taskGroups)[i].Separation(map);
+				//RecordTaskExtendRT(task, robot);
+				task->PushAll("allExtendedPoints");
+				if ((*taskGroups)[i].sepStuck)
+					sepStuckGroups.push_back(i);  // update sepsStucks
+			}
+			
+			// EndCheck: if all sepDone, complete; otherwise, move
+			sepComplete = true;
+			for (int i = 0; i < taskGroups->size(); ++i) {
+				if (!(*taskGroups)[i].sepDone) { sepComplete = false; break; }
+			}
+			cout << "Separation proess: " << sepComplete << endl;
+			cout << "sepStuckGroups:  ";
+			for (int i = 0; i < sepStuckGroups.size(); i++)
+				cout << sepStuckGroups[i] << " , ";
+			cout << endl;
+			if (!sepComplete) {
+				// check sepStuckGroups, and assign weights
+				AssignWeights(taskGroups, sepStuckGroups);
+				// move
+				for (int i = 0; i < taskGroups->size(); ++i) {
+					vector<int> trial = (*taskGroups)[i].TrialMove();
+					if (!(*taskGroups)[i].MoveCheck(map, trial)) {  // no collision
+						(*taskGroups)[i].Move(map, trial, trial, {1, 1});
+						// update flags
+						(*taskGroups)[i].UpdateFlags(trial, true);
+					}
+					else
+						(*taskGroups)[i].UpdateFlags(trial, false);
+				}
+				//RecordTaskExtendRT(task, robot);
+				task->PushAll("allExtendedPoints");
+				map->Display("task");
+			}
+			// update sepsStucks & moveStucks
+			sepStuckGroups.swap(vector<int> ());
+			moveStuckGroups.swap(vector<int>());
+		}
+		// display
+		cout << endl << "Extend step " << i << " : " << endl;
+		map->Display("task");
+		cout << endl;
+		task->PushAll("allTargets");
+	}
+}
+
+void AssignWeights(vector<TaskSubgroup>* taskGroups, vector<int> sepStuckGroups) {
+	// handle separation stucks
+	for (int i = 0; i < sepStuckGroups.size(); ++i) {
+		// separation stuck groups size
+		int maxX = (*taskGroups)[sepStuckGroups[i]].lboundary[0]; 
+		int minX = (*taskGroups)[sepStuckGroups[i]].rboundary[1];
+		int maxY = (*taskGroups)[sepStuckGroups[i]].lboundary[2];
+		int minY = (*taskGroups)[sepStuckGroups[i]].rboundary[3];
+		// stuck points separation direction
+		for (int j = 0; j < taskGroups->size(); ++j) {
+			// helper groups size
+			int maxX_helper = (*taskGroups)[j].lboundary[0];
+			int minX_helper = (*taskGroups)[j].rboundary[1];
+			int maxY_helper = (*taskGroups)[j].lboundary[2];
+			int minY_helper = (*taskGroups)[j].rboundary[3];
+			if ((*taskGroups)[sepStuckGroups[i]].segDir == 'x') {
+				if (maxY_helper >= minY && minY_helper <= maxY) { // in the shot
+					if (maxX_helper <= minX)
+						(*taskGroups)[j].neighborWeight[3] = 1;  // move right
+					else if (minX_helper > maxX)
+						(*taskGroups)[j].neighborWeight[2] = 1;  // move left
+				}
+			}
+			else if ((*taskGroups)[sepStuckGroups[i]].segDir == 'y') {
+				if (maxX_helper >= minX && minX_helper <= maxX) { // in the shot
+					if (maxY_helper <= minY)
+						(*taskGroups)[j].neighborWeight[1] = 1;  // move down
+					else if (minY_helper < maxY)
+						(*taskGroups)[j].neighborWeight[0] = 1;  // move up
+				}
+			}
+		}
+	}
+	// handle move stucks
+
+	// normalization // free groups, no assignment
+	for (int i = 0; i < taskGroups->size(); ++i) {
+		float sum = accumulate((*taskGroups)[i].neighborWeight.begin(), (*taskGroups)[i].neighborWeight.end(), 0);
+		cout << "Weights sum: " << sum << endl;
+		if (!sum) {
+			for (int j = 0; j < 4; ++j)
+				(*taskGroups)[i].neighborWeight[j] = (*taskGroups)[i].neighborWeight[j] / sum;
+		}
+	}
+	// 方圆range+1范围内没有其他任务点，可以weights=0
+
+}
+
+void GetTaskSubgroups(vector<TaskSubgroup>* taskGroups, BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* task, int depth, int obj) {
+	if (!assNode) return;   // tree node empty
+	if (assNode->data.size() <= 1) return;  // cannot be extended anymore
+
+	if (depth == obj) {
+		// construct the taskgroups
+		vector<int> lcomponents = assNode->lChild->data;
+		vector<int> rcomponents = assNode->rChild->data;
+		vector<TaskPoint*> ltask;
+		vector<TaskPoint*> rtask;
+		bool belongToLeft;
+		bool lfull = false;
+		bool rfull = false;
+		for (int i = 0; i < task->currentTargets.size(); ++i) {
+			// lcomponents
+			belongToLeft = false;
+			if (ltask.size() < lcomponents.size()) {
+				for (int j = 0; j < lcomponents.size(); ++j)
+					if (task->currentTargets[i]->id == lcomponents[j]) {
+						ltask.push_back(task->currentTargets[i]);
+						belongToLeft = true;
+						break;
+					}
+			}
+			else
+				lfull = true;
+			if (belongToLeft) continue;
+			// rcomponents
+			if (rtask.size() < rcomponents.size()) {
+				for (int j = 0; j < rcomponents.size(); ++j)
+					if (task->currentTargets[i]->id == rcomponents[j]) {
+						rtask.push_back(task->currentTargets[i]);
+						break;
+					}
+			}
+			else
+				rfull = true;
+			if (lfull && rfull) break;
+		}
+		// initialization
+		TaskSubgroup taskgroup(ltask, rtask, segNode->data, 3);  // range = 2
+		taskGroups->push_back(taskgroup);
+	}
+
+	GetTaskSubgroups(taskGroups, assNode->lChild, segNode->lChild, task, depth + 1, obj);
+	GetTaskSubgroups(taskGroups, assNode->rChild, segNode->rChild, task, depth + 1, obj);
 }
 
 /*
@@ -364,7 +504,6 @@ void ExtendAction(BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* t
 // to robot[i]->initPosition.x(y)
 // return the assigned task IDs corresponding to the robot index
 vector<int> AssignTaskToRobot(Task* task, vector<Robot*> robot) {
-	//
 	float closestDistance;
 	float distance;   // distance between robots and tasks
 	bool assigned;
@@ -402,7 +541,7 @@ vector<int> AssignTaskToRobot(Task* task, vector<Robot*> robot) {
 	}
 	cout << endl;
 	RecordLog("Success to assign tasks to robots!");
-
+	
 	return assignedTaskID;
 }
 
