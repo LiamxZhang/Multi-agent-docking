@@ -223,7 +223,7 @@ void TaskExtension(Task* task, MatrixMap* map) {
 		while (!sepComplete) {
 			// separation
 			for (int i = 0; i < taskGroups->size(); ++i) {
-				cout << "size: " << taskGroups->size() << "  taskGroups " << i << " : " << (*taskGroups)[i].leader << endl
+				cout << "Size: " << taskGroups->size() << "  taskGroups " << i << " : " << (*taskGroups)[i].leader << endl
 					<< " separation distance: " << (*taskGroups)[i].targetSepDistance 
 					<< " current distance: " << (*taskGroups)[i].currentSepDistance << endl;
 				(*taskGroups)[i].Separation(map);
@@ -283,6 +283,11 @@ void AssignWeights(vector<TaskSubgroup>* taskGroups, vector<int> sepStuckGroups)
 		int minY = (*taskGroups)[sepStuckGroups[i]].rboundary[3];
 		// stuck points separation direction
 		for (int j = 0; j < taskGroups->size(); ++j) {
+			// initialization weights
+			(*taskGroups)[j].neighborWeight.swap(vector<float>());
+			for (int i = 0; i < 4; ++i)
+				(*taskGroups)[j].neighborWeight.push_back(0.0);
+
 			// helper groups size
 			int maxX_helper = (*taskGroups)[j].lboundary[0];
 			int minX_helper = (*taskGroups)[j].rboundary[1];
@@ -292,7 +297,7 @@ void AssignWeights(vector<TaskSubgroup>* taskGroups, vector<int> sepStuckGroups)
 				if (maxY_helper >= minY && minY_helper <= maxY) { // in the shot
 					if (maxX_helper <= minX)
 						(*taskGroups)[j].neighborWeight[3] = 1;  // move right
-					else if (minX_helper > maxX)
+					else if (minX_helper >= maxX)
 						(*taskGroups)[j].neighborWeight[2] = 1;  // move left
 				}
 			}
@@ -300,7 +305,7 @@ void AssignWeights(vector<TaskSubgroup>* taskGroups, vector<int> sepStuckGroups)
 				if (maxX_helper >= minX && minX_helper <= maxX) { // in the shot
 					if (maxY_helper <= minY)
 						(*taskGroups)[j].neighborWeight[1] = 1;  // move down
-					else if (minY_helper < maxY)
+					else if (minY_helper >= maxY)
 						(*taskGroups)[j].neighborWeight[0] = 1;  // move up
 				}
 			}
@@ -311,8 +316,8 @@ void AssignWeights(vector<TaskSubgroup>* taskGroups, vector<int> sepStuckGroups)
 	// normalization // free groups, no assignment
 	for (int i = 0; i < taskGroups->size(); ++i) {
 		float sum = accumulate((*taskGroups)[i].neighborWeight.begin(), (*taskGroups)[i].neighborWeight.end(), 0);
-		cout << "Weights sum: " << sum << endl;
-		if (!sum) {
+		cout << "ID: " << (*taskGroups)[i].leader << "Weights sum: " << sum << endl;
+		if (int(sum)) { // sum != 0
 			for (int j = 0; j < 4; ++j)
 				(*taskGroups)[i].neighborWeight[j] = (*taskGroups)[i].neighborWeight[j] / sum;
 		}

@@ -106,7 +106,7 @@ public:
 };
 
 void TaskSubgroup::InitWeights() {
-	neighborWeight.swap(vector<float>()); // leader
+	neighborWeight.swap(vector<float>());
 	for (int i = 0; i < 4; ++i)
 		neighborWeight.push_back(0.0);  // up, down, left, right
 
