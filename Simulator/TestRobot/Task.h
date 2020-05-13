@@ -59,6 +59,7 @@ public:
 	
 	// for group moving
 	int moveStep;          // moving steps in one layer
+	vector<float> neighborWeight;  // probability of moving to 4 neighbor, normalized sum to 1, up, down, left, right
 
 	// left
 	int ltaskNumber;
@@ -111,6 +112,10 @@ void TaskSubgroup::InitWeights() {
 	sepDone = false;
 	currentSepDistance = 0;
 	moveStep = 0;
+	// initial weight
+	neighborWeight.swap(vector<float>());
+	for (int i = 0; i < 4; ++i)
+		neighborWeight.push_back(0.0);  // up, down, left, right
 	// initial center
 	for (int i = 0; i < 2; ++i) {
 		ltaskCenter.push_back(0);
