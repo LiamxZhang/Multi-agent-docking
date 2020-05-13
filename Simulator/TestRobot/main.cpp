@@ -123,92 +123,6 @@ int main() {
 }
 
 /*
-void ExtendTask(BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* task, MatrixMap* map, int depth, int obj) {
-	// end condition
-	if (!assNode) return;   // tree node empty
-	if (assNode->data.size() <= 1) return;  // cannot be extended anymore
-
-	if (depth == obj) {
-		ExtendAction(assNode, segNode, task, map, obj);
-	}
-	ExtendTask(assNode->lChild, segNode->lChild, task, map, depth + 1, obj);
-	ExtendTask(assNode->rChild, segNode->rChild, task, map, depth + 1, obj);
-}
-
-void ExtendAction(BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* task, MatrixMap* map, int curDepth) {
-	// 分离方向，segNode->data
-	// x: left > right    y: up > down
-	srand((int)time(0));
-	// build the task subgroups for the two parts
-	vector<int> lcomponents = assNode->lChild->data;
-	vector<int> rcomponents = assNode->rChild->data;
-	vector<TaskPoint*> ltask;
-	vector<TaskPoint*> rtask;
-	bool belongToLeft;
-	bool lfull = false;
-	bool rfull = false;
-	for (int i = 0; i < task->currentTargets.size(); ++i) {
-		// lcomponents
-		belongToLeft = false;
-		if (ltask.size() < lcomponents.size()) {
-			for (int j = 0; j < lcomponents.size(); ++j)
-				if (task->currentTargets[i]->id == lcomponents[j]) {
-					ltask.push_back(task->currentTargets[i]);
-					belongToLeft = true;
-					break;
-				}
-		}
-		else
-			lfull = true;
-		if (belongToLeft) continue;
-		// rcomponents
-		if (rtask.size() < rcomponents.size()) {
-			for (int j = 0; j < rcomponents.size(); ++j)
-				if (task->currentTargets[i]->id == rcomponents[j]) {
-					rtask.push_back(task->currentTargets[i]);
-					break;
-				}
-		}
-		else
-			rfull = true;
-		if (lfull && rfull) break;
-	}
-	TaskSubgroup lgroup(ltask);
-	TaskSubgroup rgroup(rtask);
-	// initialization
-	if (!ltask[0]->step) {
-		cout << "Init weights: " << segNode->data << ", " << endl;
-		cout << "ltask size: " << ltask.size() << "  rtask size:  " << rtask.size() << endl;
-		lgroup.InitWeights(segNode->data, 'l');
-		rgroup.InitWeights(segNode->data, 'r');
-	}
-
-	// left
-	char ldir = lgroup.TrialMove();
-	if (map->TaskCheck(lgroup.GetTaskPos(), lgroup.GetTaskIds(), rgroup.GetTaskIds(), 1)) {
-		lgroup.Move(map);  // move, update map, update stuck flag
-		cout << "Left move!" << endl;
-	}
-	else { // 如遇障碍
-		lgroup.UpdateStuck(ldir);  // update stuck
-	}
-	// right
-	char rdir = rgroup.TrialMove();
-	if (map->TaskCheck(rgroup.GetTaskPos(), rgroup.GetTaskIds(), lgroup.GetTaskIds(), 1)) {
-		rgroup.Move(map);  // move, update map, update stuck flag
-		cout << "Right move!" << endl;
-	}
-	else {
-		rgroup.UpdateStuck(rdir);	// update stuck
-	}
-
-	// check condition, comlete
-	bool End1 = lgroup.EndCheck(map, 2);
-	bool End2 = rgroup.EndCheck(map, 2);
-	cout << "End check: " << End1 << ", " << End2 << endl;
-}
-*/
-
 void TaskExtension(Task* task, MatrixMap* map) {
 	task->PushAll("allExtendedPoints");
 	vector<int> sepStuckGroups;
@@ -272,6 +186,102 @@ void TaskExtension(Task* task, MatrixMap* map) {
 		task->PushAll("allTargets");
 	}
 }
+*/
+
+
+void TaskExtension(Task* task, MatrixMap* map) {
+	task->PushAll("allExtendedPoints");
+	vector<int> sepStuckGroups;
+	vector<int> moveStuckGroups;
+	int depth = task->AssemblyTree.depth(task->AssemblyTree.root());
+	for (int i = 0; i < depth - 1; i++) { // the leaf layer of assembly tree is not needed for extension
+		// construct the task subgroups
+		vector<TaskSubgroup>* taskGroups = new vector<TaskSubgroup>();
+		GetTaskSubgroups(taskGroups, task->AssemblyTree.root(), task->SegTree.root(), task, 0, i);
+
+		bool sepComplete = false;
+		vector<int> collision;
+		while (!sepComplete) {
+			for (int i = 0; i < taskGroups->size(); ++i) {
+				if (!(*taskGroups)[i].sepDone) {
+					// normal separation
+					collision = (*taskGroups)[i].Separation(map);
+					// if two sides are obstacle, shear separation
+					if (collision[0] == 1 && collision[1] == 1) { // one direction
+						collision = (*taskGroups)[i].ShearDeform(map, 1);
+					}
+					if (collision[0] == 1 && collision[1] == 1) { // another direction
+						collision = (*taskGroups)[i].ShearDeform(map, -1);
+					}
+				}
+				// if separation is stuck, move. at most one side is obstacle. 
+				if (collision[0] && collision[1]) {
+					//
+				}
+				// if move, clockwise move
+
+				// cannot move, null
+			}
+		}
+
+
+
+
+		bool sepComplete = false;
+		while (!sepComplete) {
+			// separation
+			for (int i = 0; i < taskGroups->size(); ++i) {
+				cout << "Size: " << taskGroups->size() << "  taskGroups " << i << " : " << (*taskGroups)[i].leader << endl
+					<< " separation distance: " << (*taskGroups)[i].targetSepDistance
+					<< " current distance: " << (*taskGroups)[i].currentSepDistance << endl;
+				(*taskGroups)[i].Separation(map);
+				//RecordTaskExtendRT(task, robot);
+				task->PushAll("allExtendedPoints");
+				if ((*taskGroups)[i].sepStuck)
+					sepStuckGroups.push_back(i);  // update sepsStucks
+			}
+
+			// EndCheck: if all sepDone, complete; otherwise, move
+			sepComplete = true;
+			for (int i = 0; i < taskGroups->size(); ++i) {
+				if (!(*taskGroups)[i].sepDone) { sepComplete = false; break; }
+			}
+			cout << "Separation proess: " << sepComplete << endl;
+			cout << "sepStuckGroups:  ";
+			for (int i = 0; i < sepStuckGroups.size(); i++)
+				cout << sepStuckGroups[i] << " , ";
+			cout << endl;
+			if (!sepComplete) {
+				// check sepStuckGroups, and assign weights
+				AssignWeights(taskGroups, sepStuckGroups);
+				// move
+				for (int i = 0; i < taskGroups->size(); ++i) {
+					vector<int> trial = (*taskGroups)[i].TrialMove();
+					if (!(*taskGroups)[i].MoveCheck(map, trial)) {  // no collision
+						(*taskGroups)[i].Move(map, trial, trial, {1, 1});
+						// update flags
+						(*taskGroups)[i].UpdateFlags(trial, true);
+					}
+					else
+						(*taskGroups)[i].UpdateFlags(trial, false);
+				}
+				//RecordTaskExtendRT(task, robot);
+				task->PushAll("allExtendedPoints");
+				map->Display("task");
+			}
+			// update sepsStucks & moveStucks
+			sepStuckGroups.swap(vector<int> ());
+			moveStuckGroups.swap(vector<int>());
+		}
+
+		// display
+		cout << endl << "Extend step " << i << " : " << endl;
+		map->Display("task");
+		cout << endl;
+		task->PushAll("allTargets");
+	}
+}
+
 
 void AssignWeights(vector<TaskSubgroup>* taskGroups, vector<int> sepStuckGroups) {
 	// handle separation stucks
@@ -374,135 +384,7 @@ void GetTaskSubgroups(vector<TaskSubgroup>* taskGroups, BinNode<vector<int>>* as
 	GetTaskSubgroups(taskGroups, assNode->rChild, segNode->rChild, task, depth + 1, obj);
 }
 
-/*
-void ExtendAction(BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* task, MatrixMap* map, int curDepth) {
-	// find the position of target id in currentTargets
-	vector<int> lcomponents = assNode->lChild->data;
-	vector<int> left_ids;
-	for (int i = 0; i < lcomponents.size(); i++)
-		for (int j = 0; j < task->currentTargets.size(); j++)
-			if (task->currentTargets[j]->id == lcomponents[i])    // ids[i] <-> components[i]
-				left_ids.push_back(j);
-	//
-	vector<int> rcomponents = assNode->rChild->data;
-	vector<int> right_ids;
-	for (int i = 0; i < rcomponents.size(); i++)
-		for (int j = 0; j < task->currentTargets.size(); j++)
-			if (task->currentTargets[j]->id == rcomponents[i])    // ids[i] <-> components[i]
-				right_ids.push_back(j);
 
-	// 移动一步，记录一次, 探测距离=截止距离
-	int step = 2; // 移动步长
-	int detect_dist = 4;  // 探测距离 2*(总深度-当前深度) //*(task->AssemblyTree.depth(task->AssemblyTree.root()) - curDepth + 1)
-	bool done = false;   // flag indicates the movement finish
-	int total_move = 0;  // 单次总移动距离
-
-	while (!done) {
-		if (segNode->data == 'x') {   // 沿x方向分离  // lcomponent的targets点都x+1, rcomponent都x-1
-			{// left
-				done = true;  // 是否 没有障碍
-				vector<TaskPoint*> tempTargets(task->currentTargets); // 佯装移动
-				for (int i = 0; i < lcomponents.size(); i++) {   // component移动
-					//cout << " xl " << i << endl;
-					int temp_pos = tempTargets[left_ids[i]]->taskPoint.x + step;
-					// collision, check map. 遇到任务点与遇到障碍物的反应应当不同
-					if (map->TaskCheck(temp_pos, tempTargets[left_ids[i]]->taskPoint.y, assNode->data, detect_dist))  // 如果没有障碍
-						tempTargets[left_ids[i]]->taskPoint.x = temp_pos;
-					else   // 如果附近有障碍
-						done = false;
-				}
-
-				if (done) {  // 如果整个component都没有遇到障碍
-					task->currentTargets.assign(tempTargets.begin(), tempTargets.end());
-					total_move += step;
-					// update map
-					map->UpdateTaskmap(tempTargets);
-				}
-			}
-			{// right
-				done = true;  // 是否 没有障碍
-				vector<TaskPoint*> tempTargets(task->currentTargets);
-				for (int i = 0; i < rcomponents.size(); i++) {
-					//cout << " rl " << i << endl;
-					int temp_pos = tempTargets[right_ids[i]]->taskPoint.x - step;
-					//
-					if (map->TaskCheck(temp_pos, tempTargets[right_ids[i]]->taskPoint.y, assNode->data, detect_dist))   // 如果没有障碍
-						tempTargets[right_ids[i]]->taskPoint.x = temp_pos;
-					else   // 如果有障碍
-						done = false;
-				}
-				if (done) {  // 如果整个component都没有遇到障碍
-					task->currentTargets.assign(tempTargets.begin(), tempTargets.end());
-					total_move += step;
-					// update map
-					map->UpdateTaskmap(tempTargets);
-				}
-			}
-		}
-		else if (segNode->data == 'y') {  // 沿y方向分离
-			{// up
-				done = true;  // 是否 没有障碍
-				vector<TaskPoint*> tempTargets(task->currentTargets); // 佯装移动
-				for (int i = 0; i < lcomponents.size(); i++) {
-					//cout << " yl " << i << endl;
-					int temp_pos = tempTargets[left_ids[i]]->taskPoint.y + step;
-					// collision, check map. 遇到任务点与遇到障碍物的反应应当不同
-					if (map->TaskCheck(tempTargets[left_ids[i]]->taskPoint.x, temp_pos, assNode->data, detect_dist))   // 如果没有障碍
-						tempTargets[left_ids[i]]->taskPoint.y = temp_pos;
-					else   // 如果有障碍
-						done = false;
-				}
-				if (done) {  // 如果整个component都没有遇到障碍
-					task->currentTargets.assign(tempTargets.begin(), tempTargets.end());
-					total_move += step;
-					// update map
-					map->UpdateTaskmap(tempTargets);
-				}
-			}
-			{// down
-				done = true;  // 是否 没有障碍
-				vector<TaskPoint*> tempTargets(task->currentTargets);
-				for (int i = 0; i < rcomponents.size(); i++) {
-					//cout << " yr " << i << endl;
-					int temp_pos = tempTargets[right_ids[i]]->taskPoint.y - step;
-					//
-					if (map->TaskCheck(tempTargets[right_ids[i]]->taskPoint.x, temp_pos, assNode->data, detect_dist))   // 如果没有障碍
-						tempTargets[right_ids[i]]->taskPoint.y = temp_pos;
-					else   // 如果有障碍
-						done = false;
-				}
-				if (done) {  // 如果整个component都没有遇到障碍
-					task->currentTargets.assign(tempTargets.begin(), tempTargets.end());
-					total_move += step;
-					// update map
-					map->UpdateTaskmap(tempTargets);
-				}
-			}
-		}
-		// else segNode containes nonsenses
-		// end condition: if displacement >= Num, done = true
-		if (total_move >= step * 2) break;
-		else done = false;
-	}
-	/*
-	if (done) {// assembly tree的一层完成,更新alltargets
-		vector<TaskPoint*> tempTargets;
-		for (int i = 0; i < task->currentTargets.size(); i++) {
-			TaskPoint* temp = new TaskPoint();
-			temp->id = task->currentTargets[i]->id;
-			temp->taskPoint.x = task->currentTargets[i]->taskPoint.x;
-			temp->taskPoint.y = task->currentTargets[i]->taskPoint.y;
-			tempTargets.push_back(temp);
-		}
-		task->allTargets.push_back(tempTargets);
-	}
-	// display
-	cout << endl;
-	map->Display();
-	cout << endl;
-	////
-}
-*/
 
 // assign the task to the closest robots using optimization (or bid)
 // from task->allTargets[j][i]->taskpoint.x(y)
