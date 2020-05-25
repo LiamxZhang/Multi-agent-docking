@@ -28,7 +28,7 @@ using namespace std;
 //void ExtendTask(BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* task, MatrixMap* map, int depth, int obj);
 //void ExtendAction(BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* task, MatrixMap* map, int curDepth);
 void TaskExtension(Task* task, MatrixMap* map);
-void AssignWeights(vector<TaskSubgroup>* taskGroups, vector<int> sepStuckGroups);
+//void AssignWeights(vector<TaskSubgroup>* taskGroups, vector<int> sepStuckGroups);
 void GetTaskSubgroups(vector<TaskSubgroup>* taskGroups, BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* task, int depth, int obj);
 vector<int> AssignTaskToRobot(Task* task, vector<Robot*> robot);
 vector<vector<int>> IDtoIndex(vector<Robot*> robot);
@@ -199,141 +199,48 @@ void TaskExtension(Task* task, MatrixMap* map) {
 		vector<TaskSubgroup>* taskGroups = new vector<TaskSubgroup>();
 		GetTaskSubgroups(taskGroups, task->AssemblyTree.root(), task->SegTree.root(), task, 0, i);
 
+		cout << endl << endl << "Depth proess:   " << i << endl
+			<< "How many groups :  " << taskGroups->size() << endl;
 		bool sepComplete = false;
 		vector<int> collision;
 		while (!sepComplete) {
 			for (int i = 0; i < taskGroups->size(); ++i) {
+				cout << endl
+					<< "The leader ID " << i << " : \t" << (*taskGroups)[i].leader
+					<< "\tSeparation distance: \t" << (*taskGroups)[i].targetSepDistance
+					<< "\tCurrent distance: \t" << (*taskGroups)[i].currentSepDistance << endl;
 				if (!(*taskGroups)[i].sepDone) {
 					// normal separation
-					collision = (*taskGroups)[i].Separation(map);
+					(*taskGroups)[i].Separation(map);
+					task->PushAll("allExtendedPoints");
 					// if two sides are obstacle, shear separation
-					if (collision[0] == 1 && collision[1] == 1) { // one direction
-						collision = (*taskGroups)[i].ShearDeform(map, 1);
-					}
-					if (collision[0] == 1 && collision[1] == 1) { // another direction
-						collision = (*taskGroups)[i].ShearDeform(map, -1);
-					}
+					
 				}
-				// if separation is stuck, move. at most one side is obstacle. 
-				if (collision[0] && collision[1]) {
-					//
-				}
-				// if move, clockwise move
-
-				// cannot move, null
 			}
-		}
-
-
-
-
-		bool sepComplete = false;
-		while (!sepComplete) {
-			// separation
-			for (int i = 0; i < taskGroups->size(); ++i) {
-				cout << "Size: " << taskGroups->size() << "  taskGroups " << i << " : " << (*taskGroups)[i].leader << endl
-					<< " separation distance: " << (*taskGroups)[i].targetSepDistance
-					<< " current distance: " << (*taskGroups)[i].currentSepDistance << endl;
-				(*taskGroups)[i].Separation(map);
-				//RecordTaskExtendRT(task, robot);
-				task->PushAll("allExtendedPoints");
-				if ((*taskGroups)[i].sepStuck)
-					sepStuckGroups.push_back(i);  // update sepsStucks
-			}
-
-			// EndCheck: if all sepDone, complete; otherwise, move
+			// EndCheck: if all Done, complete; otherwise, move
 			sepComplete = true;
 			for (int i = 0; i < taskGroups->size(); ++i) {
 				if (!(*taskGroups)[i].sepDone) { sepComplete = false; break; }
 			}
-			cout << "Separation proess: " << sepComplete << endl;
-			cout << "sepStuckGroups:  ";
-			for (int i = 0; i < sepStuckGroups.size(); i++)
-				cout << sepStuckGroups[i] << " , ";
-			cout << endl;
+			cout << "Separation complete? :  " << sepComplete << endl;
+			// if separation is not complete, move. at most one side is obstacle. 
 			if (!sepComplete) {
-				// check sepStuckGroups, and assign weights
-				AssignWeights(taskGroups, sepStuckGroups);
 				// move
 				for (int i = 0; i < taskGroups->size(); ++i) {
-					vector<int> trial = (*taskGroups)[i].TrialMove();
-					if (!(*taskGroups)[i].MoveCheck(map, trial)) {  // no collision
-						(*taskGroups)[i].Move(map, trial, trial, {1, 1});
-						// update flags
-						(*taskGroups)[i].UpdateFlags(trial, true);
-					}
-					else
-						(*taskGroups)[i].UpdateFlags(trial, false);
+					(*taskGroups)[i].OverallMove(map);
 				}
-				//RecordTaskExtendRT(task, robot);
+				//
 				task->PushAll("allExtendedPoints");
 				map->Display("task");
 			}
-			// update sepsStucks & moveStucks
-			sepStuckGroups.swap(vector<int> ());
-			moveStuckGroups.swap(vector<int>());
 		}
-
+		
 		// display
 		cout << endl << "Extend step " << i << " : " << endl;
 		map->Display("task");
 		cout << endl;
 		task->PushAll("allTargets");
 	}
-}
-
-
-void AssignWeights(vector<TaskSubgroup>* taskGroups, vector<int> sepStuckGroups) {
-	// handle separation stucks
-	for (int i = 0; i < sepStuckGroups.size(); ++i) {
-		// separation stuck groups size
-		int maxX = (*taskGroups)[sepStuckGroups[i]].lboundary[0]; 
-		int minX = (*taskGroups)[sepStuckGroups[i]].rboundary[1];
-		int maxY = (*taskGroups)[sepStuckGroups[i]].lboundary[2];
-		int minY = (*taskGroups)[sepStuckGroups[i]].rboundary[3];
-		// stuck points separation direction
-		for (int j = 0; j < taskGroups->size(); ++j) {
-			// initialization weights
-			(*taskGroups)[j].neighborWeight.swap(vector<float>());
-			for (int i = 0; i < 4; ++i)
-				(*taskGroups)[j].neighborWeight.push_back(0.0);
-
-			// helper groups size
-			int maxX_helper = (*taskGroups)[j].lboundary[0];
-			int minX_helper = (*taskGroups)[j].rboundary[1];
-			int maxY_helper = (*taskGroups)[j].lboundary[2];
-			int minY_helper = (*taskGroups)[j].rboundary[3];
-			if ((*taskGroups)[sepStuckGroups[i]].segDir == 'x') {
-				if (maxY_helper >= minY && minY_helper <= maxY) { // in the shot
-					if (maxX_helper <= minX)
-						(*taskGroups)[j].neighborWeight[3] = 1;  // move right
-					else if (minX_helper >= maxX)
-						(*taskGroups)[j].neighborWeight[2] = 1;  // move left
-				}
-			}
-			else if ((*taskGroups)[sepStuckGroups[i]].segDir == 'y') {
-				if (maxX_helper >= minX && minX_helper <= maxX) { // in the shot
-					if (maxY_helper <= minY)
-						(*taskGroups)[j].neighborWeight[1] = 1;  // move down
-					else if (minY_helper >= maxY)
-						(*taskGroups)[j].neighborWeight[0] = 1;  // move up
-				}
-			}
-		}
-	}
-	// handle move stucks
-
-	// normalization // free groups, no assignment
-	for (int i = 0; i < taskGroups->size(); ++i) {
-		float sum = accumulate((*taskGroups)[i].neighborWeight.begin(), (*taskGroups)[i].neighborWeight.end(), 0);
-		cout << "ID: " << (*taskGroups)[i].leader << "Weights sum: " << sum << endl;
-		if (int(sum)) { // sum != 0
-			for (int j = 0; j < 4; ++j)
-				(*taskGroups)[i].neighborWeight[j] = (*taskGroups)[i].neighborWeight[j] / sum;
-		}
-	}
-	// 方圆range+1范围内没有其他任务点，可以weights=0
-
 }
 
 void GetTaskSubgroups(vector<TaskSubgroup>* taskGroups, BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* task, int depth, int obj) {
@@ -383,7 +290,6 @@ void GetTaskSubgroups(vector<TaskSubgroup>* taskGroups, BinNode<vector<int>>* as
 	GetTaskSubgroups(taskGroups, assNode->lChild, segNode->lChild, task, depth + 1, obj);
 	GetTaskSubgroups(taskGroups, assNode->rChild, segNode->rChild, task, depth + 1, obj);
 }
-
 
 
 // assign the task to the closest robots using optimization (or bid)
