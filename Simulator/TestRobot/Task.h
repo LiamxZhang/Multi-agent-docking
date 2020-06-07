@@ -732,7 +732,7 @@ public:
 	// variables
 	int taskNum;
 	int robotNum;
-	vector<int> centerPoint;   // center of all task points (x,y)
+	vector<float> centerPoint;   // center of all task points (x,y)
 	vector<vector<int>> stuckPoints;    // all stuck points (x,y)
 	vector<TaskPoint*> startPoints;       // starting points of task , i.e., the robots
 	vector<TaskPoint*> finalTargets;     // end points of task
@@ -753,6 +753,9 @@ public:
 	void Display(int);
 	bool UpdateTaskmap(MatrixMap*, int);
 	void UpdateWeightAndFlag();
+	vector<float> CalculateCenter(int);
+	
+	vector<int> GetQueue();
 
 private:
 };
@@ -989,4 +992,68 @@ Task::UpdateTaskmap(MatrixMap* world, int num) {
 	for (int i = 0; i < Size; i++)
 		world->map_task(newTasks[i]->taskPoint.x, newTasks[i]->taskPoint.y) = newTasks[i]->id;
 	return true;
+}
+
+vector<float> 
+Task::CalculateCenter(int step) {
+	// calculate the boundary
+	vector<int> boundary;
+	boundary.push_back(INT_MIN);   // max X
+	boundary.push_back(INT_MAX);   // min X
+	boundary.push_back(INT_MIN);   // max Y
+	boundary.push_back(INT_MAX);   // min Y
+	for (int i = 0; i < taskNum; ++i) {
+		if (allTargets[step][i]->taskPoint.x > boundary[0]) { boundary[0] = allTargets[step][i]->taskPoint.x; }
+		if (allTargets[step][i]->taskPoint.x < boundary[1]) { boundary[1] = allTargets[step][i]->taskPoint.x; }
+		if (allTargets[step][i]->taskPoint.y > boundary[2]) { boundary[2] = allTargets[step][i]->taskPoint.y; }
+		if (allTargets[step][i]->taskPoint.y < boundary[3]) { boundary[3] = allTargets[step][i]->taskPoint.y; }
+	}
+	// update the center
+	centerPoint.swap(vector<float> ());
+	centerPoint.push_back(float(boundary[0] + boundary[1]) / 2); // x
+	centerPoint.push_back(float(boundary[2] + boundary[3]) / 2); // y
+
+}
+
+vector<int> 
+Task::GetQueue() {
+	// calculate the each target point's distance from the center
+	int step = 0; // show the first step target points
+	CalculateCenter(step);
+	vector<float> distance;
+
+	for (int i = 0; i < taskNum; ++i)
+		distance.push_back(abs(allTargets[step][i]->taskPoint.x - centerPoint[0])
+			+ abs(allTargets[step][i]->taskPoint.y - centerPoint[1]));
+
+	// calculate the queue from the most-close-to-center point to the most-far-from-center point
+	vector<int> queue = ShellSort(distance);
+
+	return queue;
+}
+
+//Ï£¶ûÅÅÐò
+vector<int> ShellSort(vector<float> h) // h is the distance between the targets and the center
+{
+	vector<int> queue; // the index of sorted distance vector
+	size_t len = h.size();
+	if (len == 0) return queue;
+	for (int i = 0; i < len; ++i) queue.push_back(i);
+	
+	for (int div = len / 2; div >= 1; div /= 2)
+		for (int k = 0; k < div; ++k)
+			for (int i = div + k; i < len; i += div)
+				for (int j = i; j > k; j -= div) {
+					if (h[j] < h[j - div]) {
+						float temp = h[j];
+						h[j] = h[j - div];
+						h[j - div] = temp;
+						int tempo = queue[j];
+						queue[j] = queue[j - div];
+						queue[j - div] = tempo;
+					}
+					else break;
+				}
+
+	return queue;
 }

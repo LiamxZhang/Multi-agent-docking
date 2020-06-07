@@ -19,7 +19,7 @@ public:
 	void ReadMap();
 	void Display(string str); 
 	bool TaskCheck(vector<vector<int>> taskPos, vector<int> taskIDs, vector<int> peerIDs, int range);
-	bool CollisionCheck(vector<Point> positions, vector<int> ids, vector<int> peerIDs);  // check collision with robots and obstacles
+	bool CollisionCheck(vector<Point> positions, vector<int> ids, vector<int> peerIDs, int interval);  // check collision with robots and obstacles
 	vector<int> FindWhere(int, char); // find the position according to ID
 	// variables
 	int RowNum, ColNum;
@@ -312,22 +312,22 @@ MatrixMap::TaskCheck(vector<vector<int>> taskPos, vector<int> taskIDs, vector<in
 
 
 bool
-MatrixMap::CollisionCheck(vector<Point> positions, vector<int> ids, vector<int> peerIDs) { // a group of robots // false : no collision, true : collision
+MatrixMap::CollisionCheck(vector<Point> positions, vector<int> ids, vector<int> peerIDs, int interval) { // a group of robots // false : no collision, true : collision
 	for (int i = 0; i < positions.size(); ++i) {  // for each robot
 		if (map_obstacle(positions[i].x, positions[i].y)) // obstacles
 			return true;
 		else { // if there's no obstacle, check robot at nearby
 			bool collision;
 			int minX, maxX, minY, maxY;
-			(positions[i].x - 1 > 0) ? minX = positions[i].x - 1 : minX = 0;
-			(positions[i].x + 1 < ColNum - 1) ? maxX = positions[i].x + 1 : maxX = ColNum - 1;
-			(positions[i].y - 1 > 0) ? minY = positions[i].y - 1 : minY = 0;
-			(positions[i].y + 1 < RowNum - 1) ? maxY = positions[i].y + 1 : maxY = RowNum - 1;
+			(positions[i].x - interval > 0) ? minX = positions[i].x - interval : minX = 0;
+			(positions[i].x + interval < ColNum - 1) ? maxX = positions[i].x + interval : maxX = ColNum - 1;
+			(positions[i].y - interval > 0) ? minY = positions[i].y - interval : minY = 0;
+			(positions[i].y + interval < RowNum - 1) ? maxY = positions[i].y + interval : maxY = RowNum - 1;
 			for (int x = minX; x <= maxX; ++x) {
 				for (int y = minY; y <= maxY; ++y) {
 					if (map_robot(x, y) != 0) { // robot exists
 						collision = true;  // assume existing robot
-						if (x == positions[i].x && y == positions[i].y) { // at the center position
+						if (x == positions[i].x && y == positions[i].y) { // at the very position of tendposition
 							for (int j = 0; j < ids.size(); ++j) {  // if one ID exists in the component£¬no collision
 								if (ids[j] == map_robot(x, y)) {
 									collision = false;
@@ -335,7 +335,7 @@ MatrixMap::CollisionCheck(vector<Point> positions, vector<int> ids, vector<int> 
 								}
 							}
 						}
-						else { // not the center
+						else { // not in the tendposition
 							for (int j = 0; j < peerIDs.size(); ++j) {  // if one ID exists in the component£¬no collision
 								if (peerIDs[j] == map_robot(x, y)) {
 									collision = false;

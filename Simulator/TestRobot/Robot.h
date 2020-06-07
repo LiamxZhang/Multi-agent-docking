@@ -71,7 +71,7 @@ public:
 	bool ReadMap();
 	vector<Point> AStarPath();   // plan the route of robot, from currentPosition to targetPosition
 	vector<Point> MappingPath(vector<Point>);  // mapping the path from leader's path
-	void UpdateMap(MatrixMap*, vector<int>, vector<int>);    // update workmap and weightMap
+	void UpdateMap(MatrixMap*, vector<int>, vector<int>, int);    // update workmap and weightMap
 	bool TrialStep();
 	void OneStep();         // robot move
 
@@ -282,7 +282,7 @@ Robot::MappingPath(vector<Point> leaderPath) {   // prerequest offset and leader
 }
 
 void 
-Robot::UpdateMap(MatrixMap* world, vector<int> member, vector<int> peers) {
+Robot::UpdateMap(MatrixMap* world, vector<int> member, vector<int> peers, int interval) {
 	// clear the maps
 	workmap.swap(vector<vector<int>>());
 	weightMap.swap(vector<vector<WeightPoint>>());
@@ -295,7 +295,7 @@ Robot::UpdateMap(MatrixMap* world, vector<int> member, vector<int> peers) {
 			else if (world->map_robot(r, c) != 0) { // robots
 				int tempRobot = world->map_robot(r, c);
 				bool isMember = false;
-				for (int i = 0; i < member.size(); ++i) { // members
+				for (int i = 0; i < member.size(); ++i) { // members: in the same group
 					if (member[i] == tempRobot) {
 						isMember = true;
 						break;
@@ -304,7 +304,7 @@ Robot::UpdateMap(MatrixMap* world, vector<int> member, vector<int> peers) {
 				if (isMember) continue;
 				// not in members
 				bool isPeer = false;
-				for (int i = 0; i < peers.size(); ++i) { // peers
+				for (int i = 0; i < peers.size(); ++i) { // peers: to be docked
 					if (peers[i] == tempRobot) {
 						isPeer = true;
 						break;
@@ -317,10 +317,10 @@ Robot::UpdateMap(MatrixMap* world, vector<int> member, vector<int> peers) {
 				// not in peers
 				{ // others
 					int minX, maxX, minY, maxY;
-					r - 1 > 0 ? minX = r - 1 : minX = 0;
-					r + 1 < mapRowNumber - 1 ? maxX = r + 1 : maxX = mapRowNumber - 1;
-					c - 1 > 0 ? minY = c - 1 : minY = 0;
-					c + 1 < mapColumnNumber - 1 ? maxY = c + 1 : maxY = mapColumnNumber - 1;
+					r - interval > 0 ? minX = r - interval : minX = 0;
+					r + interval < mapRowNumber - 1 ? maxX = r + interval : maxX = mapRowNumber - 1;
+					c - interval > 0 ? minY = c - interval : minY = 0;
+					c + interval < mapColumnNumber - 1 ? maxY = c + interval : maxY = mapColumnNumber - 1;
 					for (int i = minX; i <= maxX; ++i) {
 						for (int j = minY; j <= maxY; ++j) {
 							if (mapForPlan->map_robot(i, j) == 0 && mapForPlan->map_obstacle(i, j) == 0) 
@@ -440,7 +440,8 @@ RobotGroup::AssignLeaders() {
 void 
 RobotGroup::PathPlanning(MatrixMap* world, vector<TaskPoint*> allTargets, vector<int> peers) {
 	// leader update robot workmap, weightMap
-	robot[0]->UpdateMap(world, GetRobotIds(), peers);
+	int interval = 0;
+	robot[0]->UpdateMap(world, GetRobotIds(), peers, interval);
 	// update all robot targetPosition
 	for (int i = 0; i < robot.size(); i++)
 		for (int j = 0; j < allTargets.size(); j++)
