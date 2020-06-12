@@ -11294,3 +11294,1063 @@ RecordCurrentAndTargetPosition:
 RobotId   CurrentPosition   TargetPosition
 RecordCurrentAndTargetPosition:
 RobotId   CurrentPosition   TargetPosition
+Success to read the Map of obstacle, robot and task.
+Finish to read the task and the robot initial position.
+Success to generate the assembly tree!
+Success to assign tasks to robots!
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+Success to read the Map of obstacle, robot and task.
+Finish to read the task and the robot initial position.
+Success to generate the assembly tree!
+Success to assign tasks to robots!
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+Success to read the Map of obstacle, robot and task.
+Finish to read the task and the robot initial position.
+Success to generate the assembly tree!
+Success to assign tasks to robots!
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+Success to read the Map of obstacle, robot and task.
+Finish to read the task and the robot initial position.
+Success to generate the assembly tree!
+Success to assign tasks to robots!
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+Finished to move all robots to the targets of layer 4
+Finished to dock!
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+Finished to move all robots to the targets of layer 3
+Finished to dock!
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+Finished to move all robots to the targets of layer 2
+Finished to dock!
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+Finished to move all robots to the targets of layer 1
+Finished to dock!
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+Finished to move all robots to the targets of layer 0
+Finished to dock!
+Success to read the Map of obstacle, robot and task.
+Finish to read the task and the robot initial position.
+Success to generate the assembly tree!
+Success to assign tasks to robots!
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+Finished to move all robots to the targets of layer 4
+Finished to dock!
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+Finished to move all robots to the targets of layer 3
+Finished to dock!
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+Finished to move all robots to the targets of layer 2
+Finished to dock!
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+Finished to move all robots to the targets of layer 1
+Finished to dock!
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+Finished to move all robots to the targets of layer 0
+Finished to dock!
+Success to read the Map of obstacle, robot and task.
+Finish to read the task and the robot initial position.
+Success to generate the assembly tree!
+Success to read the Map of obstacle, robot and task.
+Finish to read the task and the robot initial position.
+Success to generate the assembly tree!
+Success to read the Map of obstacle, robot and task.
+Finish to read the task and the robot initial position.
+Success to generate the assembly tree!
+Success to read the Map of obstacle, robot and task.
+Finish to read the task and the robot initial position.
+Success to generate the assembly tree!
+Success to read the Map of obstacle, robot and task.
+Finish to read the task and the robot initial position.
+Success to generate the assembly tree!
+Success to read the Map of obstacle, robot and task.
+Finish to read the task and the robot initial position.
+Success to generate the assembly tree!
+Success to read the Map of obstacle, robot and task.
+Finish to read the task and the robot initial position.
+Success to generate the assembly tree!
+Success to read the Map of obstacle, robot and task.
+Finish to read the task and the robot initial position.
+Success to generate the assembly tree!
+Success to read the Map of obstacle, robot and task.
+Finish to read the task and the robot initial position.
+Success to generate the assembly tree!
+Success to read the Map of obstacle, robot and task.
+Finish to read the task and the robot initial position.
+Success to generate the assembly tree!
+Success to read the Map of obstacle, robot and task.
+Finish to read the task and the robot initial position.
+Success to generate the assembly tree!
+Success to read the Map of obstacle, robot and task.
+Finish to read the task and the robot initial position.
+Success to generate the assembly tree!
+Success to read the Map of obstacle, robot and task.
+Finish to read the task and the robot initial position.
+Success to generate the assembly tree!
+Success to read the Map of obstacle, robot and task.
+Finish to read the task and the robot initial position.
+Success to generate the assembly tree!
+Success to read the Map of obstacle, robot and task.
+Finish to read the task and the robot initial position.
+Success to generate the assembly tree!
+Success to read the Map of obstacle, robot and task.
+Finish to read the task and the robot initial position.
+Success to generate the assembly tree!
+Success to assign tasks to robots!
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+Finished to move all robots to the targets of layer 4
+Finished to dock!
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+Success to read the Map of obstacle, robot and task.
+Finish to read the task and the robot initial position.
+Success to generate the assembly tree!
+Success to read the Map of obstacle, robot and task.
+Finish to read the task and the robot initial position.
+Success to generate the assembly tree!
+Success to assign tasks to robots!
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+Success to read the Map of obstacle, robot and task.
+Finish to read the task and the robot initial position.
+Success to generate the assembly tree!
+Success to assign tasks to robots!
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+Finished to move all robots to the targets of layer 4
+Finished to dock!
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+Finished to move all robots to the targets of layer 3
+Finished to dock!
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+Finished to move all robots to the targets of layer 2
+Finished to dock!
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+Finished to move all robots to the targets of layer 1
+Finished to dock!
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+RecordCurrentAndTargetPosition:
+RobotId   CurrentPosition   TargetPosition
+Finished to move all robots to the targets of layer 0
+Finished to dock!

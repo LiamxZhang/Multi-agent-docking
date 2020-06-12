@@ -25,10 +25,14 @@
 
 using namespace std;
 
-//void ExtendTask(BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* task, MatrixMap* map, int depth, int obj);
-//void ExtendAction(BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* task, MatrixMap* map, int curDepth);
 void TaskExtension(Task* task, MatrixMap* map);
-//void AssignWeights(vector<TaskSubgroup>* taskGroups, vector<int> sepStuckGroups);
+vector<int> Separation(vector<TaskSubgroup>* taskGroups, Task* task, MatrixMap* map);
+vector<int> FindEndPoint(vector<int> incompleteGroup, vector<TaskSubgroup>* taskGroups, MatrixMap* map);
+vector<int> FindNeighbors(vector<int> candidateGroup, vector<int> allstuckGroups, vector<TaskSubgroup>* taskGroups, MatrixMap* map);
+vector<int> PartNeighbors(vector<int> boundary, vector<int> allstuckGroups, vector<TaskSubgroup>* taskGroups, MatrixMap* map);
+int WhichGroup(int pointID, vector<TaskSubgroup>* taskGroups);
+void WavePropagation(vector<int> candidateGroup, vector<int> allstuckGroups, vector<TaskSubgroup>* taskGroups, MatrixMap* map);
+
 void GetTaskSubgroups(vector<TaskSubgroup>* taskGroups, BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* task, int depth, int obj);
 vector<int> AssignTaskToRobot(Task* task, vector<Robot*> robot);
 vector<vector<int>> IDtoIndex(vector<Robot*> robot);
@@ -96,7 +100,9 @@ int main() {
 		while (!reach) {
 			for (int j = 0; j < groups.size(); j++) {
 				vector<int> peersIDs = GetPeers(groups[j], robot, task, tID2index, stepNum - i - 1); // same group and to be docked group
+				cout << "Path planning. " << endl;
 				groups[j].PathPlanning(world, task->allTargets[stepNum - i - 1], peersIDs);
+				cout << "Robot move. " << endl;
 				groups[j].TrialMove();
 				if (!world->CollisionCheck(groups[j].GetRobotPos(), groups[j].GetRobotIds(), peersIDs)) {
 					groups[j].Move(world);
@@ -122,73 +128,453 @@ int main() {
 	return 0;
 }
 
-/*
 void TaskExtension(Task* task, MatrixMap* map) {
 	task->PushAll("allExtendedPoints");
-	vector<int> sepStuckGroups;
-	vector<int> moveStuckGroups;
+
 	int depth = task->AssemblyTree.depth(task->AssemblyTree.root());
-	for (int i = 0; i < depth - 1; i++) { // the leaf layer of assembly tree is not needed for extension
+	
+	for (int i = 0; i < depth - 1; i++) {
 		// construct the task subgroups
 		vector<TaskSubgroup>* taskGroups = new vector<TaskSubgroup>();
 		GetTaskSubgroups(taskGroups, task->AssemblyTree.root(), task->SegTree.root(), task, 0, i);
 
 		bool sepComplete = false;
 		while (!sepComplete) {
-			// separation
-			for (int i = 0; i < taskGroups->size(); ++i) {
-				cout << "Size: " << taskGroups->size() << "  taskGroups " << i << " : " << (*taskGroups)[i].leader << endl
-					<< " separation distance: " << (*taskGroups)[i].targetSepDistance 
-					<< " current distance: " << (*taskGroups)[i].currentSepDistance << endl;
-				(*taskGroups)[i].Separation(map);
-				//RecordTaskExtendRT(task, robot);
-				task->PushAll("allExtendedPoints");
-				if ((*taskGroups)[i].sepStuck)
-					sepStuckGroups.push_back(i);  // update sepsStucks
-			}
-			
-			// EndCheck: if all sepDone, complete; otherwise, move
+			// try separation
+			vector<int> incompleteGroup = Separation(taskGroups, task, map);
+			task->PushAll("allExtendedPoints");
+
+			// EndCheck: if all Done, complete; otherwise, move
 			sepComplete = true;
 			for (int i = 0; i < taskGroups->size(); ++i) {
 				if (!(*taskGroups)[i].sepDone) { sepComplete = false; break; }
 			}
-			cout << "Separation proess: " << sepComplete << endl;
-			cout << "sepStuckGroups:  ";
-			for (int i = 0; i < sepStuckGroups.size(); i++)
-				cout << sepStuckGroups[i] << " , ";
-			cout << endl;
-			if (!sepComplete) {
-				// check sepStuckGroups, and assign weights
-				AssignWeights(taskGroups, sepStuckGroups);
-				// move
-				for (int i = 0; i < taskGroups->size(); ++i) {
-					vector<int> trial = (*taskGroups)[i].TrialMove();
-					if (!(*taskGroups)[i].MoveCheck(map, trial)) {  // no collision
-						(*taskGroups)[i].Move(map, trial, trial, {1, 1});
-						// update flags
-						(*taskGroups)[i].UpdateFlags(trial, true);
-					}
-					else
-						(*taskGroups)[i].UpdateFlags(trial, false);
-				}
-				//RecordTaskExtendRT(task, robot);
-				task->PushAll("allExtendedPoints");
-				map->Display("task");
+
+			// find the two end
+			vector<int> endGroups = FindEndPoint(incompleteGroup, taskGroups, map);
+
+			cout << "End groups are:   ";
+			for (int k = 0; k < endGroups.size(); ++k) {
+				cout << endGroups[k] << " (" << (*taskGroups)[endGroups[k]].leader << "),\t";
 			}
-			// update sepsStucks & moveStucks
-			sepStuckGroups.swap(vector<int> ());
-			moveStuckGroups.swap(vector<int>());
+			cout << endl;
+
+			// recursion
+			WavePropagation(endGroups, endGroups, taskGroups, map);
+			task->PushAll("allExtendedPoints");
+			
+			map->Display("task");
 		}
-		// display
-		cout << endl << "Extend step " << i << " : " << endl;
-		map->Display("task");
-		cout << endl;
 		task->PushAll("allTargets");
 	}
+	// task->PushAll("allTargets");
 }
-*/
 
+// separation operation
+// return sep incomplete groups
+vector<int> Separation(vector<TaskSubgroup>* taskGroups, Task* task, MatrixMap* map) {
+	vector<int> incompete;
+	// each group separation
+	for (int i = 0; i < taskGroups->size(); ++i) {
+		if (!(*taskGroups)[i].sepDone) {
+			(*taskGroups)[i].Separation(map); // normal separation // return the endpoints
+			if (!(*taskGroups)[i].sepDone)
+				incompete.push_back(i);
+		}
+	}
+	return incompete;
+}
 
+// find the two end
+// return the nearest task groups in the two ends
+vector<int> FindEndPoint(vector<int> incompleteGroup, vector<TaskSubgroup>* taskGroups, MatrixMap* map) {
+	int range = (*taskGroups)[0].range;
+	vector<int> endGroups;
+	for (int i = 0; i < incompleteGroup.size(); ++i) {
+		// direction
+		char direction = (*taskGroups)[incompleteGroup[i]].segDir;
+		// vector<int> lboundary; // max X, min X, max Y, min Y
+		// vector<int> rboundary; // max X, min X, max Y, min Y
+		if (direction == 'x') {
+			{// left
+				vector<int> boundary = (*taskGroups)[incompleteGroup[i]].lboundary; // max X, min X, max Y, min Y
+				int minX, maxX, minY, maxY;
+				boundary[0] + range + 1 < map->ColNum - 1 ? maxX = boundary[0] + range + 1 : maxX = map->ColNum - 1; // max X
+				boundary[1] - range > 0 ? minX = boundary[1] - range : minX = 0;                                 // min X
+				boundary[2] + range < map->RowNum - 1 ? maxY = boundary[2] + range : maxY = map->RowNum - 1; // max Y
+				boundary[3] - range > 0 ? minY = boundary[3] - range : minY = 0;                                 // min Y
+
+				for (int y = minY; y <= maxY; ++y) {
+					for (int x = boundary[0]; x <= maxX; ++x) {
+						if (map->map_obstacle(x, y)) break;
+						if (map->map_task(x, y)) { // find the task points
+							// find which group it belongs to
+							int new_groupID = WhichGroup(map->map_task(x, y), taskGroups);
+							// if not include, include
+							vector<int>::iterator iter = find(endGroups.begin(), endGroups.end(), new_groupID);
+							if (iter == endGroups.end())
+								endGroups.push_back(new_groupID);
+							break;
+						}
+					}
+				}
+			}
+			{// right
+				vector<int> boundary = (*taskGroups)[incompleteGroup[i]].rboundary; // max X, min X, max Y, min Y
+				int minX, maxX, minY, maxY;
+				boundary[0] + range < map->ColNum - 1 ? maxX = boundary[0] + range : maxX = map->ColNum - 1; // max X
+				boundary[1] - range - 1 > 0 ? minX = boundary[1] - range - 1 : minX = 0;                                 // min X
+				boundary[2] + range < map->RowNum - 1 ? maxY = boundary[2] + range : maxY = map->RowNum - 1; // max Y
+				boundary[3] - range > 0 ? minY = boundary[3] - range : minY = 0;                                 // min Y
+
+				for (int y = minY; y <= maxY; ++y) {
+					for (int x = boundary[1]; x >= minX; --x) {
+						if (map->map_obstacle(x, y)) break;
+						if (map->map_task(x, y)) { // find the task points
+							// find which group it belongs to
+							int new_groupID = WhichGroup(map->map_task(x, y), taskGroups);
+							// if not include, include
+							vector<int>::iterator iter = find(endGroups.begin(), endGroups.end(), new_groupID);
+							if (iter == endGroups.end())
+								endGroups.push_back(new_groupID);
+							break;
+						}
+					}
+				}
+			}
+		}
+		else if (direction == 'y') {
+			{// left
+				vector<int> boundary = (*taskGroups)[incompleteGroup[i]].lboundary; // max X, min X, max Y, min Y
+				int minX, maxX, minY, maxY;
+				boundary[0] + range < map->ColNum - 1 ? maxX = boundary[0] + range : maxX = map->ColNum - 1; // max X
+				boundary[1] - range > 0 ? minX = boundary[1] - range : minX = 0;                                 // min X
+				boundary[2] + range + 1 < map->RowNum - 1 ? maxY = boundary[2] + range + 1 : maxY = map->RowNum - 1; // max Y
+				boundary[3] - range > 0 ? minY = boundary[3] - range : minY = 0;                                 // min Y
+
+				for (int x = minX; x <= maxX; ++x) {
+					for (int y = boundary[2]; y <= maxY; ++y) {
+						if (map->map_obstacle(x, y)) break;
+						if (map->map_task(x, y)) { // find the task points
+							// find which group it belongs to
+							int new_groupID = WhichGroup(map->map_task(x, y), taskGroups);
+							// if not include, include
+							vector<int>::iterator iter = find(endGroups.begin(), endGroups.end(), new_groupID);
+							if (iter == endGroups.end())
+								endGroups.push_back(new_groupID);
+							break;
+						}
+					}
+				}
+			}
+			{// right
+				vector<int> boundary = (*taskGroups)[incompleteGroup[i]].rboundary; // max X, min X, max Y, min Y
+				int minX, maxX, minY, maxY;
+				boundary[0] + range < map->ColNum - 1 ? maxX = boundary[0] + range : maxX = map->ColNum - 1; // max X
+				boundary[1] - range > 0 ? minX = boundary[1] - range : minX = 0;                                 // min X
+				boundary[2] + range < map->RowNum - 1 ? maxY = boundary[2] + range : maxY = map->RowNum - 1; // max Y
+				boundary[3] - range - 1 > 0 ? minY = boundary[3] - range - 1 : minY = 0;                                 // min Y
+
+				for (int x = minX; x <= maxX; ++x) {
+					for (int y = boundary[3]; y >= minY; --y) {
+						if (map->map_obstacle(x, y)) break;
+						if (map->map_task(x, y)) { // find the task points
+							// find which group it belongs to
+							int new_groupID = WhichGroup(map->map_task(x, y), taskGroups);
+							// if not include, include
+							vector<int>::iterator iter = find(endGroups.begin(), endGroups.end(), new_groupID);
+							if (iter == endGroups.end())
+								endGroups.push_back(new_groupID);
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return endGroups;
+}
+
+// find the around pairs, assume these are 
+// return the nearest groups in 4 sides
+vector<int> FindNeighbors(vector<int> candidateGroup, vector<int> allstuckGroups, vector<TaskSubgroup>* taskGroups, MatrixMap* map) {
+	// candidateGroup: the current groups to be decide to move or to propagate; 
+	// allstuckGroups: all stuck groups
+	int range = (*taskGroups)[0].range;
+	vector<int> neighbors;
+	for (int i = 0; i < candidateGroup.size(); ++i) {
+		// test if it can move
+		vector<int> trial(2);
+		trial[1] = 1; // up
+		bool up = (*taskGroups)[candidateGroup[i]].MoveCheck(map, trial);
+		trial[1] = -1; // down
+		bool down = (*taskGroups)[candidateGroup[i]].MoveCheck(map, trial);
+		trial[1] = 0;
+		trial[0] = 1; // left
+		bool left = (*taskGroups)[candidateGroup[i]].MoveCheck(map, trial);
+		trial[0] = -1; // right
+		bool right = (*taskGroups)[candidateGroup[i]].MoveCheck(map, trial);
+		/*
+		if (up || down || left || right) {
+			cout << "Group " << candidateGroup[i] << " can move. " << endl;
+			continue; // at least one direction can move
+		}
+		*/
+
+		vector<int> new_neighbors = PartNeighbors((*taskGroups)[candidateGroup[i]].lboundary, allstuckGroups, taskGroups, map);
+		cout << "FindNeighbors: \t left:\t " ;
+		for (int k = 0; k < new_neighbors.size(); ++k) {
+			neighbors.push_back(new_neighbors[k]);
+			allstuckGroups.push_back(new_neighbors[k]);
+			cout << new_neighbors[k] << " (" << (*taskGroups)[new_neighbors[k]].leader << "),\t";
+		}
+		cout << endl;
+		
+		vector<int> new_neighbors_r = PartNeighbors((*taskGroups)[candidateGroup[i]].rboundary, allstuckGroups, taskGroups, map);
+		cout << "\t right: \t";
+		for (int k = 0; k < new_neighbors_r.size(); ++k) {
+			neighbors.push_back(new_neighbors_r[k]);
+			allstuckGroups.push_back(new_neighbors_r[k]);
+			cout << new_neighbors_r[k] << " (" << (*taskGroups)[new_neighbors_r[k]].leader << "),\t";
+		}
+		cout << endl;
+
+		/*
+		{// up
+			vector<int> boundary = (*taskGroups)[candidateGroup[i]].lboundary; // max X, min X, max Y, min Y
+			int minX, maxX, minY, maxY;
+			boundary[0] + range < map->ColNum - 1 ? maxX = boundary[0] + range : maxX = map->ColNum - 1; // max X
+			boundary[1] - range > 0 ? minX = boundary[1] - range : minX = 0;                                 // min X
+			boundary[2] + range + 1 < map->RowNum - 1 ? maxY = boundary[2] + range + 1 : maxY = map->RowNum - 1; // max Y
+			boundary[3] - range > 0 ? minY = boundary[3] - range : minY = 0;                                 // min Y
+
+			for (int x = minX; x <= maxX; ++x) {
+				for (int y = boundary[2]; y <= maxY; ++y) {
+					if (map->map_task(x, y)) { // find the task points
+						// find which group it belongs to
+						int new_groupID = WhichGroup(map->map_task(x, y), taskGroups);
+						// if never include
+						vector<int>::iterator iter = find(allstuckGroups.begin(), allstuckGroups.end(), new_groupID);
+						if (iter == allstuckGroups.end())
+							neighbors.push_back(new_groupID);
+						break;
+					}
+				}
+			}
+		}
+
+		{// down
+			vector<int> boundary = (*taskGroups)[candidateGroup[i]].rboundary; // max X, min X, max Y, min Y
+			int minX, maxX, minY, maxY;
+			boundary[0] + range < map->ColNum - 1 ? maxX = boundary[0] + range : maxX = map->ColNum - 1; // max X
+			boundary[1] - range > 0 ? minX = boundary[1] - range : minX = 0;                                 // min X
+			boundary[2] + range < map->RowNum - 1 ? maxY = boundary[2] + range : maxY = map->RowNum - 1; // max Y
+			boundary[3] - range - 1 > 0 ? minY = boundary[3] - range - 1 : minY = 0;                                 // min Y
+
+			for (int x = minX; x <= maxX; ++x) {
+				for (int y = boundary[3]; y >= minY; --y) {
+					if (map->map_task(x, y)) { // find the task points
+						// find which group it belongs to
+						int new_groupID = WhichGroup(map->map_task(x, y), taskGroups);
+						// if not include, include
+						vector<int>::iterator iter = find(allstuckGroups.begin(), allstuckGroups.end(), new_groupID);
+						if (iter == allstuckGroups.end())
+							neighbors.push_back(new_groupID);
+						continue;
+					}
+				}
+			}
+		}
+
+		{// left
+			vector<int> boundary = (*taskGroups)[candidateGroup[i]].lboundary; // max X, min X, max Y, min Y
+			int minX, maxX, minY, maxY;
+			boundary[0] + range + 1 < map->ColNum - 1 ? maxX = boundary[0] + range + 1 : maxX = map->ColNum - 1; // max X
+			boundary[1] - range > 0 ? minX = boundary[1] - range : minX = 0;                                 // min X
+			boundary[2] + range < map->RowNum - 1 ? maxY = boundary[2] + range : maxY = map->RowNum - 1; // max Y
+			boundary[3] - range > 0 ? minY = boundary[3] - range : minY = 0;                                 // min Y
+
+			for (int y = minY; y <= maxY; ++y) {
+				for (int x = boundary[0]; x <= maxX; ++x) {
+					if (map->map_task(x, y)) { // find the task points
+						// find which group it belongs to
+						int new_groupID = WhichGroup(map->map_task(x, y), taskGroups);
+						// if not include, include
+						vector<int>::iterator iter = find(allstuckGroups.begin(), allstuckGroups.end(), new_groupID);
+						if (iter == allstuckGroups.end())
+							neighbors.push_back(new_groupID);
+						continue;
+					}
+				}
+			}
+		}
+
+		{// right
+			vector<int> boundary = (*taskGroups)[candidateGroup[i]].rboundary; // max X, min X, max Y, min Y
+			int minX, maxX, minY, maxY;
+			boundary[0] + range < map->ColNum - 1 ? maxX = boundary[0] + range : maxX = map->ColNum - 1; // max X
+			boundary[1] - range - 1 > 0 ? minX = boundary[1] - range - 1 : minX = 0;                                 // min X
+			boundary[2] + range < map->RowNum - 1 ? maxY = boundary[2] + range : maxY = map->RowNum - 1; // max Y
+			boundary[3] - range > 0 ? minY = boundary[3] - range : minY = 0;                                 // min Y
+
+			for (int y = minY; y <= maxY; ++y) {
+				for (int x = boundary[1]; x >= minX; --x) {
+					if (map->map_task(x, y)) { // find the task points
+						// find which group it belongs to
+						int new_groupID = WhichGroup(map->map_task(x, y), taskGroups);
+						// if not include, include
+						vector<int>::iterator iter = find(allstuckGroups.begin(), allstuckGroups.end(), new_groupID);
+						if (iter == allstuckGroups.end())
+							neighbors.push_back(new_groupID);
+						continue;
+					}
+				}
+			}
+		}
+		*/
+
+	}
+	return neighbors;
+}
+
+vector<int> PartNeighbors(vector<int> boundary, vector<int> allstuckGroups, vector<TaskSubgroup>* taskGroups, MatrixMap* map) {
+	int range = (*taskGroups)[0].range;
+	vector<int> new_neighbors;
+	int minX, maxX, minY, maxY;
+	
+	boundary[0] + range < map->ColNum - 1 ? maxX = boundary[0] + range : maxX = map->ColNum - 1;     // max X
+	boundary[1] - range > 0 ? minX = boundary[1] - range : minX = 0;                                 // min X
+	boundary[2] + range + 1 < map->RowNum - 1 ? maxY = boundary[2] + range + 1 : maxY = map->RowNum - 1; // max Y
+	boundary[3] - range - 1 > 0 ? minY = boundary[3] - range - 1 : minY = 0;                             // min Y
+
+	// up
+	for (int x = minX; x <= maxX; ++x) {
+		for (int y = boundary[2]; y <= maxY; ++y) {
+			//if (map->map_obstacle(x, y)) break;
+			if (map->map_task(x, y)) { // find the task points
+				// find which group it belongs to
+				int new_groupID = WhichGroup(map->map_task(x, y), taskGroups);
+				// if never include
+				vector<int>::iterator iter = find(allstuckGroups.begin(), allstuckGroups.end(), new_groupID);
+				if (iter == allstuckGroups.end()) {
+					new_neighbors.push_back(new_groupID);
+					allstuckGroups.push_back(new_groupID);
+				}
+				//break;
+			}
+		}
+	}
+	// down	
+	for (int x = minX; x <= maxX; ++x) {
+		for (int y = boundary[3]; y >= minY; --y) {
+			//if (map->map_obstacle(x, y)) break;
+			if (map->map_task(x, y)) { // find the task points
+				// find which group it belongs to
+				int new_groupID = WhichGroup(map->map_task(x, y), taskGroups);
+				// if not include, include
+				vector<int>::iterator iter = find(allstuckGroups.begin(), allstuckGroups.end(), new_groupID);
+				if (iter == allstuckGroups.end()) {
+					new_neighbors.push_back(new_groupID);
+					allstuckGroups.push_back(new_groupID);
+				}
+				//break;
+			}
+		}
+	}
+
+	boundary[0] + range + 1 < map->ColNum - 1 ? maxX = boundary[0] + range + 1 : maxX = map->ColNum - 1; // max X
+	boundary[1] - range - 1 > 0 ? minX = boundary[1] - range - 1 : minX = 0;                             // min X
+	boundary[2] + range < map->RowNum - 1 ? maxY = boundary[2] + range : maxY = map->RowNum - 1;     // max Y
+	boundary[3] - range > 0 ? minY = boundary[3] - range : minY = 0;                                 // min Y
+
+	// left
+	for (int y = minY; y <= maxY; ++y) {
+		for (int x = boundary[0]; x <= maxX; ++x) {
+			//if (map->map_obstacle(x, y)) break;
+			if (map->map_task(x, y)) { // find the task points
+				// find which group it belongs to
+				int new_groupID = WhichGroup(map->map_task(x, y), taskGroups);
+				// if not include, include
+				vector<int>::iterator iter = find(allstuckGroups.begin(), allstuckGroups.end(), new_groupID);
+				if (iter == allstuckGroups.end()) {
+					new_neighbors.push_back(new_groupID);
+					allstuckGroups.push_back(new_groupID);
+				}
+				//break;
+			}
+		}
+	}
+	// right
+	for (int y = minY; y <= maxY; ++y) {
+		for (int x = boundary[1]; x >= minX; --x) {
+			//if (map->map_obstacle(x, y)) break;
+			if (map->map_task(x, y)) { // find the task points
+				// find which group it belongs to
+				int new_groupID = WhichGroup(map->map_task(x, y), taskGroups);
+				// if not include, include
+				vector<int>::iterator iter = find(allstuckGroups.begin(), allstuckGroups.end(), new_groupID);
+				if (iter == allstuckGroups.end()) {
+					new_neighbors.push_back(new_groupID);
+					allstuckGroups.push_back(new_groupID);
+				}
+				//break;
+			}
+		}
+	}
+	cout << "PartNeighbors: \t ";
+	for (int k = 0; k < new_neighbors.size(); ++k) {
+		cout << new_neighbors[k] << " (" << (*taskGroups)[new_neighbors[k]].leader << "),\t";
+	}
+	cout << endl;
+
+	return new_neighbors;
+}
+
+// return the task group ID for the input task point
+int WhichGroup(int pointID, vector<TaskSubgroup>* taskGroups) {
+	for (int i = 0; i < taskGroups->size(); ++i) {
+		for (int j = 0; j < (*taskGroups)[i].ltaskNumber; ++j) {
+			if (pointID == (*taskGroups)[i].ltasks[j]->id)
+				return i;
+		}
+		for (int j = 0; j < (*taskGroups)[i].rtaskNumber; ++j) {
+			if (pointID == (*taskGroups)[i].rtasks[j]->id)
+				return i;
+		}
+	}
+}
+
+// recursion
+// input: two groups, one is the stuck group, the other is all stuck group
+void WavePropagation(vector<int> candidateGroup, vector<int> allstuckGroups, vector<TaskSubgroup>* taskGroups, MatrixMap* map) {
+	// 1. find the neighbors
+	vector<int> nextGroups = FindNeighbors(candidateGroup, allstuckGroups, taskGroups, map);
+	
+	cout << "Next stuck groups are (" << nextGroups.size() << "):\t";
+	for (int k = 0; k < nextGroups.size(); ++k) {
+		cout << nextGroups[k] << " ("  << (*taskGroups)[nextGroups[k]].leader << "),\t";
+	}
+	cout << endl;
+
+	// 2. call self
+	if (nextGroups.size()) { 
+		//allstuckGroups.insert(allstuckGroups.end(), nextGroups.begin(), nextGroups.end());
+		for (int k = 0; k < nextGroups.size(); ++k) {
+			allstuckGroups.push_back(nextGroups[k]);
+		}
+		WavePropagation(nextGroups, allstuckGroups, taskGroups, map);
+	}
+	
+	// 3. move
+	for (int i = 0; i < candidateGroup.size(); ++i) {
+		(*taskGroups)[candidateGroup[i]].OverallMove(map);
+	}
+
+	return;
+}
+
+/*
 void TaskExtension(Task* task, MatrixMap* map) {
 	task->PushAll("allExtendedPoints");
 	vector<int> sepStuckGroups;
@@ -202,7 +588,6 @@ void TaskExtension(Task* task, MatrixMap* map) {
 		cout << endl << endl << "Depth proess:   " << i << endl
 			<< "How many groups :  " << taskGroups->size() << endl;
 		bool sepComplete = false;
-		vector<int> collision;
 		while (!sepComplete) {
 			for (int i = 0; i < taskGroups->size(); ++i) {
 				cout << endl
@@ -242,6 +627,7 @@ void TaskExtension(Task* task, MatrixMap* map) {
 		task->PushAll("allTargets");
 	}
 }
+*/
 
 void GetTaskSubgroups(vector<TaskSubgroup>* taskGroups, BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* task, int depth, int obj) {
 	if (!assNode) return;   // tree node empty

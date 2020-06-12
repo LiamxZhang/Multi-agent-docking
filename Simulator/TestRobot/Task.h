@@ -319,7 +319,7 @@ int TaskSubgroup::PartMoveCheck(MatrixMap* world, vector<int> trial, char LorR) 
 	tendboundary.push_back(boundary[1] + trial[0]);
 	tendboundary.push_back(boundary[2] + trial[1]);
 	tendboundary.push_back(boundary[3] + trial[1]);
-	// make sure boundary not move outside
+	// make sure boundary not move outside the map
 	int minX, maxX, minY, maxY;
 	tendboundary[0] + range < world->ColNum - 1 ? maxX = tendboundary[0] + range : maxX = world->ColNum - 1; // max X
 	tendboundary[1] - range > 0 ? minX = tendboundary[1] - range : minX = 0;                                 // min X
@@ -503,16 +503,17 @@ void TaskSubgroup::UpdateWeights(MatrixMap* world) {
 	vector<int> trial(2); // trial move
 	neighborWeight.swap(vector<float>()); // clear neightWeight
 
-	trial[1] = 1; // up
+	trial[1] = 1; // up [0,1]
 	if (MoveCheck(world, trial)) neighborWeight.push_back(1.0);
 	else neighborWeight.push_back(0.0);
-	trial[1] = -1; // down
+	trial[1] = -1; // down [0,-1]
 	if (MoveCheck(world, trial)) neighborWeight.push_back(1.0);
 	else neighborWeight.push_back(0.0);
-	trial[0] = 1; // left
+	trial[1] = 0;
+	trial[0] = 1; // left [1,0]
 	if (MoveCheck(world, trial)) neighborWeight.push_back(1.0);
 	else neighborWeight.push_back(0.0);
-	trial[0] = -1; // right
+	trial[0] = -1; // right [-1,0]
 	if (MoveCheck(world, trial)) neighborWeight.push_back(1.0);
 	else neighborWeight.push_back(0.0);
 
@@ -717,6 +718,7 @@ int TaskSubgroup::Move(MatrixMap* world, vector<int> trial_left, vector<int> tri
 }
 
 bool TaskSubgroup::MoveCheck(MatrixMap* world, vector<int> trial){
+	// trial move (x,y) is {1, 0} or {0, 1} or {-1, 0} or {0, -1} 
 	bool free = false; // left, right
 	if (!PartMoveCheck(world, trial, 'l') && !PartMoveCheck(world, trial, 'r')) free = true;
 	return free;
@@ -936,6 +938,8 @@ Task::GenerateTree() {
 
 void 
 Task::PushAll(string toWhere) {  // after extending task in each loop
+	// allTargets: the key points for robots to track
+	// allExtendedPoints: to exhibite the extension process
 	vector<TaskPoint*> tempTargets;
 	for (int i = 0; i < taskNum; i++) {
 		TaskPoint* temp = new TaskPoint();
