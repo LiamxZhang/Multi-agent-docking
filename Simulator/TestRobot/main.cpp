@@ -27,11 +27,11 @@ using namespace std;
 
 void TaskExtension(Task* task, MatrixMap* map);
 vector<int> Separation(vector<TaskSubgroup>* taskGroups, Task* task, MatrixMap* map);
-vector<int> FindEndPoint(vector<int> incompleteGroup, vector<TaskSubgroup>* taskGroups, MatrixMap* map);
-vector<int> FindNeighbors(vector<int> candidateGroup, vector<int> allstuckGroups, vector<TaskSubgroup>* taskGroups, MatrixMap* map);
-vector<int> PartNeighbors(vector<int> boundary, vector<int> allstuckGroups, vector<TaskSubgroup>* taskGroups, MatrixMap* map);
+vector<vector<int>> FindEndPoint(vector<int> incompleteGroup, vector<TaskSubgroup>* taskGroups, MatrixMap* map);
+vector<vector<int>> FindNeighbors(vector<int> candidateGroup, vector<int> allstuckGroups, vector<TaskSubgroup>* taskGroups, MatrixMap* map);
+vector<vector<int>> PartNeighbors(vector<int> boundary, vector<int> allstuckGroups, vector<TaskSubgroup>* taskGroups, MatrixMap* map);
 int WhichGroup(int pointID, vector<TaskSubgroup>* taskGroups);
-void WavePropagation(vector<int> candidateGroup, vector<int> allstuckGroups, vector<TaskSubgroup>* taskGroups, MatrixMap* map);
+void WavePropagation(vector<vector<int>> candidateGroup, vector<int> allstuckGroups, vector<TaskSubgroup>* taskGroups, MatrixMap* map);
 
 void GetTaskSubgroups(vector<TaskSubgroup>* taskGroups, BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* task, int depth, int obj);
 vector<int> AssignTaskToRobot(Task* task, vector<Robot*> robot);
@@ -151,18 +151,19 @@ void TaskExtension(Task* task, MatrixMap* map) {
 			}
 
 			// find the two end
-			vector<int> endGroups = FindEndPoint(incompleteGroup, taskGroups, map);
+			vector<vector<int>> endGroups = FindEndPoint(incompleteGroup, taskGroups, map);
+			cout << "endGroups[0]'s size is :   " << endGroups[0].size() << endl;
 
 			cout << "End groups are:   ";
-			for (int k = 0; k < endGroups.size(); ++k) {
-				cout << endGroups[k] << " (" << (*taskGroups)[endGroups[k]].leader << "),\t";
+			for (int k = 0; k < endGroups[0].size(); ++k) {
+				cout << endGroups[0][k] << " (" << (*taskGroups)[endGroups[0][k]].leader << "),\t";
 			}
 			cout << endl;
 
 			// recursion
-			WavePropagation(endGroups, endGroups, taskGroups, map);
+			WavePropagation(endGroups, endGroups[0], taskGroups, map);
 			task->PushAll("allExtendedPoints");
-			
+
 			map->Display("task");
 		}
 		task->PushAll("allTargets");
@@ -187,9 +188,15 @@ vector<int> Separation(vector<TaskSubgroup>* taskGroups, Task* task, MatrixMap* 
 
 // find the two end
 // return the nearest task groups in the two ends
-vector<int> FindEndPoint(vector<int> incompleteGroup, vector<TaskSubgroup>* taskGroups, MatrixMap* map) {
+vector<vector<int>> FindEndPoint(vector<int> incompleteGroup, vector<TaskSubgroup>* taskGroups, MatrixMap* map) {
 	int range = (*taskGroups)[0].range;
 	vector<int> endGroups;
+	vector<int> directions; // 0 no direction, 1 up, 2 down, 3 left, 4 right
+	int up = 1;
+	int down = 2;
+	int left = 3;
+	int right = 4;
+
 	for (int i = 0; i < incompleteGroup.size(); ++i) {
 		// direction
 		char direction = (*taskGroups)[incompleteGroup[i]].segDir;
@@ -212,8 +219,10 @@ vector<int> FindEndPoint(vector<int> incompleteGroup, vector<TaskSubgroup>* task
 							int new_groupID = WhichGroup(map->map_task(x, y), taskGroups);
 							// if not include, include
 							vector<int>::iterator iter = find(endGroups.begin(), endGroups.end(), new_groupID);
-							if (iter == endGroups.end())
+							if (iter == endGroups.end()) {
 								endGroups.push_back(new_groupID);
+								directions.push_back(left);
+							}
 							break;
 						}
 					}
@@ -235,8 +244,10 @@ vector<int> FindEndPoint(vector<int> incompleteGroup, vector<TaskSubgroup>* task
 							int new_groupID = WhichGroup(map->map_task(x, y), taskGroups);
 							// if not include, include
 							vector<int>::iterator iter = find(endGroups.begin(), endGroups.end(), new_groupID);
-							if (iter == endGroups.end())
+							if (iter == endGroups.end()) {
 								endGroups.push_back(new_groupID);
+								directions.push_back(right);
+							}
 							break;
 						}
 					}
@@ -260,8 +271,10 @@ vector<int> FindEndPoint(vector<int> incompleteGroup, vector<TaskSubgroup>* task
 							int new_groupID = WhichGroup(map->map_task(x, y), taskGroups);
 							// if not include, include
 							vector<int>::iterator iter = find(endGroups.begin(), endGroups.end(), new_groupID);
-							if (iter == endGroups.end())
+							if (iter == endGroups.end()) {
 								endGroups.push_back(new_groupID);
+								directions.push_back(up);
+							}
 							break;
 						}
 					}
@@ -283,8 +296,10 @@ vector<int> FindEndPoint(vector<int> incompleteGroup, vector<TaskSubgroup>* task
 							int new_groupID = WhichGroup(map->map_task(x, y), taskGroups);
 							// if not include, include
 							vector<int>::iterator iter = find(endGroups.begin(), endGroups.end(), new_groupID);
-							if (iter == endGroups.end())
+							if (iter == endGroups.end()) {
 								endGroups.push_back(new_groupID);
+								directions.push_back(down);
+							}
 							break;
 						}
 					}
@@ -293,16 +308,21 @@ vector<int> FindEndPoint(vector<int> incompleteGroup, vector<TaskSubgroup>* task
 		}
 	}
 
-	return endGroups;
+	vector<vector<int>> end;
+	end.push_back(endGroups);
+	end.push_back(directions);
+
+	return end;
 }
 
 // find the around pairs, assume these are 
-// return the nearest groups in 4 sides
-vector<int> FindNeighbors(vector<int> candidateGroup, vector<int> allstuckGroups, vector<TaskSubgroup>* taskGroups, MatrixMap* map) {
+// return the nearest groups in 4 sides, and the directions
+vector<vector<int>> FindNeighbors(vector<int> candidateGroup, vector<int> allstuckGroups, vector<TaskSubgroup>* taskGroups, MatrixMap* map) {
 	// candidateGroup: the current groups to be decide to move or to propagate; 
 	// allstuckGroups: all stuck groups
 	int range = (*taskGroups)[0].range;
-	vector<int> neighbors;
+	vector<int> new_neighbors;
+	vector<int> directions; // 0 no direction, 1 up, 2 down, 3 left, 4 right
 	for (int i = 0; i < candidateGroup.size(); ++i) {
 		// test if it can move
 		vector<int> trial(2);
@@ -322,21 +342,28 @@ vector<int> FindNeighbors(vector<int> candidateGroup, vector<int> allstuckGroups
 		}
 		*/
 
-		vector<int> new_neighbors = PartNeighbors((*taskGroups)[candidateGroup[i]].lboundary, allstuckGroups, taskGroups, map);
+		vector<vector<int>> new_neighbors_l = PartNeighbors((*taskGroups)[candidateGroup[i]].lboundary, allstuckGroups, taskGroups, map);
+		// neighbors IDs and the directions
 		cout << "FindNeighbors: \t left:\t " ;
-		for (int k = 0; k < new_neighbors.size(); ++k) {
-			neighbors.push_back(new_neighbors[k]);
-			allstuckGroups.push_back(new_neighbors[k]);
-			cout << new_neighbors[k] << " (" << (*taskGroups)[new_neighbors[k]].leader << "),\t";
+		if (new_neighbors_l.size()) {
+			for (int k = 0; k < new_neighbors_l[0].size(); ++k) {
+				new_neighbors.push_back(new_neighbors_l[0][k]);
+				directions.push_back(new_neighbors_l[1][k]);
+				allstuckGroups.push_back(new_neighbors_l[0][k]);
+				cout << new_neighbors_l[0][k] << " (" << (*taskGroups)[new_neighbors_l[0][k]].leader << "),\t";
+			}
 		}
 		cout << endl;
 		
-		vector<int> new_neighbors_r = PartNeighbors((*taskGroups)[candidateGroup[i]].rboundary, allstuckGroups, taskGroups, map);
+		vector<vector<int>> new_neighbors_r = PartNeighbors((*taskGroups)[candidateGroup[i]].rboundary, allstuckGroups, taskGroups, map);
 		cout << "\t right: \t";
-		for (int k = 0; k < new_neighbors_r.size(); ++k) {
-			neighbors.push_back(new_neighbors_r[k]);
-			allstuckGroups.push_back(new_neighbors_r[k]);
-			cout << new_neighbors_r[k] << " (" << (*taskGroups)[new_neighbors_r[k]].leader << "),\t";
+		if (new_neighbors_r.size()) {
+			for (int k = 0; k < new_neighbors_r[0].size(); ++k) {
+				new_neighbors.push_back(new_neighbors_r[0][k]);
+				directions.push_back(new_neighbors_r[1][k]);
+				allstuckGroups.push_back(new_neighbors_r[0][k]);
+				cout << new_neighbors_r[0][k] << " (" << (*taskGroups)[new_neighbors_r[0][k]].leader << "),\t";
+			}
 		}
 		cout << endl;
 
@@ -435,12 +462,21 @@ vector<int> FindNeighbors(vector<int> candidateGroup, vector<int> allstuckGroups
 		*/
 
 	}
+	vector<vector<int>> neighbors;
+	neighbors.push_back(new_neighbors);
+	neighbors.push_back(directions);
+
 	return neighbors;
 }
 
-vector<int> PartNeighbors(vector<int> boundary, vector<int> allstuckGroups, vector<TaskSubgroup>* taskGroups, MatrixMap* map) {
+vector<vector<int>> PartNeighbors(vector<int> boundary, vector<int> allstuckGroups, vector<TaskSubgroup>* taskGroups, MatrixMap* map) {
 	int range = (*taskGroups)[0].range;
 	vector<int> new_neighbors;
+	vector<int> directions; // 0 no direction, 1 up, 2 down, 3 left, 4 right
+	int up = 1;
+	int down = 2;
+	int left = 3;
+	int right = 4;
 	int minX, maxX, minY, maxY;
 	
 	boundary[0] + range < map->ColNum - 1 ? maxX = boundary[0] + range : maxX = map->ColNum - 1;     // max X
@@ -459,6 +495,7 @@ vector<int> PartNeighbors(vector<int> boundary, vector<int> allstuckGroups, vect
 				vector<int>::iterator iter = find(allstuckGroups.begin(), allstuckGroups.end(), new_groupID);
 				if (iter == allstuckGroups.end()) {
 					new_neighbors.push_back(new_groupID);
+					directions.push_back(up);
 					allstuckGroups.push_back(new_groupID);
 				}
 				//break;
@@ -476,6 +513,7 @@ vector<int> PartNeighbors(vector<int> boundary, vector<int> allstuckGroups, vect
 				vector<int>::iterator iter = find(allstuckGroups.begin(), allstuckGroups.end(), new_groupID);
 				if (iter == allstuckGroups.end()) {
 					new_neighbors.push_back(new_groupID);
+					directions.push_back(down);
 					allstuckGroups.push_back(new_groupID);
 				}
 				//break;
@@ -499,6 +537,7 @@ vector<int> PartNeighbors(vector<int> boundary, vector<int> allstuckGroups, vect
 				vector<int>::iterator iter = find(allstuckGroups.begin(), allstuckGroups.end(), new_groupID);
 				if (iter == allstuckGroups.end()) {
 					new_neighbors.push_back(new_groupID);
+					directions.push_back(left);
 					allstuckGroups.push_back(new_groupID);
 				}
 				//break;
@@ -516,6 +555,7 @@ vector<int> PartNeighbors(vector<int> boundary, vector<int> allstuckGroups, vect
 				vector<int>::iterator iter = find(allstuckGroups.begin(), allstuckGroups.end(), new_groupID);
 				if (iter == allstuckGroups.end()) {
 					new_neighbors.push_back(new_groupID);
+					directions.push_back(right);
 					allstuckGroups.push_back(new_groupID);
 				}
 				//break;
@@ -528,7 +568,10 @@ vector<int> PartNeighbors(vector<int> boundary, vector<int> allstuckGroups, vect
 	}
 	cout << endl;
 
-	return new_neighbors;
+	vector<vector<int>> neighbors;
+	neighbors.push_back(new_neighbors);
+	neighbors.push_back(directions);
+	return neighbors;
 }
 
 // return the task group ID for the input task point
@@ -547,28 +590,29 @@ int WhichGroup(int pointID, vector<TaskSubgroup>* taskGroups) {
 
 // recursion
 // input: two groups, one is the stuck group, the other is all stuck group
-void WavePropagation(vector<int> candidateGroup, vector<int> allstuckGroups, vector<TaskSubgroup>* taskGroups, MatrixMap* map) {
+void WavePropagation(vector<vector<int>> candidateGroup, vector<int> allstuckGroups, vector<TaskSubgroup>* taskGroups, MatrixMap* map) {
 	// 1. find the neighbors
-	vector<int> nextGroups = FindNeighbors(candidateGroup, allstuckGroups, taskGroups, map);
+	vector<vector<int>> nextGroups = FindNeighbors(candidateGroup[0], allstuckGroups, taskGroups, map); // neighbors IDs and directions
 	
-	cout << "Next stuck groups are (" << nextGroups.size() << "):\t";
-	for (int k = 0; k < nextGroups.size(); ++k) {
-		cout << nextGroups[k] << " ("  << (*taskGroups)[nextGroups[k]].leader << "),\t";
+	cout << "Next stuck groups are (" ;
+	cout << nextGroups[0].size() << "):\t";
+	for (int k = 0; k < nextGroups[0].size(); ++k) {
+		cout << nextGroups[0][k] << " (" << (*taskGroups)[nextGroups[0][k]].leader << "),\t";
 	}
 	cout << endl;
 
 	// 2. call self
-	if (nextGroups.size()) { 
+	if (nextGroups[0].size()) {
 		//allstuckGroups.insert(allstuckGroups.end(), nextGroups.begin(), nextGroups.end());
-		for (int k = 0; k < nextGroups.size(); ++k) {
-			allstuckGroups.push_back(nextGroups[k]);
+		for (int k = 0; k < nextGroups[0].size(); ++k) {
+			allstuckGroups.push_back(nextGroups[0][k]);
 		}
 		WavePropagation(nextGroups, allstuckGroups, taskGroups, map);
 	}
-	
+
 	// 3. move
-	for (int i = 0; i < candidateGroup.size(); ++i) {
-		(*taskGroups)[candidateGroup[i]].OverallMove(map);
+	for (int i = 0; i < candidateGroup[0].size(); ++i) {
+		(*taskGroups)[candidateGroup[0][i]].OverallMove(map, candidateGroup[1][i]); // direction
 	}
 
 	return;

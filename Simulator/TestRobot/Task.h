@@ -96,12 +96,12 @@ public:
 	}
 
 	void InitWeights();
-	void UpdateWeights(MatrixMap* world);
+	void UpdateWeights(MatrixMap* world, int);
 	void UpdateLastPos();
 	// void UpdateFlags(vector<int>, bool);
 	vector<int> TrialMove();
 	void RecoverTendPos();
-	bool OverallMove(MatrixMap*);
+	bool OverallMove(MatrixMap*, int);
 	int Move(MatrixMap* world, vector<int> trial_left, vector<int> trial_right, vector<int> collosion);
 	bool MoveCheck(MatrixMap* world, vector<int> trial);
 
@@ -499,29 +499,35 @@ vector<int> TaskSubgroup::ShearDeform(MatrixMap* world, int direction) {
 
 // 
 
-void TaskSubgroup::UpdateWeights(MatrixMap* world) {
+void TaskSubgroup::UpdateWeights(MatrixMap* world, int direction) {
 	vector<int> trial(2); // trial move
 	neighborWeight.swap(vector<float>()); // clear neightWeight
+	
+	vector<float> weights;
+	for (int i = 0; i < 4; ++i) weights.push_back(1.0);
+	if (direction) weights[direction-1] = 2.0; // direction: 1 up, 2 down, 3 left, 4 right, 0 no direction
+	float zero = 0.0;
+	float FourSideFree = accumulate(weights.begin(), weights.end(), zero);
 
 	trial[1] = 1; // up [0,1]
-	if (MoveCheck(world, trial)) neighborWeight.push_back(1.0);
-	else neighborWeight.push_back(0.0);
+	if (MoveCheck(world, trial)) neighborWeight.push_back(weights[0]);
+	else neighborWeight.push_back(zero);
 	trial[1] = -1; // down [0,-1]
-	if (MoveCheck(world, trial)) neighborWeight.push_back(1.0);
-	else neighborWeight.push_back(0.0);
+	if (MoveCheck(world, trial)) neighborWeight.push_back(weights[1]);
+	else neighborWeight.push_back(zero);
 	trial[1] = 0;
 	trial[0] = 1; // left [1,0]
-	if (MoveCheck(world, trial)) neighborWeight.push_back(1.0);
-	else neighborWeight.push_back(0.0);
+	if (MoveCheck(world, trial)) neighborWeight.push_back(weights[2]);
+	else neighborWeight.push_back(zero);
 	trial[0] = -1; // right [-1,0]
-	if (MoveCheck(world, trial)) neighborWeight.push_back(1.0);
-	else neighborWeight.push_back(0.0);
+	if (MoveCheck(world, trial)) neighborWeight.push_back(weights[3]);
+	else neighborWeight.push_back(zero);
 
-	float sum = accumulate(neighborWeight.begin(), neighborWeight.end(), 0);
+	float sum = accumulate(neighborWeight.begin(), neighborWeight.end(), zero);
 	if (sum) {
-		if (sum == 4.0) { // 4 sides are free, no need to move
+		if (sum == FourSideFree) { // 4 sides are free, no need to move
 			for (int i = 0; i < 4; ++i)
-				neighborWeight[i] = 0.0;  // up, down, left, right
+				neighborWeight[i] = zero;  // up, down, left, right
 		}
 		else { // 
 			for (int i = 0; i < 4; ++i)
@@ -589,8 +595,8 @@ void TaskSubgroup::RecoverTendPos() {
 	}
 }
 
-bool TaskSubgroup::OverallMove(MatrixMap* world) {
-	UpdateWeights(world); // update neighborWeight
+bool TaskSubgroup::OverallMove(MatrixMap* world, int direction) {
+	UpdateWeights(world, direction); // update neighborWeight
 	
 	vector<int> trial = TrialMove(); // trial move // x, y  
 	bool move = MoveCheck(world, trial);
