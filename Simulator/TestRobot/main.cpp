@@ -189,6 +189,7 @@ void TaskExtension(Task* task, MatrixMap* map) {
 */
 
 
+
 void TaskExtension(Task* task, MatrixMap* map) {
 	task->PushAll("allExtendedPoints");
 	vector<int> sepStuckGroups;
