@@ -756,6 +756,7 @@ public:
 	vector<float> CalculateCenter(int);
 	
 	vector<int> GetQueue();
+	vector<int> ShellSort(vector<float> h);
 
 private:
 };
@@ -1013,6 +1014,7 @@ Task::CalculateCenter(int step) {
 	centerPoint.push_back(float(boundary[0] + boundary[1]) / 2); // x
 	centerPoint.push_back(float(boundary[2] + boundary[3]) / 2); // y
 
+	return centerPoint;
 }
 
 vector<int> 
@@ -1033,7 +1035,8 @@ Task::GetQueue() {
 }
 
 //Ï£¶ûÅÅÐò
-vector<int> ShellSort(vector<float> h) // h is the distance between the targets and the center
+vector<int> 
+Task::ShellSort(vector<float> h) // h is the distance between the targets and the center
 {
 	vector<int> queue; // the index of sorted distance vector
 	size_t len = h.size();

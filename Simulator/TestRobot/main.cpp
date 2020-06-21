@@ -35,6 +35,12 @@ vector<vector<int>> IDtoIndex(vector<Robot*> robot);
 bool CheckReach(vector<RobotGroup> groups);
 vector<RobotGroup> Dock(vector<Robot*> robot, Task* task, vector<int> tID2index, int layer);
 vector<int> GetPeers(RobotGroup group, vector<Robot*> robot, Task* task, vector<int> tID2index, int layer);
+//
+vector<RobotGroup> NewGroups(vector<RobotGroup> groups, vector<Robot*> robot);
+vector<int> AdjacentGroups(vector<RobotGroup> groups, vector<int> currentIDs, vector<int> allIDs);
+vector<RobotGroup> FormGroup(vector<vector<int>> groupIDs, vector<RobotGroup> groups);
+bool CheckAdjacent(vector<RobotGroup> groups);
+int GroupDistance(RobotGroup group1, RobotGroup group2);
 // 
 void RecordTaskExtendRT(Task* task, vector<Robot*> robots);
 void RecordTaskExtend(Task* task, vector<Robot*> robots);
@@ -95,16 +101,40 @@ int main() {
 		// move
 		bool reach = false;
 		while (!reach) {
-			// if adjoining, dock to one group
-			groups = Dock_Adjoin(groups);
+			// check whether adjacent // if adjacent, form new groups
+			if (CheckAdjacent(groups)) {
+				vector<RobotGroup> newgroups = NewGroups(groups, robot);
+				groups = newgroups;
+				cout << "Form the new groups! " << endl;
+				cout << "New Group IDs :" << endl;
+				for (int i = 0; i < groups.size(); ++i) {
+					cout << "group " << i << " :\t";
+					for (int j = 0; j < groups[i].robotNumber; ++j) {
+						cout << groups[i].robot[j]->id << ",\t";
+					}
+					cout << endl;
+				}
+				cout << endl;
+			}
+
 			// group move
 			for (int j = 0; j < groups.size(); j++) {
-				vector<int> peersIDs = GetPeers(groups[j], robot, task, tID2index, stepNum - i - 1); // same group and to be docked group
+				//vector<int> peersIDs = GetPeers(groups[j], robot, task, tID2index, stepNum - i - 1); // same group and to be docked group
+				vector<int> peersIDs;
+				cout << "1" << endl;
 				groups[j].PathPlanning(world, task->allTargets[stepNum - i - 1], peersIDs);
+				cout << "2" << endl;
 				groups[j].TrialMove();
-				if (!world->CollisionCheck(groups[j].GetRobotPos(), groups[j].GetRobotIds(), peersIDs, 0)) { // 
+				cout << "3" << endl;
+				if (!world->CollisionCheck(groups[j].GetRobotPos(), groups[j].GetRobotIds(), peersIDs, 0)) { // free
 					groups[j].Move(world);
+					cout << "4" << endl;
 					world->Display("robot");
+				}
+				else {
+					int lID;
+					groups[j].leaderIndex + 1 > groups[j].robotNumber - 1 ? lID = 0 : lID = groups[j].leaderIndex + 1;
+					groups[j].AssignLeaders(lID);
 				}
 			}
 			
@@ -115,7 +145,6 @@ int main() {
 			// check dead loop
 			step += 1;
 			if (step > 100) {
-				//
 				Recover(task);
 				cout << endl << endl << "Error: System failed!!!" << endl;
 				return 0;
@@ -127,15 +156,13 @@ int main() {
 		RecordLog(str1 + str2);
 		cout << str1 + str2 << endl;
 		//system("pause");
-		// dock
-		groups = Dock(robot, task, tID2index, stepNum - i - 1);
 	}
 	//system("pause");
 	Recover(task);
 	return 0;
 }
 
-
+/*
 void TaskExtension(Task* task, MatrixMap* map) {
 	task->PushAll("allExtendedPoints");
 	vector<int> sepStuckGroups;
@@ -189,7 +216,9 @@ void TaskExtension(Task* task, MatrixMap* map) {
 		task->PushAll("allTargets");
 	}
 }
+*/
 
+/*
 void GetTaskSubgroups(vector<TaskSubgroup>* taskGroups, BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* task, int depth, int obj) {
 	if (!assNode) return;   // tree node empty
 	if (assNode->data.size() <= 1) return;  // cannot be extended anymore
@@ -237,13 +266,13 @@ void GetTaskSubgroups(vector<TaskSubgroup>* taskGroups, BinNode<vector<int>>* as
 	GetTaskSubgroups(taskGroups, assNode->lChild, segNode->lChild, task, depth + 1, obj);
 	GetTaskSubgroups(taskGroups, assNode->rChild, segNode->rChild, task, depth + 1, obj);
 }
-
+*/
 
 // assign the task to the closest robots using optimization (or bid)
 // from task->allTargets[j][i]->taskpoint.x(y)
 // to robot[i]->initPosition.x(y)
 // return the assigned task IDs corresponding to the robot index
-/*
+
 vector<int> AssignTaskToRobot(Task* task, vector<Robot*> robot) {
 	float closestDistance;
 	float distance;   // distance between robots and tasks
@@ -285,8 +314,9 @@ vector<int> AssignTaskToRobot(Task* task, vector<Robot*> robot) {
 	
 	return assignedTaskID;
 }
-*/
 
+
+/*
 vector<int> AssignTaskToRobot(Task* task, vector<Robot*> robot) {
 	// 从最接近的中心的任务点，分配机器人
 	vector<int> queue = task->GetQueue();
@@ -327,7 +357,9 @@ vector<int> AssignTaskToRobot(Task* task, vector<Robot*> robot) {
 	}
 	return assignedRobotID;
 }
+*/
 
+/*
 void RecordTaskExtendRT(Task* task, vector<Robot*> robots) {
 	ofstream f;
 	f.open("../TestRobot/Robot_Current_Position.txt", ofstream::out);
@@ -342,8 +374,10 @@ void RecordTaskExtendRT(Task* task, vector<Robot*> robots) {
 	f.close();
 	Sleep(WaitTime);
 }
+*/
 
 // record the extended position of task points
+/*
 void RecordTaskExtend(Task* task, vector<Robot*> robots) {
 	vector<int> tIDs;
 	for (int i = 0; i < robots.size(); ++i)
@@ -370,6 +404,7 @@ void RecordTaskExtend(Task* task, vector<Robot*> robots) {
 		Sleep(WaitTime);
 	}
 }
+*/
 
 // task ID->robot index // robot ID -> robot index
 vector<vector<int>> IDtoIndex(vector<Robot*> robot) {
@@ -400,19 +435,13 @@ vector<vector<int>> IDtoIndex(vector<Robot*> robot) {
 	return ID2index;
 }
 
-// get the peers' IDs of robot group
+// get the peers' IDs in the same robot group
 vector<int> GetPeers(RobotGroup group, vector<Robot*> robot, Task* task, vector<int> tID2index, int layer) {
-	vector<BinNode<vector<int>>*> nodeVec = task->AssemblyTree.getLayerNode(task->AssemblyTree.root(), 0, layer, nodeVec);
+	//vector<BinNode<vector<int>>*> nodeVec = task->AssemblyTree.getLayerNode(task->AssemblyTree.root(), 0, layer, nodeVec);
 	vector<int> peerIDs;
-	for (int i = 0; i < nodeVec.size(); i++) { // check each group
-		bool isPeer = false;
-		for (int j = 0; j < nodeVec[i]->data.size(); j++) { // each ID
-			int robotID = robot[tID2index[nodeVec[i]->data[j]]]->id;
-			peerIDs.push_back(robotID);
-			if (group.robot[0]->id == robotID) isPeer = true; // pair the group
-		}
-		if (isPeer) return peerIDs;
-		peerIDs.swap(vector<int>());
+	for (int i = 0; i < group.robotNumber; ++i) { // check each group
+		int robotID = group.robot[i]->id;
+		peerIDs.push_back(robotID);
 	}
 	return peerIDs;
 }
@@ -468,18 +497,133 @@ void Recover(Task* task) {
 	*/
 }
 
+
+// return the robot IDs to be join in the same group
+vector<RobotGroup> NewGroups(vector<RobotGroup> groups, vector<Robot*> robot) {
+	vector<vector<int>> groupIDs;
+
+	vector<int> allIDs; // already counted groups
+	for (int i = 0; i < groups.size(); ++i) {
+		vector<int>::iterator result = find(allIDs.begin(), allIDs.end(), i);
+		if (result != allIDs.end()) continue;
+
+		vector<int> tempIDs;
+		tempIDs.push_back(i);
+		vector<int> new_IDs = AdjacentGroups(groups, tempIDs, tempIDs);
+
+		groupIDs.push_back(new_IDs);
+		for (int j = 0; j < new_IDs.size(); ++j) allIDs.push_back(new_IDs[j]);
+	}
+	/*
+	cout << "New Group IDs :" << endl;
+	for (int i = 0; i < groupIDs.size(); ++i) {
+		cout << "group " << i << " :\t";
+		for (int j = 0; j < groupIDs[i].size(); ++j) {
+			for (int k = 0; k < groups[groupIDs[i][j]].robotNumber; ++k)
+			cout << groups[groupIDs[i][j]].robot[k]->id << ",\t";
+		}
+		cout << endl;
+	}
+	cout << endl;
+	*/
+	return FormGroup(groupIDs, groups);
+}
+
+// find all adjacent groups in a recursion way
+vector<int> AdjacentGroups(vector<RobotGroup> groups, vector<int> currentIDs, vector<int> allIDs) {
+	// currentIDs, new added adjacent groups
+	// allIDs, all the connected groups
+
+	// find all adjacent groups
+	vector<int> newIDs;
+	for (int i = 0; i < currentIDs.size(); ++i) {
+		int ID = currentIDs[i];
+		for (int j = 0; j < groups.size(); ++j) {
+			vector<int>::iterator result = find(allIDs.begin(), allIDs.end(), j);
+			if (result != allIDs.end()) continue;
+
+			if (GroupDistance(groups[j], groups[ID]) == 1) {
+				newIDs.push_back(j);
+				allIDs.push_back(j);
+			}
+		}
+	}
+
+	// end condition
+	if (!newIDs.size()) return allIDs;
+
+	// recursion
+	vector<int> new_allIDs = AdjacentGroups(groups, newIDs, allIDs);
+
+	return new_allIDs;
+}
+
+
+// for close robots, form a large group
+vector<RobotGroup> FormGroup(vector<vector<int>> groupIDs, vector<RobotGroup> groups) { // group IDs
+	vector<RobotGroup> new_group;
+	for (int i = 0; i < groupIDs.size(); ++i) { // new group
+		vector<Robot*> tempGroup;
+		for (int j = 0; j < groupIDs[i].size(); ++j) { // old group
+			for (int k = 0; k < groups[groupIDs[i][j]].robotNumber; ++k) { // robots in one old group
+				tempGroup.push_back(groups[groupIDs[i][j]].robot[k]);
+			}
+		}
+		RobotGroup robotGroup(tempGroup);  // robot group
+		new_group.push_back(robotGroup);
+	}
+	
+	return new_group;
+}
+
+// check whether groups adjacent with each other
+bool CheckAdjacent(vector<RobotGroup> groups) {
+	//
+	for (int i = 0; i < groups.size() - 1; ++i) {
+		for (int j = i + 1; j < groups.size(); ++j) {
+			if (GroupDistance(groups[i], groups[j]) == 1) {
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
 // check all the robots whether reach their targets
 bool CheckReach(vector<RobotGroup> groups) {
-	for (int i = 0; i < groups.size(); i++) {
-		if (groups[i].robot[0]->currentPosition.x != groups[i].robot[0]->targetPosition.x
-			|| groups[i].robot[0]->currentPosition.y != groups[i].robot[0]->targetPosition.y) {
-			return false;
+	for (int i = 0; i < groups.size(); ++i) {
+		for (int j = 0; j < groups[i].robotNumber; ++j) {
+			if (groups[i].robot[j]->currentPosition.x != groups[i].robot[j]->targetPosition.x
+				|| groups[i].robot[j]->currentPosition.y != groups[i].robot[j]->targetPosition.y) {
+				return false;
+			}
 		}
 	}
 	return true;
 }
 
+int GroupDistance(RobotGroup group1, RobotGroup group2) {
+	// return the minimum distance between two robot grooups
+	int mini_distance = INT_MAX;
+	for (int i = 0; i < group1.robotNumber; ++i) {
+		Robot* robot1 = group1.robot[i];
+		for (int j = 0; j < group2.robotNumber; ++j) {
+			// calculate the distance between the robots in two groups
+			Robot* robot2 = group2.robot[j];
+			int temp_dist = abs(robot1->currentPosition.x - robot2->currentPosition.x)
+				+ abs(robot1->currentPosition.y - robot2->currentPosition.y);
+
+			// get the minimum distance
+			if (temp_dist < mini_distance) mini_distance = temp_dist;
+		}
+	}
+	return mini_distance;
+}
+
+
+
 // dock // put robots into one group
+/*
 vector<RobotGroup> Dock(vector<Robot*> robot, Task* task, vector<int> tID2index, int layer) {  // layer = stepNum - i - 1
 	// get nodes of one layer, task->AssemblyTree  // all nodes of one layer of task tree
 	vector<BinNode<vector<int>>*> nodeVec = task->AssemblyTree.getLayerNode(task->AssemblyTree.root(), 0, layer, nodeVec);
@@ -513,8 +657,9 @@ vector<RobotGroup> Dock(vector<Robot*> robot, Task* task, vector<int> tID2index,
 	cout << endl << "Finished to dock!" << endl;
 	return groups;
 }
+*/
 
-
+/*
 vector<RobotGroup> Dock_Adjoin(vector<RobotGroup> groups) {
 	vector<RobotGroup> old_groups = groups;
 	vector<RobotGroup> new_groups;
@@ -559,20 +704,4 @@ vector<RobotGroup> Dock_Adjoin(vector<RobotGroup> groups) {
 	return old_groups;
 }
 
-int GroupDistance(RobotGroup group1, RobotGroup group2) {
-	// return the minimum distance between two robot grooups
-	int mini_distance = INT_MAX;
-	for (int i = 0; i < group1.robotNumber; ++i) {
-		Robot* robot1 = group1.robot[i];
-		for (int j = 0; j < group2.robotNumber; ++j) {
-			// calculate the distance between the robots in two groups
-			Robot* robot2 = group2.robot[j];
-			int temp_dist = abs(robot1->currentPosition.x - robot2->currentPosition.x) 
-				+ abs(robot1->currentPosition.y - robot2->currentPosition.y);
-
-			// get the minimum distance
-			if (temp_dist < mini_distance) mini_distance = temp_dist;
-		}
-	}
-	return mini_distance;
-}
+*/
