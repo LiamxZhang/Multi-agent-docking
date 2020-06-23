@@ -122,6 +122,8 @@ int main() {
 	return 0;
 }
 
+
+
 /*
 void TaskExtension(Task* task, MatrixMap* map) {
 	task->PushAll("allExtendedPoints");
