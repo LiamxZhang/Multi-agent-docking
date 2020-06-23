@@ -28,6 +28,8 @@ using namespace std;
 //void ExtendTask(BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* task, MatrixMap* map, int depth, int obj);
 //void ExtendAction(BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* task, MatrixMap* map, int curDepth);
 void TaskExtension(Task* task, MatrixMap* map);
+void DirectMapping(Task* task);
+void AdaptiveMapping(Task* task, MatrixMap* map);
 //void AssignWeights(vector<TaskSubgroup>* taskGroups, vector<int> sepStuckGroups);
 void GetTaskSubgroups(vector<TaskSubgroup>* taskGroups, BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* task, int depth, int obj);
 vector<int> AssignTaskToRobot(Task* task, vector<Robot*> robot);
@@ -122,74 +124,8 @@ int main() {
 	return 0;
 }
 
+
 /*
-void TaskExtension(Task* task, MatrixMap* map) {
-	task->PushAll("allExtendedPoints");
-	vector<int> sepStuckGroups;
-	vector<int> moveStuckGroups;
-	int depth = task->AssemblyTree.depth(task->AssemblyTree.root());
-	for (int i = 0; i < depth - 1; i++) { // the leaf layer of assembly tree is not needed for extension
-		// construct the task subgroups
-		vector<TaskSubgroup>* taskGroups = new vector<TaskSubgroup>();
-		GetTaskSubgroups(taskGroups, task->AssemblyTree.root(), task->SegTree.root(), task, 0, i);
-
-		bool sepComplete = false;
-		while (!sepComplete) {
-			// separation
-			for (int i = 0; i < taskGroups->size(); ++i) {
-				cout << "Size: " << taskGroups->size() << "  taskGroups " << i << " : " << (*taskGroups)[i].leader << endl
-					<< " separation distance: " << (*taskGroups)[i].targetSepDistance 
-					<< " current distance: " << (*taskGroups)[i].currentSepDistance << endl;
-				(*taskGroups)[i].Separation(map);
-				//RecordTaskExtendRT(task, robot);
-				task->PushAll("allExtendedPoints");
-				if ((*taskGroups)[i].sepStuck)
-					sepStuckGroups.push_back(i);  // update sepsStucks
-			}
-			
-			// EndCheck: if all sepDone, complete; otherwise, move
-			sepComplete = true;
-			for (int i = 0; i < taskGroups->size(); ++i) {
-				if (!(*taskGroups)[i].sepDone) { sepComplete = false; break; }
-			}
-			cout << "Separation proess: " << sepComplete << endl;
-			cout << "sepStuckGroups:  ";
-			for (int i = 0; i < sepStuckGroups.size(); i++)
-				cout << sepStuckGroups[i] << " , ";
-			cout << endl;
-			if (!sepComplete) {
-				// check sepStuckGroups, and assign weights
-				AssignWeights(taskGroups, sepStuckGroups);
-				// move
-				for (int i = 0; i < taskGroups->size(); ++i) {
-					vector<int> trial = (*taskGroups)[i].TrialMove();
-					if (!(*taskGroups)[i].MoveCheck(map, trial)) {  // no collision
-						(*taskGroups)[i].Move(map, trial, trial, {1, 1});
-						// update flags
-						(*taskGroups)[i].UpdateFlags(trial, true);
-					}
-					else
-						(*taskGroups)[i].UpdateFlags(trial, false);
-				}
-				//RecordTaskExtendRT(task, robot);
-				task->PushAll("allExtendedPoints");
-				map->Display("task");
-			}
-			// update sepsStucks & moveStucks
-			sepStuckGroups.swap(vector<int> ());
-			moveStuckGroups.swap(vector<int>());
-		}
-		// display
-		cout << endl << "Extend step " << i << " : " << endl;
-		map->Display("task");
-		cout << endl;
-		task->PushAll("allTargets");
-	}
-}
-*/
-
-
-
 void TaskExtension(Task* task, MatrixMap* map) {
 	task->PushAll("allExtendedPoints");
 	vector<int> sepStuckGroups;
@@ -243,6 +179,192 @@ void TaskExtension(Task* task, MatrixMap* map) {
 		task->PushAll("allTargets");
 	}
 }
+*/
+
+
+void TaskExtension(Task* task, MatrixMap* map) {
+	task->PushAll("allExtendedPoints");
+
+	// mapping to the expanded position
+	AdaptiveMapping(task, map);
+	task->PushAll("allTargets");
+
+	cout << "Start find the targets!" << endl;
+	cout << "The center point is: (" << task->centerPoint[0] << ", " << task->centerPoint[1] << ")." << endl << endl;
+	// determine all the targets
+	int depth = task->AssemblyTree.depth(task->AssemblyTree.root());
+	for (int i = depth - 2; i >= 0 ; i--) {
+		// construct the task subgroups
+		vector<TaskSubgroup>* taskGroups = new vector<TaskSubgroup>();
+		GetTaskSubgroups(taskGroups, task->AssemblyTree.root(), task->SegTree.root(), task, 0, i);
+
+		//cout << endl << endl << "Depth proess:   " << i << endl
+		//	<< "How many groups :  " << taskGroups->size() << endl;
+
+		for (int j = 0; j < taskGroups->size(); ++j) {
+			//cout << "taskGroup " << j << endl;
+			// in the pair, find the closest point to the center
+			int closestDist = INT_MAX;
+			int closestID;
+			vector<int> closestPoint;
+			TaskPoint closest;
+			// left
+			for (int k = 0; k < (*taskGroups)[j].ltaskNumber; ++k) {
+				int X = (*taskGroups)[j].ltasks[k]->taskPoint.x;
+				int Y = (*taskGroups)[j].ltasks[k]->taskPoint.y;
+				int distance = abs(X-task->centerPoint[0]) + abs(Y - task->centerPoint[1]);
+				if (distance < closestDist) {
+					closestDist = distance;
+					closest.id = (*taskGroups)[j].ltasks[k]->id;
+					closest.taskPoint.x = X;
+					closest.taskPoint.y = Y;
+				}
+			}
+			
+			// right
+			for (int k = 0; k < (*taskGroups)[j].rtaskNumber; ++k) {
+				int X = (*taskGroups)[j].rtasks[k]->taskPoint.x;
+				int Y = (*taskGroups)[j].rtasks[k]->taskPoint.y;
+				int distance = abs(X - task->centerPoint[0]) + abs(Y - task->centerPoint[1]);
+				if (distance < closestDist) {
+					closestDist = distance;
+					closest.id = (*taskGroups)[j].rtasks[k]->id;
+					closest.taskPoint.x = X;
+					closest.taskPoint.y = Y;
+				}
+			}
+
+			// map to get the current targets
+			// delta X = in finalTargets (x - x_closest)
+			// mapping X = delta X + in currentTargets x_closest
+			// find the closest Index in finalTargets
+			int cloest_index;
+			for (int k = 0; k < task->taskNum; ++k) {
+				if (task->finalTargets[k]->id == closest.id) {
+					cloest_index = k;
+					break;
+				}
+			}
+			// left
+			for (int l = 0; l < (*taskGroups)[j].ltaskNumber; ++l) {
+				// find the Indexes of all points in the finalTargets
+				int index;
+				for (int k = 0; k < task->taskNum; ++k) {
+					if (task->finalTargets[k]->id == (*taskGroups)[j].ltasks[l]->id) {
+						index = k;
+						break;
+					}
+				}
+				// mapping
+				int deltaX = task->finalTargets[index]->taskPoint.x - task->finalTargets[cloest_index]->taskPoint.x;
+				int deltaY = task->finalTargets[index]->taskPoint.y - task->finalTargets[cloest_index]->taskPoint.y;
+				(*taskGroups)[j].ltasks[l]->taskPoint.x = deltaX + closest.taskPoint.x;
+				(*taskGroups)[j].ltasks[l]->taskPoint.y = deltaY + closest.taskPoint.y;
+			}
+
+			// right
+			for (int r = 0; r < (*taskGroups)[j].rtaskNumber; ++r) {
+				// find the Indexes of all points in the finalTargets
+				int index;
+				for (int k = 0; k < task->taskNum; ++k) {
+					if (task->finalTargets[k]->id == (*taskGroups)[j].rtasks[r]->id) {
+						index = k;
+						break;
+					}
+				}
+				// mapping
+				int deltaX = task->finalTargets[index]->taskPoint.x - task->finalTargets[cloest_index]->taskPoint.x;
+				int deltaY = task->finalTargets[index]->taskPoint.y - task->finalTargets[cloest_index]->taskPoint.y;
+				(*taskGroups)[j].rtasks[r]->taskPoint.x = deltaX + closest.taskPoint.x;
+				(*taskGroups)[j].rtasks[r]->taskPoint.y = deltaY + closest.taskPoint.y;
+			}
+		}
+		
+		// save
+		task->PushAll("allTargets");
+		task->PushAll("allExtendedPoints");
+	}
+	// show the allTargets
+	task->Display("all");
+
+	// reajust the allTargets
+	cout << endl << "Reajustment!" << endl;
+	vector<vector<TaskPoint*>> old_allTargets = task->allTargets;
+	vector<vector<TaskPoint*>> new_allTargets;
+	for (int i = task->allTargets.size() - 1; i > 0 ; i--) {
+		new_allTargets.push_back(old_allTargets[i]);
+	}
+
+	task->allTargets.swap(vector<vector<TaskPoint*>>());
+	task->allTargets = new_allTargets;
+
+	// show the allTargets
+	task->Display("all");
+	
+}
+
+
+void DirectMapping(Task* task) {
+	int k = 4;
+	for (int i = 0; i < task->taskNum; ++i) {
+		int centerX = task->centerPoint[0];
+		int centerY = task->centerPoint[1];
+		int finalX = task->finalTargets[i]->taskPoint.x;
+		int finalY = task->finalTargets[i]->taskPoint.y;
+		
+		task->currentTargets[i]->taskPoint.x = k * (finalX - centerX) + centerX;
+		task->currentTargets[i]->taskPoint.y = k * (finalY - centerY) + centerY;
+	}
+}
+
+void AdaptiveMapping(Task* task, MatrixMap* map) {
+	DirectMapping(task);
+
+	// find the nearest free space
+	for (int i = 0; i < task->taskNum; ++i) {
+		int currentX = task->currentTargets[i]->taskPoint.x;
+		int currentY = task->currentTargets[i]->taskPoint.y;
+		if (map->map_obstacle(currentX, currentY)) { // if obstacle, find other free positions
+			int range = 1;
+			vector<vector<int>> candidatePoints;
+
+			while (!candidatePoints.size()) {
+				int minX, maxX, minY, maxY;	
+				currentX - range > 0 ? minX = currentX - range : minX = 0;
+				currentX + range < map->ColNum - 1 ? maxX = currentX + range : maxX = map->ColNum - 1;
+				for (int x = minX; x <= maxX; ++x) {
+					int deltaX = x - currentX;
+					int deltaY = range - abs(deltaX);
+					int y;
+					currentY - deltaY > 0 ? y = currentY - deltaY : y = 0;
+					if (!map->map_obstacle(x, y) && !map->map_task(x, y)) {
+						vector<int> temp;
+						temp.push_back(x);
+						temp.push_back(y);
+						candidatePoints.push_back(temp);
+					}
+
+					currentY + deltaY < map->RowNum - 1 ? y = currentY + deltaY : y = map->RowNum - 1;
+					if (!map->map_obstacle(x, y) && !map->map_task(x, y)) {
+						vector<int> temp;
+						temp.push_back(x);
+						temp.push_back(y);
+						candidatePoints.push_back(temp);
+					}
+				}
+				range += 1;
+			}
+			// randomly pick one point
+			int pick = rand() % candidatePoints.size();
+			map->map_task(task->currentTargets[i]->taskPoint.x, task->currentTargets[i]->taskPoint.y) = 0;
+			map->map_task(candidatePoints[pick][0], candidatePoints[pick][1]) = task->currentTargets[i]->id;
+
+			task->currentTargets[i]->taskPoint.x = candidatePoints[pick][0];
+			task->currentTargets[i]->taskPoint.y = candidatePoints[pick][1];
+		}
+	}
+}
+
 
 void GetTaskSubgroups(vector<TaskSubgroup>* taskGroups, BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* task, int depth, int obj) {
 	if (!assNode) return;   // tree node empty
