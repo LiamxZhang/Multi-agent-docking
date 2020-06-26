@@ -28,6 +28,8 @@ using namespace std;
 //void ExtendTask(BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* task, MatrixMap* map, int depth, int obj);
 //void ExtendAction(BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* task, MatrixMap* map, int curDepth);
 void TaskExtension(Task* task, MatrixMap* map);
+bool EndCheck(vector<TaskSubgroup>* taskGroups, int range);
+int GroupDistance(TaskSubgroup group1, TaskSubgroup group2);
 //void AssignWeights(vector<TaskSubgroup>* taskGroups, vector<int> sepStuckGroups);
 void GetTaskSubgroups(vector<TaskSubgroup>* taskGroups, BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* task, int depth, int obj);
 vector<int> AssignTaskToRobot(Task* task, vector<Robot*> robot);
@@ -123,90 +125,23 @@ int main() {
 }
 
 
-
-/*
 void TaskExtension(Task* task, MatrixMap* map) {
 	task->PushAll("allExtendedPoints");
-	vector<int> sepStuckGroups;
+	
 	vector<int> moveStuckGroups;
 	int depth = task->AssemblyTree.depth(task->AssemblyTree.root());
-	for (int i = 0; i < depth - 1; i++) { // the leaf layer of assembly tree is not needed for extension
-		// construct the task subgroups
-		vector<TaskSubgroup>* taskGroups = new vector<TaskSubgroup>();
-		GetTaskSubgroups(taskGroups, task->AssemblyTree.root(), task->SegTree.root(), task, 0, i);
-
-		bool sepComplete = false;
-		while (!sepComplete) {
-			// separation
-			for (int i = 0; i < taskGroups->size(); ++i) {
-				cout << "Size: " << taskGroups->size() << "  taskGroups " << i << " : " << (*taskGroups)[i].leader << endl
-					<< " separation distance: " << (*taskGroups)[i].targetSepDistance 
-					<< " current distance: " << (*taskGroups)[i].currentSepDistance << endl;
-				(*taskGroups)[i].Separation(map);
-				//RecordTaskExtendRT(task, robot);
-				task->PushAll("allExtendedPoints");
-				if ((*taskGroups)[i].sepStuck)
-					sepStuckGroups.push_back(i);  // update sepsStucks
-			}
-			
-			// EndCheck: if all sepDone, complete; otherwise, move
-			sepComplete = true;
-			for (int i = 0; i < taskGroups->size(); ++i) {
-				if (!(*taskGroups)[i].sepDone) { sepComplete = false; break; }
-			}
-			cout << "Separation proess: " << sepComplete << endl;
-			cout << "sepStuckGroups:  ";
-			for (int i = 0; i < sepStuckGroups.size(); i++)
-				cout << sepStuckGroups[i] << " , ";
-			cout << endl;
-			if (!sepComplete) {
-				// check sepStuckGroups, and assign weights
-				AssignWeights(taskGroups, sepStuckGroups);
-				// move
-				for (int i = 0; i < taskGroups->size(); ++i) {
-					vector<int> trial = (*taskGroups)[i].TrialMove();
-					if (!(*taskGroups)[i].MoveCheck(map, trial)) {  // no collision
-						(*taskGroups)[i].Move(map, trial, trial, {1, 1});
-						// update flags
-						(*taskGroups)[i].UpdateFlags(trial, true);
-					}
-					else
-						(*taskGroups)[i].UpdateFlags(trial, false);
-				}
-				//RecordTaskExtendRT(task, robot);
-				task->PushAll("allExtendedPoints");
-				map->Display("task");
-			}
-			// update sepsStucks & moveStucks
-			sepStuckGroups.swap(vector<int> ());
-			moveStuckGroups.swap(vector<int>());
-		}
-		// display
-		cout << endl << "Extend step " << i << " : " << endl;
-		map->Display("task");
-		cout << endl;
-		task->PushAll("allTargets");
-	}
-}
-*/
-
-
-
-void TaskExtension(Task* task, MatrixMap* map) {
-	task->PushAll("allExtendedPoints");
-	vector<int> sepStuckGroups;
-	vector<int> moveStuckGroups;
-	int depth = task->AssemblyTree.depth(task->AssemblyTree.root());
-	for (int i = 0; i < depth - 1; i++) { // the leaf layer of assembly tree is not needed for extension
+	for (int i = 1; i < depth; i++) { // the leaf layer of assembly tree is not needed for extension
 		// construct the task subgroups
 		vector<TaskSubgroup>* taskGroups = new vector<TaskSubgroup>();
 		GetTaskSubgroups(taskGroups, task->AssemblyTree.root(), task->SegTree.root(), task, 0, i);
 
 		cout << endl << endl << "Depth proess:   " << i << endl
 			<< "How many groups :  " << taskGroups->size() << endl;
-		bool sepComplete = false;
+
+		bool Complete = false;
 		vector<int> collision;
-		while (!sepComplete) {
+		while (!Complete) {
+			/*
 			for (int i = 0; i < taskGroups->size(); ++i) {
 				cout << endl
 					<< "The leader ID " << i << " : \t" << (*taskGroups)[i].leader
@@ -220,22 +155,23 @@ void TaskExtension(Task* task, MatrixMap* map) {
 					
 				}
 			}
-			// EndCheck: if all Done, complete; otherwise, move
-			sepComplete = true;
-			for (int i = 0; i < taskGroups->size(); ++i) {
-				if (!(*taskGroups)[i].sepDone) { sepComplete = false; break; }
-			}
-			cout << "Separation complete? :  " << sepComplete << endl;
-			// if separation is not complete, move. at most one side is obstacle. 
-			if (!sepComplete) {
+			*/
+
+			// move 
+			if (!Complete) {
 				// move
-				for (int i = 0; i < taskGroups->size(); ++i) {
-					(*taskGroups)[i].OverallMove(map);
+				for (int j = 0; j < taskGroups->size(); ++j) {
+					//vector<int> peerIDs = GetTaskPeers((*taskGroups)[j], task, i-1);
+					(*taskGroups)[j].OverallMove(map);
 				}
 				//
 				task->PushAll("allExtendedPoints");
 				map->Display("task");
 			}
+
+			// EndCheck: if all Done, complete; otherwise, move
+			Complete = EndCheck(taskGroups, 3);
+			cout << "Separation complete? :  " << Complete << endl;
 		}
 		
 		// display
@@ -246,14 +182,36 @@ void TaskExtension(Task* task, MatrixMap* map) {
 	}
 }
 
+// return the task IDs in the same node
+vector<int> GetTaskPeers(TaskSubgroup taskGroup, Task* task, int layer) {
+	vector<BinNode<vector<int>>*> nodeVec = task->AssemblyTree.getLayerNode(task->AssemblyTree.root(), 0, layer, nodeVec);
+	vector<int> peerIDs;
+	for (int i = 0; i < nodeVec.size(); i++) { // check each group
+		bool isPeer = false;
+		for (int j = 0; j < nodeVec[i]->data.size(); j++) { // each ID
+			int taskID = nodeVec[i]->data[j];
+			peerIDs.push_back(taskID);
+			if (taskGroup.leader == taskID) isPeer = true; // pair the group
+		}
+		if (isPeer) return peerIDs;
+		peerIDs.swap(vector<int>());
+	}
+	return peerIDs;
+
+}
+
+// prepare the task groups
 void GetTaskSubgroups(vector<TaskSubgroup>* taskGroups, BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* task, int depth, int obj) {
 	if (!assNode) return;   // tree node empty
-	if (assNode->data.size() <= 1) return;  // cannot be extended anymore
-
+	
 	if (depth == obj) {
 		// construct the taskgroups
-		vector<int> lcomponents = assNode->lChild->data;
-		vector<int> rcomponents = assNode->rChild->data;
+		//vector<int> lcomponents = assNode->lChild->data;
+		//vector<int> rcomponents = assNode->rChild->data;
+
+		vector<int> lcomponents = assNode->data;
+		vector<int> rcomponents;
+
 		vector<TaskPoint*> ltask;
 		vector<TaskPoint*> rtask;
 		bool belongToLeft;
@@ -273,6 +231,7 @@ void GetTaskSubgroups(vector<TaskSubgroup>* taskGroups, BinNode<vector<int>>* as
 			else
 				lfull = true;
 			if (belongToLeft) continue;
+
 			// rcomponents
 			if (rtask.size() < rcomponents.size()) {
 				for (int j = 0; j < rcomponents.size(); ++j)
@@ -290,8 +249,40 @@ void GetTaskSubgroups(vector<TaskSubgroup>* taskGroups, BinNode<vector<int>>* as
 		taskGroups->push_back(taskgroup);
 	}
 
+	if (assNode->data.size() <= 1) return;  // cannot be extended anymore
+
 	GetTaskSubgroups(taskGroups, assNode->lChild, segNode->lChild, task, depth + 1, obj);
 	GetTaskSubgroups(taskGroups, assNode->rChild, segNode->rChild, task, depth + 1, obj);
+}
+
+bool EndCheck(vector<TaskSubgroup>* taskGroups, int range) {
+	bool endflag = true;
+	for (int i = 0; i < taskGroups->size() - 1; ++i) {
+		for (int j = i + 1; j < taskGroups->size(); ++j) {
+			if (GroupDistance((*taskGroups)[i], (*taskGroups)[j]) < range) {
+				endflag = false;
+			}
+		}
+	}
+	return endflag;
+}
+
+int GroupDistance(TaskSubgroup group1, TaskSubgroup group2) {
+	// return the minimum distance between two robot grooups
+	int mini_distance = INT_MAX;
+	for (int i = 0; i < group1.ltaskNumber; ++i) {
+		TaskPoint* task1 = group1.ltasks[i];
+		for (int j = 0; j < group2.ltaskNumber; ++j) {
+			TaskPoint* task2 = group2.ltasks[j];
+			// calculate the distance between the robots in two groups
+			int temp_dist = abs(task1->taskPoint.x - task2->taskPoint.x)
+				+ abs(task1->taskPoint.y - task2->taskPoint.y);
+
+			// get the minimum distance
+			if (temp_dist < mini_distance) mini_distance = temp_dist;
+		}
+	}
+	return mini_distance;
 }
 
 
@@ -417,10 +408,10 @@ vector<vector<int>> IDtoIndex(vector<Robot*> robot) {
 vector<int> GetPeers(RobotGroup group, vector<Robot*> robot, Task* task, vector<int> tID2index, int layer) {
 	vector<BinNode<vector<int>>*> nodeVec = task->AssemblyTree.getLayerNode(task->AssemblyTree.root(), 0, layer, nodeVec);
 	vector<int> peerIDs;
-	for (int i = 0; i < nodeVec.size(); i++) { // check each group
+	for (int i = 0; i < nodeVec.size(); i++) { // check each node group
 		bool isPeer = false;
-		for (int j = 0; j < nodeVec[i]->data.size(); j++) { // each ID
-			int robotID = robot[tID2index[nodeVec[i]->data[j]]]->id;
+		for (int j = 0; j < nodeVec[i]->data.size(); j++) { // each task ID
+			int robotID = robot[tID2index[nodeVec[i]->data[j]]]->id; // find the robot ID
 			peerIDs.push_back(robotID);
 			if (group.robot[0]->id == robotID) isPeer = true; // pair the group
 		}
