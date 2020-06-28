@@ -1,15 +1,36 @@
-这篇文档用来记录多机器人模拟系统的开发
-以前开发了一个类似的系统，但是是用面向过程的思想开发的，在维护的时候非常不方便
-现在打算以面向对象的思想来开发该多机器人模拟系统
-系统内目前有三个主要类：
-规则类：Rule
-机器人类：Robot
-任务管理类：TaskManager
-地图中的点类：Point
-任务类:Task
-2018.11.27
-测试分发任务
-目标：
-任务分配：看看那个机器人可以最早执行该任务
-路径规划：A*算法
-冲突避免：这个要好好做，很关键
+1. Motivation:
+
+
+2. Introduction:
+
+
+3. Data file architecture:
+	Config // RobotSimulator的参数
+	InitMap // 地图尺寸与障碍物分布
+	Task // 任务点分布
+	Robot_Init_Position // 机器人的初始分布
+	
+	Robot_Current_Position // 机器人当前位置和目标位置，这是实时维护和变化的数据
+
+4. Code file architecture:
+	底层，
+		/Lib 文件夹下有需要的eigen库
+		Point.h 提供点的数据结构
+		BinTree.h 提供二叉树的数据结构
+		Map.h 提供地图的数据结构
+
+	二层，
+		Task.h
+		Robot.h
+	
+	三层，
+		Algorithms
+	
+	四层
+		Main function  // Statistics?and the comparison
+	
+5. Algorithm description
+
+
+
+

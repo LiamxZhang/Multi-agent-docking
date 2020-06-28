@@ -159,6 +159,7 @@ template <typename T>
 int BinTree<T>::remove(BinNode<T>* t) {
     return removeAt(t);
 }
+
 template <typename T>
 static int removeAt(BinNode<T>* t) {
     if (!t) return 0;
@@ -166,6 +167,7 @@ static int removeAt(BinNode<T>* t) {
     delete t;
     return n;
 }
+
 // find t's brother
 template <typename T>
 BinNode<T>* BinTree<T>::findBro(BinNode<T>* t) {

@@ -1,6 +1,6 @@
 #pragma once
 // 定义底层地图点的数据格式，基于Point类可定义Task，Robot等类
-// 每个点主要特征是x,y坐标，地图的origin位于其左下角
+// 每个点主要特征是x,y坐标，地图的origin位于其右下角
 
 class Point {         // the point in the map
 public:
@@ -9,6 +9,7 @@ public:
 		x = tx;
 		y = ty;
 	}
+
 	bool operator==(const Point& r) const {     // reload logic operation ==
 		return (x == r.x) && (y == r.y);
 	}
@@ -28,6 +29,7 @@ public:
 			return false;
 		}
 	}
+
 	Point up() {
 		return Point(x, y + 1);
 	}
@@ -35,17 +37,18 @@ public:
 		return Point(x, y - 1);
 	}
 	Point left() {
-		return Point(x - 1, y);
-	}
-	Point right() {
 		return Point(x + 1, y);
 	}
+	Point right() {
+		return Point(x - 1, y);
+	}
+
 	// friend with all other classes
-	friend class Rule;
 	friend class Robot;
 	friend class Task;
 	friend int main();
 	int x;
 	int y;
+
 private:
 };

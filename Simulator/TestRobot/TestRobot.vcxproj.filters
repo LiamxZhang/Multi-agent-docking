@@ -15,11 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="test1.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="Task.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -35,11 +30,37 @@
     <ClInclude Include="BinTree.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Rule.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="Map.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="NaiveAlg.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="RandomNoPair.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CommonFunctions.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="RandomSearch.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="WavePropagation.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="VijayAlg.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Hungarian.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Hungarian.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

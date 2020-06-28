@@ -5,6 +5,7 @@
 #include <Eigen/Dense>
 #include <fstream>
 
+#include "Point.h"
 #include "Log.h"
 
 using namespace Eigen;
@@ -18,9 +19,8 @@ public:
 
 	void ReadMap();
 	void Display(string str); 
-	bool UpdateTaskmap(vector<TaskPoint*>);  // after every move, update the Map.
-	bool TaskCheck(int, int, vector<int>, int);
-	bool CollisionCheck(vector<Point> positions, vector<int> ids, vector<int> peerIDs);  // check collision with robots and obstacles
+	bool TaskCheck(vector<vector<int>> taskPos, vector<int> taskIDs, vector<int> peerIDs, int range);
+	bool CollisionCheck(vector<Point> positions, vector<int> ids, vector<int> peerIDs, int interval = 1);  // check collision with robots and obstacles
 	vector<int> FindWhere(int, char); // find the position according to ID
 	// variables
 	int RowNum, ColNum;
@@ -72,7 +72,7 @@ MatrixMap::ReadMap() {
 		for (int i = 0; i < taskNum; i++) {
 			int id, x, y;
 			f >> id >> x >> y;
-			map_task(x, y) = id;
+			map_task(x - 1, y - 1) = id;
 		}
 		//TaskToDo = ToDoTask;
 	}
@@ -92,7 +92,7 @@ MatrixMap::ReadMap() {
 			int id, x, y;
 			char c;   // to not accept the comma
 			f >> id >> c >> x >> c >> y;
-			map_robot(x, y) = id;
+			map_robot(x - 1, y - 1) = id;
 		}
 		//TaskToDo = ToDoTask;
 	}
@@ -133,46 +133,6 @@ MatrixMap::Display(string str) {
 }
 
 /*
-bool 
-MatrixMap::RobotCheck(int ID, vector<int> component, int range) {
-	// range 是探测的范围
-	// 找到ID对应的robot位置  row, col
-	int row, col;  
-	for (int i = 0; i < RowNum; i++)
-		for (int j = 0; j < ColNum; j++) {
-			if (map_robot(i, j) == ID) {
-				row = i;
-				col = j;
-				i = RowNum; // 跳出外层循环
-				break;
-			}
-		}
-	// 检查obstacle map
-	if (map_obstacle(row, col))
-		return false;
-	// 检查robot map
-	int rowMax, rowMin, colMax, colMin;
-	if (row - range > 0) rowMin = row - range;  // 改？：语句
-	else rowMin = 0;
-	if (row + range < RowNum) rowMax = row + range;
-	else rowMax = RowNum;
-	if (col - range > 0) colMin = col - range;
-	else colMin = 0;
-	if (col + range < ColNum) colMax = col + range;
-	else colMax = ColNum;
-	for (int i = rowMin; i < rowMax; i++)
-		for (int j = colMin; j < colMax; j++) {
-			if (map_robot(i, j) > 0) {
-				vector<int>::iterator it = find(component.begin(), component.end(), map_robot(i, j));
-				if (it == component.end()) {   // 不在component中
-					return false;
-				}
-			}			
-		}
-	return true;
-}
-*/
-
 bool
 MatrixMap::TaskCheck(int row, int col, vector<int> ids, int range) {
 	// row, col是探测起点, map从0，0开始
@@ -187,36 +147,188 @@ MatrixMap::TaskCheck(int row, int col, vector<int> ids, int range) {
 	row + range < RowNum ? rowMax = row + range : rowMax = RowNum;
 	col - range > 0 ? colMin = col - range : colMin = 0;
 	col + range < ColNum ? colMax = col + range : colMax = ColNum;
+	/*
+	for (int i = rowMin; i <= rowMax; i++) {
+		// 最左一列
+		if (map_task(i, colMin) > 0) {
+			vector<int>::iterator it = find(ids.begin(), ids.end(), map_task(i, colMin));
+			if (it == ids.end()) {   // 不在component中
+				return false;
+			}
+		}
+		// 最右一列
+		if (map_task(i, colMax) > 0) {
+			vector<int>::iterator it = find(ids.begin(), ids.end(), map_task(i, colMax));
+			if (it == ids.end())
+				return false;
+		}
+	}
+	
+	for (int j = colMin + 1; j < colMax; j++) {
+		// 最上一行
+		if (map_task(rowMin, j) > 0) {
+			vector<int>::iterator it = find(ids.begin(), ids.end(), map_task(rowMin, j));
+			if (it == ids.end())
+				return false;
+		}
+		// 最下一行
+		if (map_task(rowMax, j) > 0) {
+			vector<int>::iterator it = find(ids.begin(), ids.end(), map_task(rowMax, j));
+			if (it == ids.end())
+				return false;
+		}
+	}
+	////
 	for (int i = rowMin; i <= rowMax; i++)
 		for (int j = colMin; j <= colMax; j++) {
-			//cout << "row and column：   " << i << "    " << j << endl;
 			if (map_task(i, j) > 0) {
 				vector<int>::iterator it = find(ids.begin(), ids.end(), map_task(i, j));
-				if (it == ids.end()) {   // 不在component中
+				if (it == ids.end())
 					return false;
-				}
 			}
 		}
 	return true;
 }
+*/
 
 bool
-MatrixMap::CollisionCheck(vector<Point> positions, vector<int> ids, vector<int> peerIDs) { // a group of robots // false : no collision, true : collision
+MatrixMap::TaskCheck(vector<vector<int>> taskPos, vector<int> taskIDs, vector<int> peerIDs, int range) {
+	// taskPos, taskIDs 是
+	// peerIDs 是免检的同组的Child点
+	// range 是探测的范围
+	// 检查obstacle map, task map, edge
+	// 检查边缘
+	for (int i = 0; i < taskPos.size(); ++i) {
+		if ((taskPos[i][0] < 0 * ColNum) || (taskPos[i][0] > 1 * ColNum) 
+			|| (taskPos[i][1] < 0 * RowNum) || (taskPos[i][1] >  1 * RowNum))
+			return false;
+	}
+	// 有障碍, false, 无障碍, true
+	for (int i = 0; i < taskPos.size(); ++i) {
+		if (map_obstacle(taskPos[i][0], taskPos[i][1]))
+			return false;
+	}
+	// 检查task map
+	for (int i = 0; i < taskPos.size(); ++i) {
+		int minX, maxX, minY, maxY;
+		int X = taskPos[i][0];
+		int Y = taskPos[i][1];
+		X - range > 0 ? minX = X - range : minX = 0;
+		X + range < ColNum - 1 ? maxX = X + range : maxX = ColNum - 1;
+		Y - range > 0 ? minY = Y - range : minY = 0;
+		Y + range < RowNum - 1 ? maxY = Y + range : maxY = RowNum - 1;
+		//
+		int Y_array[2] = { minY, maxY };
+		for (int x = minX; x <= maxX; ++x) {
+			for (int& y : Y_array) {         // up, down
+				if (map_task(x, y)) {
+					vector<int>::iterator itt = find(taskIDs.begin(), taskIDs.end(), map_task(x, y));
+					vector<int>::iterator itp = find(peerIDs.begin(), peerIDs.end(), map_task(x, y));
+					if (itt == taskIDs.end() && itp == peerIDs.end()) {   // not in component
+						return false;
+					}
+				}
+			}
+		}
+		//
+		int X_array[2] = { minX, maxX };
+		for (int y = minY + 1; y < maxY; ++y) {
+			for (int& x : X_array) {         // left, right
+				if (map_task(x, y)) {
+					vector<int>::iterator itt = find(taskIDs.begin(), taskIDs.end(), map_task(x, y));
+					vector<int>::iterator itp = find(peerIDs.begin(), peerIDs.end(), map_task(x, y));
+					if (itt == taskIDs.end() && itp == peerIDs.end()) {   // not in component
+						return false;
+					}
+				}
+			}
+		}
+	}
+	return true;
+	/*
+	int rowmax = 0; 
+	int rowmin = (1 << 31) - 1; // max of int
+	int colmax = 0;
+	int colmin = (1 << 31) - 1;  // max and min of task points
+
+	for (int i = 0; i < taskPos.size(); ++i) {
+		if (taskPos[i][0] > rowmax)
+			rowmax = taskPos[i][0];
+		if (taskPos[i][0] < rowmin)
+			rowmin = taskPos[i][0];
+		if (taskPos[i][1] > colmax)
+			colmax = taskPos[i][1];
+		if (taskPos[i][1] > colmin)
+			colmin = taskPos[i][1];
+	}
+
+	int rowMax, rowMin, colMax, colMin;
+	rowmin - range > 0 ? rowMin = rowmin - range : rowMin = 0;
+	rowmax + range < RowNum ? rowMax = rowmax + range : rowMax = RowNum;
+	colmin - range > 0 ? colMin = colmin - range : colMin = 0;
+	colmax + range < ColNum ? colMax = colmax + range : colMax = ColNum;
+
+	for (int i = rowMin; i <= rowMax; i++) {
+		// 最左一列
+		if (map_task(i, colMin) > 0) {
+			vector<int>::iterator it = find(peerIDs.begin(), peerIDs.end(), map_task(i, colMin));
+			if (it == peerIDs.end()) {   // 不在component中
+				return false;
+			}
+		}
+		// 最右一列
+		if (map_task(i, colMax) > 0) {
+			vector<int>::iterator it = find(peerIDs.begin(), peerIDs.end(), map_task(i, colMax));
+			if (it == peerIDs.end())
+				return false;
+		}
+	}
+
+	for (int j = colMin + 1; j < colMax; j++) {
+		// 最上一行
+		if (map_task(rowMin, j) > 0) {
+			vector<int>::iterator it = find(peerIDs.begin(), peerIDs.end(), map_task(rowMin, j));
+			if (it == peerIDs.end())
+				return false;
+		}
+		// 最下一行
+		if (map_task(rowMax, j) > 0) {
+			vector<int>::iterator it = find(peerIDs.begin(), peerIDs.end(), map_task(rowMax, j));
+			if (it == peerIDs.end())
+				return false;
+		}
+	}
+	*/
+	/*
+	for (int i = rowMin; i <= rowMax; i++)
+		for (int j = colMin; j <= colMax; j++) {
+			if (map_task(i, j) > 0) {
+				vector<int>::iterator it = find(ids.begin(), ids.end(), map_task(i, j));
+				if (it == ids.end())
+					return false;
+			}
+		}
+	*/
+}
+
+
+bool
+MatrixMap::CollisionCheck(vector<Point> positions, vector<int> ids, vector<int> peerIDs, int interval) { // a group of robots // false : no collision, true : collision
 	for (int i = 0; i < positions.size(); ++i) {  // for each robot
 		if (map_obstacle(positions[i].x, positions[i].y)) // obstacles
 			return true;
 		else { // if there's no obstacle, check robot at nearby
 			bool collision;
 			int minX, maxX, minY, maxY;
-			(positions[i].x - 1 > 0) ? minX = positions[i].x - 1 : minX = 0;
-			(positions[i].x + 1 < RowNum - 1) ? maxX = positions[i].x + 1 : maxX = RowNum - 1;
-			(positions[i].y - 1 > 0) ? minY = positions[i].y - 1 : minY = 0;
-			(positions[i].y + 1 < ColNum - 1) ? maxY = positions[i].y + 1 : maxY = ColNum - 1;
+			(positions[i].x - interval > 0) ? minX = positions[i].x - interval : minX = 0;
+			(positions[i].x + interval < ColNum - 1) ? maxX = positions[i].x + interval : maxX = ColNum - 1;
+			(positions[i].y - interval > 0) ? minY = positions[i].y - interval : minY = 0;
+			(positions[i].y + interval < RowNum - 1) ? maxY = positions[i].y + interval : maxY = RowNum - 1;
 			for (int x = minX; x <= maxX; ++x) {
 				for (int y = minY; y <= maxY; ++y) {
 					if (map_robot(x, y) != 0) { // robot exists
 						collision = true;  // assume existing robot
-						if (x == positions[i].x && y == positions[i].y) { // at the center position
+						if (x == positions[i].x && y == positions[i].y) { // at the very position of tendposition
 							for (int j = 0; j < ids.size(); ++j) {  // if one ID exists in the component，no collision
 								if (ids[j] == map_robot(x, y)) {
 									collision = false;
@@ -224,7 +336,7 @@ MatrixMap::CollisionCheck(vector<Point> positions, vector<int> ids, vector<int> 
 								}
 							}
 						}
-						else { // not the center
+						else { // not in the tendposition
 							for (int j = 0; j < peerIDs.size(); ++j) {  // if one ID exists in the component，no collision
 								if (peerIDs[j] == map_robot(x, y)) {
 									collision = false;
@@ -236,36 +348,13 @@ MatrixMap::CollisionCheck(vector<Point> positions, vector<int> ids, vector<int> 
 					}
 				}
 			}
-			
+
 		}
 	}
 	return false;
 }
 
-bool 
-MatrixMap::UpdateTaskmap(vector<TaskPoint*> newTasks) {
-	int Size = newTasks.size();
-	if (Size < 1) return false;
 
-	// new a map
-	map_task = MatrixXi::Zero(RowNum, ColNum);
-	for (int i = 0; i < Size; i++) 
-		map_task(newTasks[i]->taskPoint.x, newTasks[i]->taskPoint.y) = newTasks[i]->id;
-	return true;
-	/*
-	for (int i = 0; i < Size; i++) {
-		// find the id position
-		cout << "ID:" << newTasks[i]->id << endl;
-		vector<int> position = findWhere(newTasks[i]->id, 't');
-		// add the targets into map
-		//cout << "Original position: " << position[0] << "   " << position[1] << "   " << map_task(position[0], position[1]) << endl;
-		//cout << "New position: " << newTasks[i]->taskPoint.x << "   " << newTasks[i]->taskPoint.y << "  " << newTasks[i]->id << endl;
-		
-		map_task(position[0], position[1]) = 0;
-		map_task(newTasks[i]->taskPoint.x, newTasks[i]->taskPoint.y) = newTasks[i]->id;
-	}
-	*/
-}
 
 vector<int>
 MatrixMap::FindWhere(int ID, char RorT) {

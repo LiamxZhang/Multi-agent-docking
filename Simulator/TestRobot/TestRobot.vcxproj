@@ -79,16 +79,23 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="test1.cpp" />
+    <ClCompile Include="Hungarian.cpp" />
+    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BinTree.h" />
+    <ClInclude Include="CommonFunctions.h" />
+    <ClInclude Include="Hungarian.h" />
     <ClInclude Include="Log.h" />
     <ClInclude Include="Map.h" />
+    <ClInclude Include="NaiveAlg.h" />
     <ClInclude Include="Point.h" />
+    <ClInclude Include="RandomNoPair.h" />
+    <ClInclude Include="RandomSearch.h" />
     <ClInclude Include="Robot.h" />
-    <ClInclude Include="Rule.h" />
     <ClInclude Include="Task.h" />
+    <ClInclude Include="VijayAlg.h" />
+    <ClInclude Include="WavePropagation.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
