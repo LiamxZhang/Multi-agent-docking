@@ -101,8 +101,8 @@ void WaveAlg::TaskExtension(Task* task, MatrixMap* map) {
 
 			// EndCheck: if all Done, complete; otherwise, move
 			sepComplete = true;
-			for (int i = 0; i < taskGroups->size(); ++i) {
-				if (!(*taskGroups)[i].sepDone) { sepComplete = false; break; }
+			for (int j = 0; j < taskGroups->size(); ++j) {
+				if (!(*taskGroups)[j].sepDone) { sepComplete = false; break; }
 			}
 
 			// find the two end
@@ -551,16 +551,16 @@ void WaveAlg::WavePropagation(vector<vector<int>> candidateGroup, vector<int> al
 
 	cout << "Next stuck groups are (";
 	cout << nextGroups[0].size() << "):\t";
-	for (int k = 0; k < nextGroups[0].size(); ++k) {
-		cout << nextGroups[0][k] << " (" << (*taskGroups)[nextGroups[0][k]].leader << "),\t";
+	for (int i = 0; i < nextGroups[0].size(); ++i) {
+		cout << nextGroups[0][i] << " (" << (*taskGroups)[nextGroups[0][i]].leader << "),\t";
 	}
 	cout << endl;
 
 	// 2. call self
 	if (nextGroups[0].size()) {
 		//allstuckGroups.insert(allstuckGroups.end(), nextGroups.begin(), nextGroups.end());
-		for (int k = 0; k < nextGroups[0].size(); ++k) {
-			allstuckGroups.push_back(nextGroups[0][k]);
+		for (int i = 0; i < nextGroups[0].size(); ++i) {
+			allstuckGroups.push_back(nextGroups[0][i]);
 		}
 		WavePropagation(nextGroups, allstuckGroups, taskGroups, map);
 	}

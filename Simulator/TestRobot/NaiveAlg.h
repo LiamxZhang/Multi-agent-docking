@@ -119,7 +119,7 @@ void NaiveAlg::NaiveRobotMove(Task* task, vector<Robot*> robot, MatrixMap* world
 				//vector<int> peersIDs = GetPeers(groups[j], robot, task, tID2index, stepNum - i - 1); // same group and to be docked group
 				vector<int> peersIDs;
 				cout << "1" << endl;
-				groups[j].PathPlanning(world, task->allTargets[stepNum - i - 1], peersIDs);
+				groups[j].PathPlanning(world, task->allTargets[stepNum - i - 1], peersIDs, 0, 0);
 				cout << "2" << endl;
 				groups[j].TrialMove();
 				cout << "3" << endl;

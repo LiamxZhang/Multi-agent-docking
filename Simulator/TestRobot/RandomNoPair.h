@@ -122,6 +122,7 @@ void RandomNoPair::TaskExtension(Task* task, MatrixMap* map) {
 // prepare the task groups
 void RandomNoPair::PrepareTaskSubgroups(vector<TaskSubgroup>* taskGroups, BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* task, int depth, int obj) {
 	if (!assNode) return;   // tree node empty
+	if (assNode->data.size() < 1) return;  // cannot be extended anymore
 
 	if (depth == obj) {
 		// construct the taskgroups
@@ -129,57 +130,38 @@ void RandomNoPair::PrepareTaskSubgroups(vector<TaskSubgroup>* taskGroups, BinNod
 		//vector<int> rcomponents = assNode->rChild->data;
 
 		vector<int> lcomponents = assNode->data;
-		vector<int> rcomponents;
 
 		vector<TaskPoint*> ltask;
 		vector<TaskPoint*> rtask;
-		bool belongToLeft;
-		bool lfull = false;
-		bool rfull = false;
 		for (int i = 0; i < task->currentTargets.size(); ++i) {
 			// lcomponents
-			belongToLeft = false;
 			if (ltask.size() < lcomponents.size()) {
 				for (int j = 0; j < lcomponents.size(); ++j)
 					if (task->currentTargets[i]->id == lcomponents[j]) {
 						ltask.push_back(task->currentTargets[i]);
-						belongToLeft = true;
 						break;
 					}
 			}
-			else
-				lfull = true;
-			if (belongToLeft) continue;
-
-			// rcomponents
-			if (rtask.size() < rcomponents.size()) {
-				for (int j = 0; j < rcomponents.size(); ++j)
-					if (task->currentTargets[i]->id == rcomponents[j]) {
-						rtask.push_back(task->currentTargets[i]);
-						break;
-					}
-			}
-			else
-				rfull = true;
-			if (lfull && rfull) break;
 		}
 		// initialization
-		TaskSubgroup taskgroup(ltask, rtask, segNode->data, 3);  // range = 2
+		TaskSubgroup taskgroup(ltask, rtask, segNode->data, 3);  // range = 3
 		taskGroups->push_back(taskgroup);
 	}
 
-	if (assNode->data.size() <= 1) return;  // cannot be extended anymore
-
-	GetTaskSubgroups(taskGroups, assNode->lChild, segNode->lChild, task, depth + 1, obj);
-	GetTaskSubgroups(taskGroups, assNode->rChild, segNode->rChild, task, depth + 1, obj);
+	PrepareTaskSubgroups(taskGroups, assNode->lChild, segNode->lChild, task, depth + 1, obj);
+	PrepareTaskSubgroups(taskGroups, assNode->rChild, segNode->rChild, task, depth + 1, obj);
 }
 
 bool RandomNoPair::EndCheck(vector<TaskSubgroup>* taskGroups, int range) {
 	bool endflag = true;
-	for (int i = 0; i < taskGroups->size() - 1; ++i) {
-		for (int j = i + 1; j < taskGroups->size(); ++j) {
+	int size = taskGroups->size();
+
+	for (int i = 0; i < size - 1; ++i) {
+		for (int j = i + 1; j < size; ++j) {
 			if (GroupDistance((*taskGroups)[i], (*taskGroups)[j]) < range) {
 				endflag = false;
+				i = size - 1;
+				break;
 			}
 		}
 	}
@@ -193,6 +175,7 @@ int RandomNoPair::GroupDistance(TaskSubgroup group1, TaskSubgroup group2) {
 		TaskPoint* task1 = group1.ltasks[i];
 		for (int j = 0; j < group2.ltaskNumber; ++j) {
 			TaskPoint* task2 = group2.ltasks[j];
+
 			// calculate the distance between the robots in two groups
 			int temp_dist = abs(task1->taskPoint.x - task2->taskPoint.x)
 				+ abs(task1->taskPoint.y - task2->taskPoint.y);

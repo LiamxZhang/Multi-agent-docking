@@ -346,7 +346,7 @@ int TaskSubgroup::PartMoveCheck(MatrixMap* world, vector<int> trial, char LorR) 
 		// check obstacle
 		if (!COL) {  // if not cross the border
 			for (int y = tendboundary[3]; y <= tendboundary[2]; ++y) {
-				if (world->map_obstacle(tendboundary[0], y)) { 
+				if (world->map_obstacle(tendboundary[0], y) || world->map_task(tendboundary[0], y)) {
 					cout << "Caution: obstacle at left !!!" << endl; COL = 1; break; 
 				} // left most
 			}
@@ -379,7 +379,7 @@ int TaskSubgroup::PartMoveCheck(MatrixMap* world, vector<int> trial, char LorR) 
 		// check obstacle
 		if (!COL) {  // if not cross the border
 			for (int y = tendboundary[3]; y <= tendboundary[2]; ++y) {
-				if (world->map_obstacle(tendboundary[1], y)) { 
+				if (world->map_obstacle(tendboundary[1], y) || world->map_task(tendboundary[1], y)) {
 					cout << "Caution: obstacle at right !!!" << endl; COL = 1; break; 
 				} // right most
 			}
@@ -409,7 +409,7 @@ int TaskSubgroup::PartMoveCheck(MatrixMap* world, vector<int> trial, char LorR) 
 		// check obstacle
 		if (!COL) {
 			for (int x = tendboundary[1]; x <= tendboundary[0]; ++x) {
-				if (world->map_obstacle(x, tendboundary[2])) { 
+				if (world->map_obstacle(x, tendboundary[2]) || world->map_task(x, tendboundary[2])) {
 					cout << "Caution: obstacle!!!" << endl; COL = 1; break; 
 				} // up most
 			}
@@ -440,7 +440,7 @@ int TaskSubgroup::PartMoveCheck(MatrixMap* world, vector<int> trial, char LorR) 
 		// check obstacle
 		if (!COL) {
 			for (int x = tendboundary[1]; x <= tendboundary[0]; ++x) {
-				if (world->map_obstacle(x, tendboundary[3])) { 
+				if (world->map_obstacle(x, tendboundary[3]) || world->map_task(x, tendboundary[3])) {
 					cout << "Caution: obstacle!!!" << endl; COL = 1; break; 
 				} // down most
 			}
@@ -507,7 +507,7 @@ vector<int> TaskSubgroup::ShearDeform(MatrixMap* world, int direction) {
 	return collision;
 }
 
-// 
+//
 
 void TaskSubgroup::UpdateWeights(MatrixMap* world, int direction) {
 	vector<int> trial(2); // trial move
