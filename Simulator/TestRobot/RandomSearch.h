@@ -68,8 +68,8 @@ void RandomSearch::Processing() {
 	//vector<int> rID2index = idToIndex[1];  // input: robot ID output: robot index
 	
 	// Robot movement
-	RobotMove(task, robot, world, tID2index);
-
+	//RobotMove(task, robot, world, tID2index);
+	RobotMove_LocalPlan(task, robot, world, tID2index);
 	//system("pause");
 	Recover(task);
 }

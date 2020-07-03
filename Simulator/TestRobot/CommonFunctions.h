@@ -9,9 +9,7 @@
 
 #define WaitTime 500
 
-
 using namespace std;
-
 
 // About Task //
 #pragma region Task
@@ -114,6 +112,39 @@ static vector<int> AssignTaskToRobot(Task* task, vector<Robot*> robot) {
 	cout << endl;
 	RecordLog("Success to assign tasks to robots!");
 
+	return assignedTaskID;
+}
+
+static vector<int> HungarianAssign(Task* task, vector<Robot*> robot, MatrixMap* world) {
+	// Construct the cost matrix
+	vector< vector<double> > costMatrix;
+	for (int i = 0; i < robot.size(); ++i) {
+		vector<double> tempPathLength;
+		// update map
+		robot[i]->UpdateMap(world, vector<int>(), vector<int>(), 0, 0);
+		for (int j = 0; j < task->allTargets.back().size(); ++j) {
+			// update target position
+			robot[i]->targetPosition = task->allTargets.back()[j]->taskPoint;
+
+			// robot path planning
+			vector<Point> planPath = robot[i]->AStarPath();
+			tempPathLength.push_back(double(planPath.size()));
+		}
+		costMatrix.push_back(tempPathLength);
+	}
+	
+	// Hungarian Solver
+	HungarianAlgorithm HungAlgo;
+	vector<int> assignment;
+
+	double cost = HungAlgo.Solve(costMatrix, assignment);
+
+	// Assignment
+	vector<int> assignedTaskID;
+	for (int i = 0; i < robot.size(); i++) {
+		robot[i]->taskID = task->allTargets.back()[assignment[i]]->id;
+		assignedTaskID.push_back(robot[i]->taskID);
+	}
 	return assignedTaskID;
 }
 
@@ -379,3 +410,64 @@ static void RobotMove(Task* task, vector<Robot*> robot, MatrixMap* world, vector
 	}
 }
 
+
+// robot groups move, local path replanning
+static void RobotMove_LocalPlan(Task* task, vector<Robot*> robot, MatrixMap* world, vector<int> tID2index) {
+	// initialize robot groups
+	vector<RobotGroup> groups;
+	for (int i = 0; i < robot.size(); i++) {  // for each one node 
+		vector<Robot*> tempGroup;
+		tempGroup.push_back(robot[i]);
+		RobotGroup robotGroup(tempGroup);  // robot group
+		groups.push_back(robotGroup);
+	}
+
+	// robots move
+	int stepNum = task->allTargets.size(); // tree depth
+	int roboNum = task->allTargets[0].size();
+	for (int i = 0; i < stepNum; i++) { // for each one layer
+		// update task
+		task->UpdateTaskmap(world, stepNum - i - 1);
+		
+		// initial path planning without robots in the map
+		for (int j = 0; j < groups.size(); j++) {
+			groups[j].PathPlanning(world, task->allTargets[stepNum - i - 1], vector<int> (), 0, 0);
+		}
+
+		// move
+		bool reach = false;
+		vector<int> state(groups.size());// flag indicates the robot 0: move, 1: wait or 2: replanning
+		int waitRound = 1; // wait for how many round to replan the path
+
+		while (!reach) {
+			for (int j = 0; j < groups.size(); j++) {
+				vector<int> peersIDs = GetPeers(groups[j], robot, task, tID2index, stepNum - i - 1); // to be docked group
+				// path planning
+				if (state[j] > waitRound) {
+					groups[j].LocalPathPlanning(world, task->allTargets[stepNum - i - 1], INT_MAX, peersIDs);
+					state[j] = 0;
+				}
+
+				// move
+				groups[j].TrialMove();
+				if (!world->CollisionCheck(groups[j].GetRobotPos(), groups[j].GetRobotIds(), peersIDs) 
+					&& groups[j].robot[groups[j].leaderIndex]->planPath.size()) {
+					groups[j].Move(world);
+					world->Display("robot");
+					
+				}
+				else { // wait for one more round
+
+					state[j] += 1;
+				}
+			}
+			// check, if leader robots reach targets, reach = true
+			reach = CheckReach(groups);
+			RecordRobotPosition(robot);
+		}
+
+		world->Display("all");
+		// dock
+		groups = Dock(robot, task, tID2index, stepNum - i - 1);
+	}
+}

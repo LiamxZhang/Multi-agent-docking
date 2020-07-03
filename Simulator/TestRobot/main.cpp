@@ -30,8 +30,8 @@ int main() {
 	// run the algorithms
 	//naive.Processing();
 	//randno.Processing(); //
-	//randse.Processing();
-	waveprop.Processing(); // 有些距离不到3
+	randse.Processing();
+	//waveprop.Processing(); // 有些距离不到3
 	//vijay.Processing();
 
 	// statistics in the class

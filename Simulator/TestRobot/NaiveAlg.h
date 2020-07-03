@@ -65,7 +65,8 @@ void NaiveAlg::Processing() {
 	//TaskExtension(task, world);
 
 	// assign the task to the closest robots using optimization (or bid)
-	AssignTaskToRobot(task, robot);
+	//AssignTaskToRobot(task, robot);
+	HungarianAssign(task, robot, world);
 	// show the task extension process
 	//RecordTaskExtend(task, robot); 
 
