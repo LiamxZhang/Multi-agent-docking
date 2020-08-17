@@ -17,6 +17,7 @@
 #include "Log.h"
 
 #define random() (rand() / double(RAND_MAX))
+#define LogFlag false
 
 using namespace std;
 
@@ -26,8 +27,8 @@ using namespace std;
 
 class TaskPoint {            // class TaskPoint to describe the ponit details of the task
 public:
-	TaskPoint() :id(0), taskPoint() {}
-	TaskPoint(int i, int x, int y) :id(i) {
+	TaskPoint() :id(0), step(0), taskPoint() {}
+	TaskPoint(int i, int x, int y) :id(i), step(0) {
 		taskPoint.x = x; taskPoint.y = y;
 		tendPosition.x = x; tendPosition.y = y;
 	}
@@ -37,8 +38,10 @@ public:
 
 	// variables
 	int id;            // task point id
+	int step;
 	Point taskPoint;     // current position
 	Point tendPosition;  // one step of trial move
+	Point lastPosition;  // position of last time
 
 	friend int main();
 	friend class Rule;
@@ -558,6 +561,16 @@ void TaskSubgroup::UpdateLastPos() {
 }
 
 vector<int> TaskSubgroup::TrialMove() {
+	// update lastPositions
+	for (int i = 0; i < ltaskNumber; ++i) {
+		ltasks[i]->lastPosition.x = ltasks[i]->taskPoint.x;
+		ltasks[i]->lastPosition.y = ltasks[i]->taskPoint.y;
+	}
+	for (int i = 0; i < rtaskNumber; ++i) {
+		rtasks[i]->lastPosition.x = rtasks[i]->taskPoint.x;
+		rtasks[i]->lastPosition.y = rtasks[i]->taskPoint.y;
+	}
+
 	// trial move of the overall body
 	float oneStep = random();
 	char move = ' ';
@@ -648,6 +661,7 @@ int TaskSubgroup::Move(MatrixMap* world, vector<int> trial_left, vector<int> tri
 				world->map_task(ltasks[i]->tendPosition.x, ltasks[i]->tendPosition.y) = ltasks[i]->id;
 				ltasks[i]->taskPoint.x = ltasks[i]->taskPoint.x + trial_left[0];
 				ltasks[i]->taskPoint.y = ltasks[i]->taskPoint.y + trial_left[1];
+				ltasks[i]->step++;
 			}
 			// update the boundary
 			lboundary[0] = lboundary[0] + trial_left[0];  // max X 
@@ -661,6 +675,7 @@ int TaskSubgroup::Move(MatrixMap* world, vector<int> trial_left, vector<int> tri
 				world->map_task(rtasks[i]->tendPosition.x, rtasks[i]->tendPosition.y) = rtasks[i]->id;
 				rtasks[i]->taskPoint.x = rtasks[i]->taskPoint.x + trial_right[0];
 				rtasks[i]->taskPoint.y = rtasks[i]->taskPoint.y + trial_right[1];
+				rtasks[i]->step++;
 			}
 			// update the boundary
 			rboundary[0] = rboundary[0] + trial_right[0];  // max X 
@@ -685,6 +700,7 @@ int TaskSubgroup::Move(MatrixMap* world, vector<int> trial_left, vector<int> tri
 				world->map_task(ltasks[i]->tendPosition.x, ltasks[i]->tendPosition.y) = ltasks[i]->id;
 				ltasks[i]->taskPoint.x = ltasks[i]->taskPoint.x + trial_left[0];
 				ltasks[i]->taskPoint.y = ltasks[i]->taskPoint.y + trial_left[1];
+				ltasks[i]->step++;
 			}
 			// update the boundary
 			lboundary[0] = lboundary[0] + trial_left[0];  // max X 
@@ -709,6 +725,7 @@ int TaskSubgroup::Move(MatrixMap* world, vector<int> trial_left, vector<int> tri
 				world->map_task(rtasks[i]->tendPosition.x, rtasks[i]->tendPosition.y) = rtasks[i]->id;
 				rtasks[i]->taskPoint.x = rtasks[i]->taskPoint.x + trial_right[0];
 				rtasks[i]->taskPoint.y = rtasks[i]->taskPoint.y + trial_right[1];
+				rtasks[i]->step++;
 			}
 			// update the boundary
 			rboundary[0] = rboundary[0] + trial_right[0];  // max X 
@@ -766,31 +783,39 @@ public:
 
 	// functions
 	void Initialization();
-	bool ReadTask();
+	bool ReadTask(string data_dir);
 	bool GenerateTree();
+	bool GenerateTree(MatrixMap* world);
 	void Bisect(BinNode<vector<int>>*, BinNode<char>*);
+	void Segment(BinNode<vector<int>>* node, BinNode<char>* segNode, MatrixMap* world);
+	vector<int> GetMembers(BinNode<vector<int>>* node, vector<int> targetNode, int taskPoint, int countLayer, int targetLayer);
+	vector<int> GetPeers(BinNode<vector<int>>* node, vector<int> peerNode, int taskPoint, int countLayer, int targetLayer);
+	char GetSegDirection(BinNode<char>* segNode, BinNode<vector<int>>* assNode, char segDir, int taskPoint, int countLayer, int targetLayer);
+	char GetChildSide(BinNode<vector<int>>* node, char childSide, int taskPoint, int countLayer, int targetLayer);
+
+	vector<vector<int>> Comparison(vector<Point> left_component, vector<Point> right_component, MatrixMap* world);
 	void PushAll(string);      // Store the currentTargets in allTargets or allExtendedPoints;
 	void Display(string);      // display task positions of steps
 	void Display(int);
 	bool UpdateTaskmap(MatrixMap*, int);
-	void UpdateWeightAndFlag();
 
 private:
 };
 
 bool
-Task::ReadTask() {
+Task::ReadTask(string data_dir) {
 	ifstream f;                // Task.txt 中第一行为目标目标数目，后面每行为ID和坐标
 	////read the final target points
-	f.open("../TestRobot/Task.txt", ifstream::in);
+	f.open(data_dir+"Task.txt", ifstream::in);
 	if (f) {
 		f >> taskNum;
 		//TaskPoint tempTask;
 		int task_id, task_x, task_y;
 		int x_sum = 0;
 		int y_sum = 0;
+		char c;
 		for (int i = 0; i < taskNum; i++) {
-			f >> task_id >> task_x >> task_y;
+			f >> task_id >> c >> task_x >> c >> task_y;
 			TaskPoint* target = new TaskPoint(task_id, task_x - 1, task_y - 1);
 			finalTargets.push_back(target);
 			TaskPoint* temp = new TaskPoint(task_id, task_x - 1, task_y - 1);
@@ -805,17 +830,19 @@ Task::ReadTask() {
 	}
 	else {
 		cout << "Read task: Failed to open the task file. Please check the filename." << endl;
-		RecordLog("Read task: Failed to open the task file. Please check the filename.");
+		if (LogFlag)
+			RecordLog("Read task: Failed to open the task file. Please check the filename.");
 	}
 	f.close();
 	
 	//// read the start points
-	f.open("../TestRobot/Robot_Init_Position.txt", ifstream::in);
+	f.open(data_dir+"Robot_Init_Position.txt", ifstream::in);
 	if (f) {
 		f >> robotNum;
 		if (robotNum != taskNum) {
 			cout << "The robot NO. is not equal to task NO. Please check the robot NO.!" << endl;
-			RecordLog("The robot NO. is not equal to task NO. Please check the robot NO.!");
+			if (LogFlag)
+				RecordLog("The robot NO. is not equal to task NO. Please check the robot NO.!");
 		}
 		int robot_id, robot_x, robot_y;
 		for (int i = 0; i < robotNum; ++i) {
@@ -836,11 +863,13 @@ Task::ReadTask() {
 	}
 	else {
 		cout << "Read task: Failed to open the Robot_Init_Position file. Please check the filename." << endl;
-		RecordLog("Read task: Failed to open the Robot_Init_Position file. Please check the filename.");
+		if (LogFlag)
+			RecordLog("Read task: Failed to open the Robot_Init_Position file. Please check the filename.");
 	}
 	f.close();
 	cout << "Finish to read the task and the robot initial position." << endl << endl;
-	RecordLog("Finish to read the task and the robot initial position.");
+	if (LogFlag)
+		RecordLog("Finish to read the task and the robot initial position.");
 	return true;
 }
 
@@ -873,7 +902,6 @@ Task::Bisect(BinNode<vector<int>>* node, BinNode<char>* segNode) {
 		for (int j = 0; j < compSize; j++) {
 			// split line is x = finalTargets[i].taskPoint.x
 			// from id == components[j] find finalTargets
-			int id_pos;
 			if (finalTargets[ids[j]]->taskPoint.x > finalTargets[ids[i]]->taskPoint.x)
 				countX++;
 			// split line is y = finalTargets[i].taskPoint.y
@@ -881,16 +909,33 @@ Task::Bisect(BinNode<vector<int>>* node, BinNode<char>* segNode) {
 				countY++;
 		}
 		// comparison for the maximum
-		if (countX * (compSize - countX) > max) {  // x direction
-			max = countX * (compSize - countX);
-			line = ids[i];  
-			xory = 'x';
+		double select = random();
+		double decision = 0.5;
+		if (select > decision) {
+			if (countX * (compSize - countX) > max) {  // x direction
+				max = countX * (compSize - countX);
+				line = ids[i];
+				xory = 'x';
+			}
+			if (countY * (compSize - countY) > max) {  // y direction
+				max = countY * (compSize - countY);
+				line = ids[i];
+				xory = 'y';
+			}
 		}
-		if (countY * (compSize - countY) > max) {  // y direction
-			max = countY * (compSize - countY);
-			line = ids[i];
-			xory = 'y';
+		else {
+			if (countY * (compSize - countY) > max) {  // y direction
+				max = countY * (compSize - countY);
+				line = ids[i];
+				xory = 'y';
+			}
+			if (countX * (compSize - countX) > max) {  // x direction
+				max = countX * (compSize - countX);
+				line = ids[i];
+				xory = 'x';
+			}
 		}
+
 	}
 	// save the ids into the tree nodes
 	vector<int> left;
@@ -913,10 +958,14 @@ Task::Bisect(BinNode<vector<int>>* node, BinNode<char>* segNode) {
 	}
 	node->lChild = new BinNode<vector<int>>(left);
 	node->rChild = new BinNode<vector<int>>(right);
+	node->lChild->parent = node;
+	node->rChild->parent = node;
 
 	segNode->data = xory;
 	segNode->lChild = new BinNode<char>('a'); // a means nonsense
 	segNode->rChild = new BinNode<char>('a');
+	segNode->lChild->parent = segNode;
+	segNode->rChild->parent = segNode;
 
 	/*
 	cout << "left:  ";
@@ -932,6 +981,348 @@ Task::Bisect(BinNode<vector<int>>* node, BinNode<char>* segNode) {
 	Bisect(node->rChild, segNode->rChild);
 }
 
+void
+Task::Segment(BinNode<vector<int>>* node, BinNode<char>* segNode, MatrixMap* world) {
+	if (!node) return;
+	vector<int> components = node->data;  // components (robot group)是 node中包含的targets的ID
+	int compSize = components.size();
+	if (compSize <= 1) return;  // components 元素仅一个时，停止分割
+	vector<int> ids;   // 找到ID对应的targets在finalTargets中的位置，存入ids中
+	for (int i = 0; i < compSize; i++)
+		for (int j = 0; j < finalTargets.size(); j++)
+			if (finalTargets[j]->id == components[i])    // ids[i] <-> components[i]
+				ids.push_back(j);
+	
+	// initialization
+	int max = INT_MIN;
+	int line = 0;
+	char xory = ' ';
+	vector<int> left;
+	vector<int> right;
+	for (int i = 0; i < compSize; i++) {   // every possible split line 
+		for (int j = 0; j < compSize; j++) {
+			double select = random();
+			double decision = 0.5;
+			if (select > decision) {
+				// split line is x = finalTargets[i].taskPoint.x
+				{
+					vector<Point> left_component, right_component;
+					if (finalTargets[ids[j]]->taskPoint.x > finalTargets[ids[i]]->taskPoint.x) {
+						left_component.push_back(finalTargets[ids[j]]->taskPoint);
+					}
+					else {
+						right_component.push_back(finalTargets[ids[j]]->taskPoint);
+					}
+
+					// obtain the two parts
+					vector<vector<int>> new_component_id = Comparison(left_component, right_component, world);
+					vector<int> left_id = new_component_id[0];
+					vector<int> right_id = new_component_id[1];
+
+					// comparison for the maximum
+					if (left_id.size() * (compSize - left_id.size()) > max) {  // x direction
+						max = left_id.size() * (compSize - left_id.size());
+						xory = 'x';
+						left.swap(vector<int>());
+						right.swap(vector<int>());
+						left = left_id;
+						right = right_id;
+					}
+				}
+				// split line is y = finalTargets[i].taskPoint.y
+				{
+					vector<Point> left_component, right_component;
+					if (finalTargets[ids[j]]->taskPoint.y > finalTargets[ids[i]]->taskPoint.y) {
+						left_component.push_back(finalTargets[ids[j]]->taskPoint);
+					}
+					else {
+						right_component.push_back(finalTargets[ids[j]]->taskPoint);
+					}
+
+					// obtain the two parts
+					vector<vector<int>> new_component_id = Comparison(left_component, right_component, world);
+					vector<int> left_id = new_component_id[0];
+					vector<int> right_id = new_component_id[1];
+
+					// comparison for the maximum
+					if (left_id.size() * (compSize - left_id.size()) > max) {  // x direction
+						max = left_id.size() * (compSize - left_id.size());
+						xory = 'y';
+						left.swap(vector<int>());
+						right.swap(vector<int>());
+						left = left_id;
+						right = right_id;
+					}
+				}
+			}
+			else {
+				// split line is y = finalTargets[i].taskPoint.y
+				{
+					vector<Point> left_component, right_component;
+					if (finalTargets[ids[j]]->taskPoint.y > finalTargets[ids[i]]->taskPoint.y) {
+						left_component.push_back(finalTargets[ids[j]]->taskPoint);
+					}
+					else {
+						right_component.push_back(finalTargets[ids[j]]->taskPoint);
+					}
+
+					// obtain the two parts
+					vector<vector<int>> new_component_id = Comparison(left_component, right_component, world);
+					vector<int> left_id = new_component_id[0];
+					vector<int> right_id = new_component_id[1];
+
+					// comparison for the maximum
+					if (left_id.size() * (compSize - left_id.size()) > max) {  // x direction
+						max = left_id.size() * (compSize - left_id.size());
+						xory = 'y';
+						left.swap(vector<int>());
+						right.swap(vector<int>());
+						left = left_id;
+						right = right_id;
+					}
+				}
+				// split line is x = finalTargets[i].taskPoint.x
+				{
+					vector<Point> left_component, right_component;
+					if (finalTargets[ids[j]]->taskPoint.x > finalTargets[ids[i]]->taskPoint.x) {
+						left_component.push_back(finalTargets[ids[j]]->taskPoint);
+					}
+					else {
+						right_component.push_back(finalTargets[ids[j]]->taskPoint);
+					}
+
+					// obtain the two parts
+					vector<vector<int>> new_component_id = Comparison(left_component, right_component, world);
+					vector<int> left_id = new_component_id[0];
+					vector<int> right_id = new_component_id[1];
+
+					// comparison for the maximum
+					if (left_id.size() * (compSize - left_id.size()) > max) {  // x direction
+						max = left_id.size() * (compSize - left_id.size());
+						xory = 'x';
+						left.swap(vector<int>());
+						right.swap(vector<int>());
+						left = left_id;
+						right = right_id;
+					}
+				}
+			}
+		}
+	}
+
+	// call self
+	node->lChild = new BinNode<vector<int>>(left);
+	node->rChild = new BinNode<vector<int>>(right);
+
+	segNode->data = xory;
+	segNode->lChild = new BinNode<char>('a'); // a means nonsense
+	segNode->rChild = new BinNode<char>('a');
+
+	
+	Segment(node->lChild, segNode->lChild, world);
+	Segment(node->rChild, segNode->rChild, world);
+}
+
+
+// manipulate the assembly tree
+// according to one task point, find the task group in a layer
+vector<int>
+Task::GetMembers(BinNode<vector<int>>* node, vector<int> targetNode, int taskPoint, int countLayer, int targetLayer) {
+	// return
+	if (node == NULL)
+		return targetNode;
+
+	// get data
+	if (targetLayer >= 0 && countLayer == targetLayer) {
+		for (int i = 0; i < node->data.size(); i++) {
+			if (node->data[i] == taskPoint) {
+				targetNode = node->data;
+				return targetNode;
+			}
+		}
+	}
+
+	// recursion
+	targetNode = GetMembers(node->lChild, targetNode, taskPoint, countLayer +1, targetLayer);
+	targetNode = GetMembers(node->rChild, targetNode, taskPoint, countLayer +1, targetLayer);
+
+	return targetNode;
+}
+
+// according to one task point, find the peer task group in a layer
+vector<int>
+Task::GetPeers(BinNode<vector<int>>* node, vector<int> peerNode, int taskPoint, int countLayer, int targetLayer) {
+	// return
+	if (node == NULL)
+		return peerNode;
+
+	// get data
+	if (targetLayer >= 0 && countLayer == targetLayer) {
+		vector<int> ldata = node->parent->lChild->data;
+		vector<int> rdata = node->parent->rChild->data;
+		
+		for (int i = 0; i < node->data.size(); i++) {
+			if (node->data[i] == taskPoint) {
+				if (node->data == ldata) { // if left child
+					peerNode = rdata;
+				}
+				else if (node->data == rdata) { // if right child
+					peerNode = ldata;
+				}
+				return peerNode;
+			}
+		}
+	}
+
+	// recursion
+	peerNode = GetPeers(node->lChild, peerNode, taskPoint, countLayer + 1, targetLayer);
+	peerNode = GetPeers(node->rChild, peerNode, taskPoint, countLayer + 1, targetLayer);
+
+	return peerNode;
+}
+
+// find the child side from the assembly tree
+char
+Task::GetChildSide(BinNode<vector<int>>* node, char childSide, int taskPoint, int countLayer, int targetLayer) {
+	// return
+	if (node == NULL)
+		return childSide;
+
+	// get data
+	if (targetLayer >= 0 && countLayer == targetLayer) {
+		vector<int> ldata = node->parent->lChild->data;
+		vector<int> rdata = node->parent->rChild->data;
+
+		for (int i = 0; i < node->data.size(); i++) {
+			if (node->data[i] == taskPoint) {
+				if (node->data == ldata) { // if left child
+					return 'l';
+				}
+				else if (node->data == rdata) { // if right child
+					return 'r';
+				}
+			}
+		}
+	}
+
+	// recursion
+	childSide = GetChildSide(node->lChild, childSide, taskPoint, countLayer + 1, targetLayer);
+	childSide = GetChildSide(node->rChild, childSide, taskPoint, countLayer + 1, targetLayer);
+
+	return childSide;
+}
+
+// find the segmentation direction from the segTree
+char 
+Task::GetSegDirection(BinNode<char>* segNode, BinNode<vector<int>>* assNode, char segDir, int taskPoint, int countLayer, int targetLayer) {
+	// return the segmentation direction between the group and its peer group
+	if (assNode == NULL || segNode == NULL)
+		return segDir;
+
+	// get data
+	if (targetLayer >= 0 && countLayer == targetLayer) {
+		for (int i = 0; i < assNode->data.size(); i++) {
+			if (assNode->data[i] == taskPoint) {
+				segDir = segNode->parent->data;
+				return segDir;
+			}
+		}
+	}
+
+	// recursion
+	segDir = GetSegDirection(segNode->lChild, assNode->lChild, segDir, taskPoint, countLayer + 1, targetLayer);
+	segDir = GetSegDirection(segNode->rChild, assNode->rChild, segDir, taskPoint, countLayer + 1, targetLayer);
+
+	return segDir;
+}
+
+// input two components, output two maximum parts
+vector<vector<int>> 
+Task::Comparison(vector<Point> left_component, vector<Point> right_component, MatrixMap* world) {
+	vector<int> left;
+	vector<int> right;
+
+	int compSize = left_component.size() + right_component.size();
+	if (world->IsOneGroup(left_component) && world->IsOneGroup(right_component)) { // properly two parts
+		for (int i = 0; i < left_component.size(); ++i) {
+			left.push_back(world->map_task(left_component[i].x, left_component[i].y));
+		}
+		for (int i = 0; i < right_component.size(); ++i) {
+			right.push_back(world->map_task(right_component[i].x, right_component[i].y));
+		}
+	}
+	else { // there are more than two parts
+		int max = INT_MIN;
+		// left_components
+		{
+			vector<vector<Point>> main_comps = world->Clustering(left_component);
+			for (int i = 0; i < main_comps.size(); ++i) {
+				vector<Point> first_comps = main_comps[i];
+				// form the second parts
+				vector<Point> second_comps = right_component;
+				for (int j = 0; j < main_comps.size(); ++j) {
+					if (j == i)
+						continue;
+					else
+						second_comps.insert(second_comps.end(), main_comps[j].begin(), main_comps[j].end());
+				}
+
+				// compare
+				if (world->IsOneGroup(second_comps)) { // second_comps is one part
+					if (first_comps.size() * (compSize - first_comps.size()) > max) {
+						max = first_comps.size() * (compSize - first_comps.size());
+						// push to the result
+						left.swap(vector<int>());
+						right.swap(vector<int>());
+						for (int k = 0; k < first_comps.size(); ++k) {
+							left.push_back(world->map_task(first_comps[k].x, first_comps[k].y));
+						}
+						for (int k = 0; k < second_comps.size(); ++k) {
+							right.push_back(world->map_task(second_comps[k].x, second_comps[k].y));
+						}
+					}
+				}
+			}
+		}
+		// right_components
+		{
+			vector<vector<Point>> main_comps = world->Clustering(right_component);
+			for (int i = 0; i < main_comps.size(); ++i) {
+				vector<Point> first_comps = main_comps[i];
+				// form the second parts
+				vector<Point> second_comps = left_component;
+				for (int j = 0; j < main_comps.size(); ++j) {
+					if (j == i)
+						continue;
+					else
+						second_comps.insert(second_comps.end(), main_comps[j].begin(), main_comps[j].end());
+				}
+
+				// compare
+				if (world->IsOneGroup(second_comps)) { // second_comps is one part
+					if (first_comps.size() * (compSize - first_comps.size()) > max) {
+						max = first_comps.size() * (compSize - first_comps.size());
+						// push to the result
+						left.swap(vector<int>());
+						right.swap(vector<int>());
+						for (int k = 0; k < first_comps.size(); ++k) {
+							left.push_back(world->map_task(first_comps[k].x, first_comps[k].y));
+						}
+						for (int k = 0; k < second_comps.size(); ++k) {
+							right.push_back(world->map_task(second_comps[k].x, second_comps[k].y));
+						}
+					}
+				}
+			}
+		}
+	}
+
+	vector<vector<int>> left_right;
+	left_right.push_back(left);
+	left_right.push_back(right);
+	return left_right;
+}
+
 bool
 Task::GenerateTree() {
 	// Initially, all ids into root
@@ -939,7 +1330,8 @@ Task::GenerateTree() {
 	for (int i = 0; i < taskNum; i++) ids.push_back(finalTargets[i]->id);
 	if (ids.size() == 0) {
 		cout << "Generate tree: Task NO. is 0. Failed to generate the assembly tree!" << endl;
-		RecordLog("Generate tree: Task NO. is 0. Failed to generate the assembly tree!");
+		if (LogFlag)
+			RecordLog("Generate tree: Task NO. is 0. Failed to generate the assembly tree!");
 		return false;
 	}
 	else {
@@ -950,13 +1342,36 @@ Task::GenerateTree() {
 		//cout << "Flattern Tree:" << endl;
 		//SegTree.display(SegTree.root());
 		cout << endl;
-		RecordLog("Success to generate the assembly tree!");
+		if (LogFlag)
+			RecordLog("Success to generate the assembly tree!");
 		return true;
 	}
 }
 
-
-
+bool
+Task::GenerateTree(MatrixMap* world) {
+	// Initially, all ids into root
+	vector<int> ids;
+	for (int i = 0; i < taskNum; i++) ids.push_back(finalTargets[i]->id);
+	if (ids.size() == 0) {
+		cout << "Generate tree: Task NO. is 0. Failed to generate the assembly tree!" << endl;
+		if (LogFlag)
+			RecordLog("Generate tree: Task NO. is 0. Failed to generate the assembly tree!");
+		return false;
+	}
+	else {
+		BinNode<vector<int>>* root = AssemblyTree.insertASRoot(ids);
+		BinNode<char>* segRoot = SegTree.insertASRoot('x');
+		Segment(root, segRoot, world);
+		AssemblyTree.DisplayTree();
+		//cout << "Flattern Tree:" << endl;
+		//SegTree.display(SegTree.root());
+		cout << endl;
+		if (LogFlag)
+			RecordLog("Success to generate the assembly tree!");
+		return true;
+	}
+}
 
 void 
 Task::PushAll(string toWhere) {  // after extending task in each loop
@@ -1012,6 +1427,7 @@ Task::UpdateTaskmap(MatrixMap* world, int num) {
 	world->map_task = MatrixXi::Zero(world->RowNum, world->ColNum);
 	for (int i = 0; i < Size; i++)
 		world->map_task(newTasks[i]->taskPoint.x, newTasks[i]->taskPoint.y) = newTasks[i]->id;
+
 	return true;
 }
 

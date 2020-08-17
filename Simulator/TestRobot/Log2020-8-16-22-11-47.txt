@@ -1,0 +1,24 @@
+Experiment start. 
+
+Data :	 4
+WavePropatation Algorithm :	 taskstep 16	 robotstep 51
+WavePropatation Algorithm :	 taskstep 17	 robotstep 53
+WavePropatation Algorithm :	 taskstep 16	 robotstep 49
+WavePropatation Algorithm :	 taskstep 25	 robotstep 52
+WavePropatation Algorithm :	 taskstep 22	 robotstep 56
+WavePropatation Algorithm :	 taskstep 15	 robotstep 50
+WavePropatation Algorithm :	 taskstep 21	 robotstep 49
+WavePropatation Algorithm :	 taskstep 17	 robotstep 51
+WavePropatation Algorithm :	 taskstep 17	 robotstep 50
+WavePropatation Algorithm :	 taskstep 16	 robotstep 51
+WavePropatation Algorithm :	 taskstep 18	 robotstep 56
+WavePropatation Algorithm :	 taskstep 21	 robotstep 50
+WavePropatation Algorithm :	 taskstep 16	 robotstep 52
+WavePropatation Algorithm :	 taskstep 15	 robotstep 52
+WavePropatation Algorithm :	 taskstep 18	 robotstep 52
+WavePropatation Algorithm :	 taskstep 17	 robotstep 54
+WavePropatation Algorithm :	 taskstep 15	 robotstep 51
+WavePropatation Algorithm :	 taskstep 21	 robotstep 58
+WavePropatation Algorithm :	 taskstep 18	 robotstep 49
+WavePropatation Algorithm :	 taskstep 31	 robotstep 50
+Data 1 complete: (WavePropatation Algorithm)	 success rate: 1.000000	 task step: 18.600000	 robot step: 51.800000

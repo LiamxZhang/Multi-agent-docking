@@ -19,34 +19,38 @@
 #include "CommonFunctions.h"
 #include "Log.h"
 
-#define WaitTime 500
-
 using namespace std;
 
 class RandomNoPair {
 public:
 	// main function
-	void Processing();
+	void Processing(string data_dir);
 
 	// supporting functions
-	void TaskExtension(Task* task, MatrixMap* map);
+	bool TaskExtension(Task* task, MatrixMap* map);
 	void PrepareTaskSubgroups(vector<TaskSubgroup>* taskGroups, BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* task, int depth, int obj);
 	bool EndCheck(vector<TaskSubgroup>* taskGroups, int range);
 	int GroupDistance(TaskSubgroup group1, TaskSubgroup group2);
 	
+	// variables
+	int taskStep = 0;
+	int robotStep = 0;
+	int taskStep_sys = 0;
+	int robotStep_sys = 0;
+	bool isComplete = true;
 private:
 };
 
 
-void RandomNoPair::Processing() {
+void RandomNoPair::Processing(string data_dir) {
 	// read map, the origin is in the leftmost top,  x means rows, y means columns
 	MatrixMap* world = new MatrixMap();
-	world->ReadMap();
+	world->ReadMap(data_dir);
 	world->Display("obstacle"); //world.Display();
 
 	// read task, generate assembly tree
 	Task* task = new Task();
-	task->ReadTask();
+	task->ReadTask(data_dir);
 	task->GenerateTree();
 	//cout << endl << "Depth: " << task->AssemblyTree.depth(task->AssemblyTree.root()) << endl;
 	//cout << endl << world->TaskCheck(1, task->AssemblyTree.leaves()[0]->data, 2) << endl; 
@@ -59,27 +63,28 @@ void RandomNoPair::Processing() {
 	}
 
 	// Extend the task components, according to the assembly tree
-	TaskExtension(task, world);
+	isComplete = TaskExtension(task, world);
+	if (!isComplete) return;
 
 	// assign the task to the closest robots using optimization (or bid)
 	AssignTaskToRobot(task, robot);
 	// show the task extension process
 	RecordTaskExtend(task, robot);
 
-	// ID to index
-	vector<vector<int>> idToIndex = IDtoIndex(robot);
-	vector<int> tID2index = idToIndex[0];  // input: task ID  output: robot index
-	//vector<int> rID2index = idToIndex[1];  // input: robot ID output: robot index
-
 	// Robot movement
-	RobotMove(task, robot, world, tID2index);
+	isComplete = RobotMove_LocalPlan(task, robot, world);
+	if (!isComplete) return;
 	
 	//system("pause");
 	Recover(task);
-	return;
+	
+	//record the step
+	vector<int> steps = RecordStep(task, robot);
+	taskStep = steps[0];
+	robotStep = steps[1];
 }
 
-void RandomNoPair::TaskExtension(Task* task, MatrixMap* map) {
+bool RandomNoPair::TaskExtension(Task* task, MatrixMap* map) {
 	task->PushAll("allExtendedPoints");
 
 	vector<int> moveStuckGroups;
@@ -94,6 +99,8 @@ void RandomNoPair::TaskExtension(Task* task, MatrixMap* map) {
 
 		bool Complete = false;
 		vector<int> collision;
+		int repeatStep = 0;
+		int deadLoop = 0;
 		while (!Complete) {
 			// move 
 			if (!Complete) {
@@ -109,6 +116,19 @@ void RandomNoPair::TaskExtension(Task* task, MatrixMap* map) {
 			// EndCheck: if all Done, complete; otherwise, move
 			Complete = EndCheck(taskGroups, 3);
 			cout << "Separation complete? :  " << Complete << endl;
+
+			// Fail check
+			deadLoop++;
+			if (deadLoop > DEADLOOP) {
+				Recover(task);
+				cout << endl << endl << "Error: System failed!!!" << endl;
+				return false;
+			}
+
+			CheckFail(task) ? repeatStep++ : repeatStep = 0;
+			if (repeatStep > REPEAT) {
+				return false;
+			}
 		}
 
 		// display
@@ -117,6 +137,7 @@ void RandomNoPair::TaskExtension(Task* task, MatrixMap* map) {
 		cout << endl;
 		task->PushAll("allTargets");
 	}
+	return true;
 }
 
 // prepare the task groups

@@ -8,6 +8,8 @@
 #include "Point.h"
 #include "Log.h"
 
+#define LogFlag false
+
 using namespace Eigen;
 
 class MatrixMap {
@@ -17,11 +19,14 @@ public:
 	MatrixMap(int row, int col) : RowNum(row), ColNum(col) {
 		map_obstacle = MatrixXi::Zero(row, col); map_robot = MatrixXi::Zero(row, col); map_task = MatrixXi::Zero(row, col); }
 
-	void ReadMap();
+	void ReadMap(string data_dir);
 	void Display(string str); 
 	bool TaskCheck(vector<vector<int>> taskPos, vector<int> taskIDs, vector<int> peerIDs, int range);
-	bool CollisionCheck(vector<Point> positions, vector<int> ids, vector<int> peerIDs, int interval = 1);  // check collision with robots and obstacles
+	bool CollisionCheck(vector<Point> positions, vector<int> ids, vector<int> peerIDs, vector<Point> addObstacles = vector<Point> (), int interval = 1);  // check collision with robots and obstacles
 	vector<int> FindWhere(int, char); // find the position according to ID
+	vector<vector<Point>> Clustering(vector<Point>taskPos);
+	bool IsOneGroup(vector<Point>taskPos);
+	vector<Point> FindConnectTaskGroup(vector<Point> newGroup, vector<Point> candidateGroup, vector<Point> allTaskPos);
 	// variables
 	int RowNum, ColNum;
 	MatrixXi map_obstacle; // 障碍物地图，自由点为0，障碍物为1
@@ -32,10 +37,10 @@ public:
 };
 
 void
-MatrixMap::ReadMap() {
+MatrixMap::ReadMap(string data_dir) {
 	ifstream f;
 	// read the obstacle map
-	f.open("../TestRobot/InitMap.txt", ifstream::in);
+	f.open(data_dir+"InitMap.txt", ifstream::in);
 	if (f) {
 		char c;
 		f >> RowNum >> c >> ColNum;
@@ -58,32 +63,35 @@ MatrixMap::ReadMap() {
 	}
 	else {
 		cout << "Read map: Failed to open the InitMap.txt! " << endl;
-		RecordLog("Read map: Failed to open the InitMap.txt!");
+		if (LogFlag)
+			RecordLog("Read map: Failed to open the InitMap.txt!");
 		return;
 	}
 	f.close();
 
 	// read the robot map
-	f.open("../TestRobot/Task.txt", ifstream::in);
+	f.open(data_dir+"Task.txt", ifstream::in);
 	if (f) {
 		int taskNum;
 		f >> taskNum;
 		//TaskPoint tempTask;
 		for (int i = 0; i < taskNum; i++) {
 			int id, x, y;
-			f >> id >> x >> y;
+			char c;   // to not accept the comma
+			f >> id >> c >> x >> c >> y;
 			map_task(x - 1, y - 1) = id;
 		}
 		//TaskToDo = ToDoTask;
 	}
 	else {
 		cout << "Read map: Failed to open the task file . Please check the filename ." << endl;
-		RecordLog("Read map: Failed to read task map!");
+		if (LogFlag)
+			RecordLog("Read map: Failed to read task map!");
 		return;
 	}
 	f.close();
 	// read the task map
-	f.open("../TestRobot/Robot_Init_Position.txt", ifstream::in);
+	f.open(data_dir+"Robot_Init_Position.txt", ifstream::in);
 	if (f) {
 		int roboNum;
 		f >> roboNum;
@@ -98,12 +106,14 @@ MatrixMap::ReadMap() {
 	}
 	else {
 		cout << "Read map: Failed to open the task file . Please check the filename ." << endl;
-		RecordLog("Read map: Failed to read task map!");
+		if (LogFlag)
+			RecordLog("Read map: Failed to read task map!");
 		return;
 	}
 	f.close();
 	cout << "Success to read the Map of obstacle, robot and task." << endl;
-	RecordLog("Success to read the Map of obstacle, robot and task.");
+	if (LogFlag)
+		RecordLog("Success to read the Map of obstacle, robot and task.");
 }
 
 void 
@@ -313,42 +323,53 @@ MatrixMap::TaskCheck(vector<vector<int>> taskPos, vector<int> taskIDs, vector<in
 
 
 bool
-MatrixMap::CollisionCheck(vector<Point> positions, vector<int> ids, vector<int> peerIDs, int interval) { // a group of robots // false : no collision, true : collision
+MatrixMap::CollisionCheck(vector<Point> positions, vector<int> memberIDs, vector<int> peerIDs, vector<Point> addObstacles, int interval) { // a group of robots // false : no collision, true : collision
 	for (int i = 0; i < positions.size(); ++i) {  // for each robot
+		for (int j = 0; j < addObstacles.size(); ++j) {// gate obstacles
+			if (positions[i].x == addObstacles[j].x && positions[i].y == addObstacles[j].y)
+				return true;
+		}
 		if (map_obstacle(positions[i].x, positions[i].y)) // obstacles
 			return true;
-		else { // if there's no obstacle, check robot at nearby
-			bool collision;
-			int minX, maxX, minY, maxY;
-			(positions[i].x - interval > 0) ? minX = positions[i].x - interval : minX = 0;
-			(positions[i].x + interval < ColNum - 1) ? maxX = positions[i].x + interval : maxX = ColNum - 1;
-			(positions[i].y - interval > 0) ? minY = positions[i].y - interval : minY = 0;
-			(positions[i].y + interval < RowNum - 1) ? maxY = positions[i].y + interval : maxY = RowNum - 1;
-			for (int x = minX; x <= maxX; ++x) {
-				for (int y = minY; y <= maxY; ++y) {
-					if (map_robot(x, y) != 0) { // robot exists
-						collision = true;  // assume existing robot
-						if (x == positions[i].x && y == positions[i].y) { // at the very position of tendposition
-							for (int j = 0; j < ids.size(); ++j) {  // if one ID exists in the component，no collision
-								if (ids[j] == map_robot(x, y)) {
-									collision = false;
-									break;
-								}
-							}
-						}
-						else { // not in the tendposition
-							for (int j = 0; j < peerIDs.size(); ++j) {  // if one ID exists in the component，no collision
-								if (peerIDs[j] == map_robot(x, y)) {
-									collision = false;
-									break;
-								}
-							}
-						}
-						if (collision) return true;
-					}
+		if (map_robot(positions[i].x, positions[i].y)) { // peers: to be docked
+			vector<int>::iterator iter = find(peerIDs.begin(), peerIDs.end(), map_robot(positions[i].x, positions[i].y));
+			if (iter != peerIDs.end()) return true;
+		}
+		// if there's no obstacle, no peers, check other robots at nearby
+		int minX, maxX, minY, maxY;
+		(positions[i].x - interval > 0) ? minX = positions[i].x - interval : minX = 0;
+		(positions[i].x + interval < ColNum - 1) ? maxX = positions[i].x + interval : maxX = ColNum - 1;
+		(positions[i].y - interval > 0) ? minY = positions[i].y - interval : minY = 0;
+		(positions[i].y + interval < RowNum - 1) ? maxY = positions[i].y + interval : maxY = RowNum - 1;
+		/*
+		for (int x = minX; x <= maxX; ++x) {
+			for (int y = minY; y <= maxY; ++y) {
+				if (map_robot(x, y)) { // robot exists
+					vector<int>::iterator iter1 = find(memberIDs.begin(), memberIDs.end(), map_robot(x,y));
+					vector<int>::iterator iter2 = find(peerIDs.begin(), peerIDs.end(), map_robot(x, y));
+					if (iter1 == memberIDs.end() && iter2 == peerIDs.end()) // not member neither peer
+						return true;
 				}
 			}
+		}
+		*/
+		//
+		for (int x = minX; x <= maxX; ++x) {
+			if (map_robot(x, positions[i].y)) { // robot exists
+				vector<int>::iterator iter1 = find(memberIDs.begin(), memberIDs.end(), map_robot(x, positions[i].y));
+				vector<int>::iterator iter2 = find(peerIDs.begin(), peerIDs.end(), map_robot(x, positions[i].y));
+				if (iter1 == memberIDs.end() && iter2 == peerIDs.end()) // not member neither peer
+					return true;
+			}
+		}
 
+		for (int y = minY; y <= maxY; ++y) {
+			if (map_robot(positions[i].x, y)) { // robot exists
+				vector<int>::iterator iter1 = find(memberIDs.begin(), memberIDs.end(), map_robot(positions[i].x, y));
+				vector<int>::iterator iter2 = find(peerIDs.begin(), peerIDs.end(), map_robot(positions[i].x, y));
+				if (iter1 == memberIDs.end() && iter2 == peerIDs.end()) // not member neither peer
+					return true;
+			}
 		}
 	}
 	return false;
@@ -378,4 +399,114 @@ MatrixMap::FindWhere(int ID, char RorT) {
 	position.push_back(RowNum+1);
 	position.push_back(ColNum+1);
 	return position;
+}
+
+vector<vector<Point>> 
+MatrixMap::Clustering(vector<Point> taskPos) {
+	vector<vector<Point>> candidateGroups; 
+	vector<Point> consideredPos;
+
+	for (int i = 0; i < taskPos.size(); ++i) {
+		vector<Point> newCandidate;
+		vector<Point>::iterator ite = find(consideredPos.begin(), consideredPos.end(), taskPos[i]);
+		if (ite == consideredPos.end()) { // have not been considered
+			vector<Point> newGroup;
+			newGroup.push_back(taskPos[i]);
+			newCandidate = FindConnectTaskGroup(newGroup, newGroup, taskPos);
+			if (newCandidate.size()) {
+				candidateGroups.push_back(newCandidate);
+				consideredPos.insert(consideredPos.end(), newCandidate.begin(), newCandidate.begin());
+			}
+			
+		}
+
+	}
+
+	return candidateGroups;
+}
+
+bool 
+MatrixMap::IsOneGroup(vector<Point>taskPos) {
+	int count = 0;
+	vector<Point> consideredPos;
+
+	for (int i = 0; i < taskPos.size(); ++i) {
+		vector<Point>::iterator ite = find(consideredPos.begin(), consideredPos.end(), taskPos[i]);
+		if (ite == consideredPos.end()) { // have not been considered
+			vector<Point> newGroup;
+			newGroup.push_back(taskPos[i]);
+			vector<Point> newCandidate = FindConnectTaskGroup(newGroup, newGroup, taskPos);
+			if (newCandidate.size() == taskPos.size())
+				return true;
+			else
+				return false;
+
+			if (newCandidate.size()) {
+				consideredPos.insert(consideredPos.end(), newCandidate.begin(), newCandidate.begin());
+				count++;
+			}
+		}
+		if (count > 1) 
+			return false;
+	}
+
+	return true;
+}
+
+
+// recursion, return the connectted group which the candidate group belongs to
+vector<Point>
+MatrixMap::FindConnectTaskGroup(vector<Point> newGroup, vector<Point> candidateGroup, vector<Point> allTaskPos) {
+	// newGroup is to find the new points, candidateGroup is the newly formed group, allTaskPos is the all considered group
+	// end condition
+	if (!newGroup.size()) return candidateGroup;
+
+	// 1. find the neighbors // in the allTaskPos but not in the candidateGroup
+	vector<Point> news;
+	for (int i = 0; i < newGroup.size(); ++i) {
+		int x = newGroup[i].x;
+		int y = newGroup[i].y;
+		
+		if ((x + 1) < (RowNum - 1) && map_task(x + 1, y)) {
+			Point newPoint = Point(x + 1, y);
+			vector<Point>::iterator ite1 = find(candidateGroup.begin(), candidateGroup.end(), newPoint);
+			vector<Point>::iterator ite2 = find(allTaskPos.begin(), allTaskPos.end(), newPoint);
+			if (ite1 == candidateGroup.end() && ite2 != allTaskPos.end()) {
+				// in allTaskPos but not in candidateGroup
+				news.push_back(newPoint);
+				candidateGroup.push_back(newPoint);
+			}
+		}
+		if ((x - 1) > 0 && map_task(x - 1, y)) {
+			Point newPoint = Point(x - 1, y);
+			vector<Point>::iterator ite1 = find(candidateGroup.begin(), candidateGroup.end(), newPoint);
+			vector<Point>::iterator ite2 = find(allTaskPos.begin(), allTaskPos.end(), newPoint);
+			if (ite1 == candidateGroup.end() && ite2 != allTaskPos.end()) {
+				news.push_back(newPoint);
+				candidateGroup.push_back(newPoint);
+			}
+		}
+		if ((y + 1) < (ColNum - 1) && map_task(x, y + 1)) {
+			Point newPoint = Point(x, y + 1);
+			vector<Point>::iterator ite1 = find(candidateGroup.begin(), candidateGroup.end(), newPoint);
+			vector<Point>::iterator ite2 = find(allTaskPos.begin(), allTaskPos.end(), newPoint);
+			if (ite1 == candidateGroup.end() && ite2 != allTaskPos.end()) {
+				news.push_back(newPoint);
+				candidateGroup.push_back(newPoint);
+			}
+		}
+		if ((y - 1) > 0 && map_task(x, y - 1)) {
+			Point newPoint = Point(x, y - 1);
+			vector<Point>::iterator ite1 = find(candidateGroup.begin(), candidateGroup.end(), newPoint);
+			vector<Point>::iterator ite2 = find(allTaskPos.begin(), allTaskPos.end(), newPoint);
+			if (ite1 == candidateGroup.end() && ite2 != allTaskPos.end()) {
+				news.push_back(newPoint);
+				candidateGroup.push_back(newPoint);
+			}
+		}
+		
+	}
+
+	// 2. call self
+	candidateGroup = FindConnectTaskGroup(news, candidateGroup, allTaskPos);
 }

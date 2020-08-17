@@ -19,36 +19,37 @@
 #include "CommonFunctions.h"
 #include "Log.h"
 
-#define random() (rand() / double(RAND_MAX))
-#define WaitTime 500
-#define DisplayFlag true
-
 using namespace std;
 
 class VijayAlg {
 public:
 	// main function
-	void Processing();
+	void Processing(string data_dir);
 
 	// supporting functions
 	void TaskExtension(Task* task, MatrixMap* map);
 	void DirectMapping(Task* task);
 	void AdaptiveMapping(Task* task, MatrixMap* map);
-	
 
+	// variables
+	int taskStep = 0;
+	int robotStep = 0;
+	int taskStep_sys = 0;
+	int robotStep_sys = 0;
+	bool isComplete = true;
 private:
 };
 
 
-void VijayAlg::Processing() {
+void VijayAlg::Processing(string data_dir) {
 	// read map, the origin is in the leftmost top,  x means rows, y means columns
 	MatrixMap* world = new MatrixMap();
-	world->ReadMap();
+	world->ReadMap(data_dir);
 	world->Display("obstacle"); //world.Display();
 
 	// read task, generate assembly tree
 	Task* task = new Task();
-	task->ReadTask();
+	task->ReadTask(data_dir);
 	task->GenerateTree();
 	//cout << endl << "Depth: " << task->AssemblyTree.depth(task->AssemblyTree.root()) << endl;
 	//cout << endl << world->TaskCheck(1, task->AssemblyTree.leaves()[0]->data, 2) << endl; 
@@ -69,16 +70,16 @@ void VijayAlg::Processing() {
 	// show the task extension process
 	RecordTaskExtend(task, robot);
 
-	// ID to index
-	vector<vector<int>> idToIndex = IDtoIndex(robot);
-	vector<int> tID2index = idToIndex[0];  // input: task ID  output: robot index
-	//vector<int> rID2index = idToIndex[1];  // input: robot ID output: robot index
-
 	// Robot movement
-	RobotMove(task, robot, world, tID2index);
+	isComplete = RobotMove_LocalPlan(task, robot, world);
 
 	//system("pause");
 	Recover(task);
+
+	//record the step
+	vector<int> steps = RecordStep(task, robot);
+	taskStep = steps[0];
+	robotStep = steps[1];
 }
 
 

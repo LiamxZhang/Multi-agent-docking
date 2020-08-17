@@ -1,0 +1,70 @@
+Experiment start. 
+
+Data :	 5
+Naive Algorithm fails! 
+Data 1 complete: (Naive Algorithm)	 success rate: 0.000000	 task step: -nan(ind)	 robot step: -nan(ind)
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm :	 taskstep 13	 robotstep 58
+RandomNoPair Algorithm :	 taskstep 13	 robotstep 45
+RandomNoPair Algorithm :	 taskstep 8	 robotstep 49
+RandomNoPair Algorithm :	 taskstep 13	 robotstep 52
+RandomNoPair Algorithm :	 taskstep 13	 robotstep 60
+RandomNoPair Algorithm :	 taskstep 13	 robotstep 60
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm :	 taskstep 12	 robotstep 51
+RandomNoPair Algorithm :	 taskstep 14	 robotstep 63
+RandomNoPair Algorithm :	 taskstep 13	 robotstep 51
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm :	 taskstep 11	 robotstep 49
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm :	 taskstep 13	 robotstep 61
+RandomNoPair Algorithm :	 taskstep 10	 robotstep 53
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm :	 taskstep 15	 robotstep 67
+RandomNoPair Algorithm fails! 
+Data 1 complete: (RandNoPair Algorithm)	 success rate: 0.650000	 task step: 12.384615	 robot step: 55.307692
+RandomSearch Algorithm :	 taskstep 10	 robotstep 58
+RandomSearch Algorithm :	 taskstep 10	 robotstep 58
+RandomSearch Algorithm :	 taskstep 10	 robotstep 58
+RandomSearch Algorithm :	 taskstep 10	 robotstep 58
+RandomSearch Algorithm :	 taskstep 10	 robotstep 58
+RandomSearch Algorithm :	 taskstep 10	 robotstep 58
+RandomSearch Algorithm :	 taskstep 10	 robotstep 58
+RandomSearch Algorithm :	 taskstep 10	 robotstep 58
+RandomSearch Algorithm :	 taskstep 10	 robotstep 58
+RandomSearch Algorithm :	 taskstep 10	 robotstep 58
+RandomSearch Algorithm :	 taskstep 10	 robotstep 58
+RandomSearch Algorithm :	 taskstep 10	 robotstep 58
+RandomSearch Algorithm :	 taskstep 10	 robotstep 58
+RandomSearch Algorithm :	 taskstep 10	 robotstep 58
+RandomSearch Algorithm :	 taskstep 10	 robotstep 58
+RandomSearch Algorithm :	 taskstep 10	 robotstep 58
+RandomSearch Algorithm :	 taskstep 10	 robotstep 58
+RandomSearch Algorithm :	 taskstep 10	 robotstep 58
+RandomSearch Algorithm :	 taskstep 10	 robotstep 58
+RandomSearch Algorithm :	 taskstep 10	 robotstep 58
+Data 1 complete: (RandomSearch Algorithm)	 success rate: 1.000000	 task step: 10.000000	 robot step: 58.000000
+WavePropatation Algorithm :	 taskstep 10	 robotstep 58
+WavePropatation Algorithm :	 taskstep 10	 robotstep 58
+WavePropatation Algorithm :	 taskstep 10	 robotstep 58
+WavePropatation Algorithm :	 taskstep 10	 robotstep 58
+WavePropatation Algorithm :	 taskstep 10	 robotstep 58
+WavePropatation Algorithm :	 taskstep 10	 robotstep 58
+WavePropatation Algorithm :	 taskstep 10	 robotstep 58
+WavePropatation Algorithm :	 taskstep 10	 robotstep 58
+WavePropatation Algorithm :	 taskstep 10	 robotstep 58
+WavePropatation Algorithm :	 taskstep 10	 robotstep 58
+WavePropatation Algorithm :	 taskstep 10	 robotstep 58
+WavePropatation Algorithm :	 taskstep 10	 robotstep 58
+WavePropatation Algorithm :	 taskstep 10	 robotstep 58
+WavePropatation Algorithm :	 taskstep 10	 robotstep 58
+WavePropatation Algorithm :	 taskstep 10	 robotstep 58
+WavePropatation Algorithm :	 taskstep 10	 robotstep 58
+WavePropatation Algorithm :	 taskstep 10	 robotstep 58
+WavePropatation Algorithm :	 taskstep 10	 robotstep 58
+WavePropatation Algorithm :	 taskstep 10	 robotstep 58
+WavePropatation Algorithm :	 taskstep 10	 robotstep 58
+Data 1 complete: (WavePropatation Algorithm)	 success rate: 1.000000	 task step: 10.000000	 robot step: 58.000000
+Vijay Algorithm :	 taskstep 0	 robotstep 57
+Data 1 complete: (Vijay Algorithm)	 success rate: 0.050000	 task step: 0.000000	 robot step: 57.000000

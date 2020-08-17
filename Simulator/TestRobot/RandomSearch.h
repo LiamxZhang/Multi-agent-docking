@@ -19,30 +19,35 @@
 #include "CommonFunctions.h"
 #include "Log.h"
 
-#define WaitTime 500
 
 using namespace std;
 
 class RandomSearch {
 public:
 	// main function
-	void Processing();
+	void Processing(string data_dir);
 
 	// supporting functions
-	void TaskExtension(Task* task, MatrixMap* map);
-	
+	bool TaskExtension(Task* task, MatrixMap* map);
+
+	// variables
+	int taskStep = 0;
+	int robotStep = 0;
+	int taskStep_sys = 0;
+	int robotStep_sys = 0;
+	bool isComplete = true;
 private:
 };
 
-void RandomSearch::Processing() {
+void RandomSearch::Processing(string data_dir) {
 	// read map, the origin is in the leftmost top,  x means rows, y means columns
 	MatrixMap* world = new MatrixMap();
-	world->ReadMap();
+	world->ReadMap(data_dir);
 	world->Display("obstacle"); //world.Display();
 
 	// read task, generate assembly tree
 	Task* task = new Task();
-	task->ReadTask();
+	task->ReadTask(data_dir);
 	task->GenerateTree();
 	//cout << endl << "Depth: " << task->AssemblyTree.depth(task->AssemblyTree.root()) << endl;
 	//cout << endl << world->TaskCheck(1, task->AssemblyTree.leaves()[0]->data, 2) << endl; 
@@ -55,26 +60,29 @@ void RandomSearch::Processing() {
 	}
 
 	// Extend the task components, according to the assembly tree
-	TaskExtension(task, world);
-
+	isComplete = TaskExtension(task, world);
+	if (!isComplete) return;
+	
 	// assign the task to the closest robots using optimization (or bid)
 	AssignTaskToRobot(task, robot);
 	// show the task extension process
 	RecordTaskExtend(task, robot);
-
-	// ID to index
-	vector<vector<int>> idToIndex = IDtoIndex(robot);
-	vector<int> tID2index = idToIndex[0];  // input: task ID  output: robot index
-	//vector<int> rID2index = idToIndex[1];  // input: robot ID output: robot index
 	
 	// Robot movement
 	//RobotMove(task, robot, world, tID2index);
-	RobotMove_LocalPlan(task, robot, world, tID2index);
+	isComplete = RobotMove_LocalPlan(task, robot, world);
+	if (!isComplete) return;
+	
 	//system("pause");
 	Recover(task);
+
+	//record the step
+	vector<int> steps = RecordStep(task, robot);
+	taskStep = steps[0];
+	robotStep = steps[1];
 }
 
-void RandomSearch::TaskExtension(Task* task, MatrixMap* map) {
+bool RandomSearch::TaskExtension(Task* task, MatrixMap* map) {
 	task->PushAll("allExtendedPoints");
 	vector<int> sepStuckGroups;
 	vector<int> moveStuckGroups;
@@ -88,6 +96,8 @@ void RandomSearch::TaskExtension(Task* task, MatrixMap* map) {
 			<< "How many groups :  " << taskGroups->size() << endl;
 		bool sepComplete = false;
 		vector<int> collision;
+		int step = 0;
+		int deadLoop = 0;
 		while (!sepComplete) {
 			for (int i = 0; i < taskGroups->size(); ++i) {
 				cout << endl
@@ -118,6 +128,18 @@ void RandomSearch::TaskExtension(Task* task, MatrixMap* map) {
 				task->PushAll("allExtendedPoints");
 				map->Display("task");
 			}
+
+			// Fail check
+			deadLoop++;
+			if (deadLoop > DEADLOOP) {
+				Recover(task);
+				cout << endl << endl << "Error: System failed!!!" << endl;
+				return false;
+			}
+			CheckFail(task) ? step++ : step = 0;
+			if (step > 10) {
+				return false;
+			}
 		}
 
 		// display
@@ -126,4 +148,5 @@ void RandomSearch::TaskExtension(Task* task, MatrixMap* map) {
 		cout << endl;
 		task->PushAll("allTargets");
 	}
+	return true;
 }

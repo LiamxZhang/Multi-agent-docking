@@ -1,0 +1,7 @@
+Experiment start. 
+
+Data :	 4
+Naive Algorithm fails! 
+Data 1 complete: (Naive Algorithm)	 success rate: 0.000000	 task step: -nan(ind)	 robot step: -nan(ind)
+Vijay Algorithm :	 taskstep 0	 robotstep 46
+Data 1 complete: (Vijay Algorithm)	 success rate: 1.000000	 task step: 0.000000	 robot step: 46.000000

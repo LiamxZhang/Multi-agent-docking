@@ -19,17 +19,16 @@
 #include "CommonFunctions.h"
 #include "Log.h"
 
-#define WaitTime 500
 
 using namespace std;
 
 class WaveAlg {
 public:
 	// main function
-	void Processing();
+	void Processing(string data_dir);
 
 	// supporting functions
-	void TaskExtension(Task* task, MatrixMap* map);
+	bool TaskExtension(Task* task, MatrixMap* map);
 	void WavePropagation(vector<vector<int>> candidateGroup, vector<int> allstuckGroups, vector<TaskSubgroup>* taskGroups, MatrixMap* map);
 	vector<int> Separation(vector<TaskSubgroup>* taskGroups, Task* task, MatrixMap* map);
 	vector<vector<int>> FindEndPoint(vector<int> incompleteGroup, vector<TaskSubgroup>* taskGroups, MatrixMap* map);
@@ -37,20 +36,25 @@ public:
 	vector<vector<int>> PartNeighbors(vector<int> boundary, vector<int> allstuckGroups, vector<TaskSubgroup>* taskGroups, MatrixMap* map);
 	int WhichGroup(int pointID, vector<TaskSubgroup>* taskGroups);
 
-
+	// variables
+	int taskStep = 0;
+	int robotStep = 0;
+	int taskStep_sys = 0;
+	int robotStep_sys = 0;
+	bool isComplete = true;
 private:
 };
 
 
-void WaveAlg::Processing() {
+void WaveAlg::Processing(string data_dir) {
 	// read map, the origin is in the leftmost top,  x means rows, y means columns
 	MatrixMap* world = new MatrixMap();
-	world->ReadMap();
+	world->ReadMap(data_dir);
 	world->Display("obstacle"); //world.Display();
 
 	// read task, generate assembly tree
 	Task* task = new Task();
-	task->ReadTask();
+	task->ReadTask(data_dir);
 	task->GenerateTree();
 	//cout << endl << "Depth: " << task->AssemblyTree.depth(task->AssemblyTree.root()) << endl;
 	//cout << endl << world->TaskCheck(1, task->AssemblyTree.leaves()[0]->data, 2) << endl; 
@@ -63,27 +67,32 @@ void WaveAlg::Processing() {
 	}
 
 	// Extend the task components, according to the assembly tree
-	TaskExtension(task, world);
-
+	bool taskFlag = TaskExtension(task, world);
+	if (!taskFlag) {
+		isComplete = false;
+		return;
+	}
 	// assign the task to the closest robots using optimization (or bid)
 	AssignTaskToRobot(task, robot);
 	// show the task extension process
 	RecordTaskExtend(task, robot);
 
-	// ID to index
-	vector<vector<int>> idToIndex = IDtoIndex(robot);
-	vector<int> tID2index = idToIndex[0];  // input: task ID  output: robot index
-	//vector<int> rID2index = idToIndex[1];  // input: robot ID output: robot index
-
 	// Robot movement
-	RobotMove(task, robot, world, tID2index);
-	
+	bool robotFlag = RobotMove_LocalPlan(task, robot, world);
+	if (!robotFlag) {
+		isComplete = false;
+		return;
+	}
 	//system("pause");
 	Recover(task);
-	return;
+	
+	//record the step
+	vector<int> steps = RecordStep(task, robot);
+	taskStep = steps[0];
+	robotStep = steps[1];
 }
 
-void WaveAlg::TaskExtension(Task* task, MatrixMap* map) {
+bool WaveAlg::TaskExtension(Task* task, MatrixMap* map) {
 	task->PushAll("allExtendedPoints");
 
 	int depth = task->AssemblyTree.depth(task->AssemblyTree.root());
@@ -94,6 +103,8 @@ void WaveAlg::TaskExtension(Task* task, MatrixMap* map) {
 		GetTaskSubgroups(taskGroups, task->AssemblyTree.root(), task->SegTree.root(), task, 0, i);
 
 		bool sepComplete = false;
+		int step = 0;
+		int deadLoop = 0;
 		while (!sepComplete) {
 			// try separation
 			vector<int> incompleteGroup = Separation(taskGroups, task, map);
@@ -107,8 +118,8 @@ void WaveAlg::TaskExtension(Task* task, MatrixMap* map) {
 
 			// find the two end
 			vector<vector<int>> endGroups = FindEndPoint(incompleteGroup, taskGroups, map);
-			cout << "endGroups[0]'s size is :   " << endGroups[0].size() << endl;
 
+			cout << "endGroups[0]'s size is :   " << endGroups[0].size() << endl;
 			cout << "End groups are:   ";
 			for (int k = 0; k < endGroups[0].size(); ++k) {
 				cout << endGroups[0][k] << " (" << (*taskGroups)[endGroups[0][k]].leader << "),\t";
@@ -120,10 +131,23 @@ void WaveAlg::TaskExtension(Task* task, MatrixMap* map) {
 			task->PushAll("allExtendedPoints");
 
 			map->Display("task");
+
+			// Fail check
+			deadLoop++;
+			if (deadLoop > DEADLOOP) {
+				Recover(task);
+				cout << endl << endl << "Error: System failed!!!" << endl;
+				return false;
+			}
+			CheckFail(task) ? step++ : step = 0;
+			if (step > 10) {
+				return false;
+			}
 		}
 		task->PushAll("allTargets");
 	}
 	// task->PushAll("allTargets");
+	return true;
 }
 
 // separation operation
@@ -173,12 +197,15 @@ vector<vector<int>> WaveAlg::FindEndPoint(vector<int> incompleteGroup, vector<Ta
 							// find which group it belongs to
 							int new_groupID = WhichGroup(map->map_task(x, y), taskGroups);
 							// if not include, include
-							vector<int>::iterator iter = find(endGroups.begin(), endGroups.end(), new_groupID);
-							if (iter == endGroups.end()) {
-								endGroups.push_back(new_groupID);
-								directions.push_back(left);
+							if (new_groupID >= 0) {
+								vector<int>::iterator iter = find(endGroups.begin(), endGroups.end(), new_groupID);
+								if (iter == endGroups.end()) {
+									endGroups.push_back(new_groupID);
+									directions.push_back(left);
+								}
+								break;
 							}
-							break;
+						
 						}
 					}
 				}
@@ -198,12 +225,14 @@ vector<vector<int>> WaveAlg::FindEndPoint(vector<int> incompleteGroup, vector<Ta
 							// find which group it belongs to
 							int new_groupID = WhichGroup(map->map_task(x, y), taskGroups);
 							// if not include, include
-							vector<int>::iterator iter = find(endGroups.begin(), endGroups.end(), new_groupID);
-							if (iter == endGroups.end()) {
-								endGroups.push_back(new_groupID);
-								directions.push_back(right);
+							if (new_groupID >= 0) {
+								vector<int>::iterator iter = find(endGroups.begin(), endGroups.end(), new_groupID);
+								if (iter == endGroups.end()) {
+									endGroups.push_back(new_groupID);
+									directions.push_back(right);
+								}
+								break;
 							}
-							break;
 						}
 					}
 				}
@@ -225,12 +254,14 @@ vector<vector<int>> WaveAlg::FindEndPoint(vector<int> incompleteGroup, vector<Ta
 							// find which group it belongs to
 							int new_groupID = WhichGroup(map->map_task(x, y), taskGroups);
 							// if not include, include
-							vector<int>::iterator iter = find(endGroups.begin(), endGroups.end(), new_groupID);
-							if (iter == endGroups.end()) {
-								endGroups.push_back(new_groupID);
-								directions.push_back(up);
+							if (new_groupID >= 0) {
+								vector<int>::iterator iter = find(endGroups.begin(), endGroups.end(), new_groupID);
+								if (iter == endGroups.end()) {
+									endGroups.push_back(new_groupID);
+									directions.push_back(up);
+								}
+								break;
 							}
-							break;
 						}
 					}
 				}
@@ -250,12 +281,14 @@ vector<vector<int>> WaveAlg::FindEndPoint(vector<int> incompleteGroup, vector<Ta
 							// find which group it belongs to
 							int new_groupID = WhichGroup(map->map_task(x, y), taskGroups);
 							// if not include, include
-							vector<int>::iterator iter = find(endGroups.begin(), endGroups.end(), new_groupID);
-							if (iter == endGroups.end()) {
-								endGroups.push_back(new_groupID);
-								directions.push_back(down);
+							if (new_groupID >= 0) {
+								vector<int>::iterator iter = find(endGroups.begin(), endGroups.end(), new_groupID);
+								if (iter == endGroups.end()) {
+									endGroups.push_back(new_groupID);
+									directions.push_back(down);
+								}
+								break;
 							}
-							break;
 						}
 					}
 				}
@@ -280,22 +313,20 @@ vector<vector<int>> WaveAlg::FindNeighbors(vector<int> candidateGroup, vector<in
 	vector<int> directions; // 0 no direction, 1 up, 2 down, 3 left, 4 right
 	for (int i = 0; i < candidateGroup.size(); ++i) {
 		// test if it can move
-		vector<int> trial(2);
-		trial[1] = 1; // up
+		vector<int> trial = {0,1}; // up
 		bool up = (*taskGroups)[candidateGroup[i]].MoveCheck(map, trial);
-		trial[1] = -1; // down
+		trial = { 0,-1 }; // down
 		bool down = (*taskGroups)[candidateGroup[i]].MoveCheck(map, trial);
-		trial[1] = 0;
-		trial[0] = 1; // left
+		trial = { 1,0 }; // left
 		bool left = (*taskGroups)[candidateGroup[i]].MoveCheck(map, trial);
-		trial[0] = -1; // right
+		trial = { -1,0 }; // right
 		bool right = (*taskGroups)[candidateGroup[i]].MoveCheck(map, trial);
-		/*
+		
 		if (up || down || left || right) {
 			cout << "Group " << candidateGroup[i] << " can move. " << endl;
 			continue; // at least one direction can move
 		}
-		*/
+		
 
 		vector<vector<int>> new_neighbors_l = PartNeighbors((*taskGroups)[candidateGroup[i]].lboundary, allstuckGroups, taskGroups, map);
 		// neighbors IDs and the directions
@@ -448,7 +479,7 @@ vector<vector<int>> WaveAlg::PartNeighbors(vector<int> boundary, vector<int> all
 				int new_groupID = WhichGroup(map->map_task(x, y), taskGroups);
 				// if never include
 				vector<int>::iterator iter = find(allstuckGroups.begin(), allstuckGroups.end(), new_groupID);
-				if (iter == allstuckGroups.end()) {
+				if (iter == allstuckGroups.end() && new_groupID >= 0) {
 					new_neighbors.push_back(new_groupID);
 					directions.push_back(up);
 					allstuckGroups.push_back(new_groupID);
@@ -466,7 +497,7 @@ vector<vector<int>> WaveAlg::PartNeighbors(vector<int> boundary, vector<int> all
 				int new_groupID = WhichGroup(map->map_task(x, y), taskGroups);
 				// if not include, include
 				vector<int>::iterator iter = find(allstuckGroups.begin(), allstuckGroups.end(), new_groupID);
-				if (iter == allstuckGroups.end()) {
+				if (iter == allstuckGroups.end() && new_groupID >= 0) {
 					new_neighbors.push_back(new_groupID);
 					directions.push_back(down);
 					allstuckGroups.push_back(new_groupID);
@@ -490,7 +521,7 @@ vector<vector<int>> WaveAlg::PartNeighbors(vector<int> boundary, vector<int> all
 				int new_groupID = WhichGroup(map->map_task(x, y), taskGroups);
 				// if not include, include
 				vector<int>::iterator iter = find(allstuckGroups.begin(), allstuckGroups.end(), new_groupID);
-				if (iter == allstuckGroups.end()) {
+				if (iter == allstuckGroups.end() && new_groupID >= 0) {
 					new_neighbors.push_back(new_groupID);
 					directions.push_back(left);
 					allstuckGroups.push_back(new_groupID);
@@ -508,7 +539,7 @@ vector<vector<int>> WaveAlg::PartNeighbors(vector<int> boundary, vector<int> all
 				int new_groupID = WhichGroup(map->map_task(x, y), taskGroups);
 				// if not include, include
 				vector<int>::iterator iter = find(allstuckGroups.begin(), allstuckGroups.end(), new_groupID);
-				if (iter == allstuckGroups.end()) {
+				if (iter == allstuckGroups.end() && new_groupID >= 0) {
 					new_neighbors.push_back(new_groupID);
 					directions.push_back(right);
 					allstuckGroups.push_back(new_groupID);
@@ -517,12 +548,13 @@ vector<vector<int>> WaveAlg::PartNeighbors(vector<int> boundary, vector<int> all
 			}
 		}
 	}
+	/*
 	cout << "PartNeighbors: \t ";
 	for (int k = 0; k < new_neighbors.size(); ++k) {
 		cout << new_neighbors[k] << " (" << (*taskGroups)[new_neighbors[k]].leader << "),\t";
 	}
 	cout << endl;
-
+	*/
 	vector<vector<int>> neighbors;
 	neighbors.push_back(new_neighbors);
 	neighbors.push_back(directions);
@@ -541,6 +573,7 @@ int WaveAlg::WhichGroup(int pointID, vector<TaskSubgroup>* taskGroups) {
 				return i;
 		}
 	}
+	return -1;
 }
 
 // recursion

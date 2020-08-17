@@ -1,0 +1,45 @@
+Experiment start. 
+
+Data :	 4
+RandomNoPair Algorithm :	 taskstep 16	 robotstep 50
+RandomNoPair Algorithm :	 taskstep 15	 robotstep 49
+RandomNoPair Algorithm :	 taskstep 27	 robotstep 44
+RandomNoPair Algorithm :	 taskstep 14	 robotstep 39
+RandomNoPair Algorithm :	 taskstep 10	 robotstep 46
+RandomNoPair Algorithm :	 taskstep 44	 robotstep 65
+RandomNoPair Algorithm :	 taskstep 20	 robotstep 51
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm :	 taskstep 22	 robotstep 46
+RandomNoPair Algorithm :	 taskstep 14	 robotstep 53
+RandomNoPair Algorithm :	 taskstep 15	 robotstep 47
+RandomNoPair Algorithm :	 taskstep 17	 robotstep 48
+RandomNoPair Algorithm :	 taskstep 12	 robotstep 56
+RandomNoPair Algorithm :	 taskstep 14	 robotstep 56
+RandomNoPair Algorithm :	 taskstep 19	 robotstep 61
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm :	 taskstep 20	 robotstep 50
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm :	 taskstep 11	 robotstep 42
+Data 1 complete: (RandNoPair Algorithm)	 success rate: 0.800000	 task step: 18.125000	 robot step: 50.187500
+RandomSearch Algorithm :	 taskstep 19	 robotstep 52
+RandomSearch Algorithm :	 taskstep 20	 robotstep 57
+RandomSearch Algorithm :	 taskstep 18	 robotstep 62
+RandomSearch Algorithm :	 taskstep 26	 robotstep 50
+RandomSearch Algorithm :	 taskstep 18	 robotstep 52
+RandomSearch Algorithm :	 taskstep 19	 robotstep 56
+RandomSearch Algorithm :	 taskstep 25	 robotstep 52
+RandomSearch Algorithm :	 taskstep 18	 robotstep 49
+RandomSearch Algorithm :	 taskstep 20	 robotstep 56
+RandomSearch Algorithm :	 taskstep 19	 robotstep 52
+RandomSearch Algorithm :	 taskstep 16	 robotstep 50
+RandomSearch Algorithm :	 taskstep 18	 robotstep 55
+RandomSearch Algorithm :	 taskstep 17	 robotstep 56
+RandomSearch Algorithm :	 taskstep 25	 robotstep 55
+RandomSearch Algorithm :	 taskstep 19	 robotstep 47
+RandomSearch Algorithm :	 taskstep 22	 robotstep 63
+RandomSearch Algorithm :	 taskstep 25	 robotstep 53
+RandomSearch Algorithm :	 taskstep 18	 robotstep 53
+RandomSearch Algorithm :	 taskstep 19	 robotstep 41
+RandomSearch Algorithm :	 taskstep 31	 robotstep 54
+Data 1 complete: (RandomSearch Algorithm)	 success rate: 1.000000	 task step: 20.600000	 robot step: 53.250000
