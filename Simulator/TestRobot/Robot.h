@@ -797,7 +797,7 @@ public:
 	void Display() { for (int k = 0; k < robot.size(); k++)   cout << robot[k]->id << ", "; }
 	void PathPlanning(MatrixMap* world, vector<TaskPoint*> allTargets, vector<int> peers, int interval = 1);
 	void LocalPathPlanning(MatrixMap* world, vector<TaskPoint*> allTargets, vector<int> peers, int newTarget = INT_MAX);
-	void LocalPathPlanning(MatrixMap* world, vector<TaskPoint*> allTargets, vector<Robot*> peers, vector<char> segDir_childSide = {'\0','\0'}, int newTarget = INT_MAX);
+	void LocalPathPlanning(MatrixMap* world, vector<TaskPoint*> allTargets, vector<int> peerIDs, vector<char> segDir_childSide, int newTarget = INT_MAX);
 	void TrialMove();
 	void Move(MatrixMap*);
 	vector<Point> GetTendPos();
@@ -935,26 +935,12 @@ RobotGroup::LocalPathPlanning(MatrixMap* world, vector<TaskPoint*> allTargets, v
 
 // for common functions
 void
-RobotGroup::LocalPathPlanning(MatrixMap* world, vector<TaskPoint*> allTargets, vector<Robot*> peers, vector<char> segDir_childSide, int newTarget) {
+RobotGroup::LocalPathPlanning(MatrixMap* world, vector<TaskPoint*> allTargets, vector<int> peerIDs, vector<char> segDir_childSide, int newTarget) {
 	// newTarget is the (N-1) point after the current position
 	// peers are in the to-be-docked group
-	// get peer target area
-	vector<Point> peerTarget;
-	for (int i = 0; i < peers.size(); i++)
-		for (int j = 0; j < allTargets.size(); j++)
-			if (peers[i]->taskID == allTargets[j]->id) {
-				peerTarget.push_back(allTargets[j]->taskPoint);
-				break;
-			}
-	// find the robots in peer target area
-	vector<int> robotInPeerTarget;
-	for (int i = 0; i < peerTarget.size(); i++) {
-		if (world->map_robot(peerTarget[i].x, peerTarget[i].y))
-			robotInPeerTarget.push_back(world->map_robot(peerTarget[i].x, peerTarget[i].y));
-	}
 
 	// leader update robot workmap, weightMap
-	robot[leaderIndex]->UpdateLocalMap(world, GetRobotIds(), robotInPeerTarget);
+	robot[leaderIndex]->UpdateLocalMap(world, GetRobotIds(), peerIDs);
 	// update the target gate
 	/*
 	UpdateMap_Gate(allTargets, segDir_childSide[0], segDir_childSide[1]);

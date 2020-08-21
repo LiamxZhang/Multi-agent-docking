@@ -1,0 +1,26 @@
+Experiment start. 
+
+Data :	 15
+WavePropatation Algorithm fails! 
+WavePropatation Algorithm fails! 
+WavePropatation Algorithm fails! 
+WavePropatation Algorithm fails! 
+WavePropatation Algorithm fails! 
+WavePropatation Algorithm fails! 
+WavePropatation Algorithm fails! 
+WavePropatation Algorithm fails! 
+WavePropatation Algorithm fails! 
+WavePropatation Algorithm fails! 
+WavePropatation Algorithm fails! 
+WavePropatation Algorithm fails! 
+WavePropatation Algorithm fails! 
+WavePropatation Algorithm fails! 
+WavePropatation Algorithm fails! 
+WavePropatation Algorithm fails! 
+WavePropatation Algorithm fails! 
+WavePropatation Algorithm fails! 
+WavePropatation Algorithm fails! 
+WavePropatation Algorithm fails! 
+Data 1 complete: (WavePropatation Algorithm)	 success rate: 0.000000	 task step: -nan(ind)	 robot step: -nan(ind)
+Vijay Algorithm fails! 
+Data 1 complete: (Vijay Algorithm)	 success rate: 0.000000	 task step: -nan(ind)	 robot step: -nan(ind)

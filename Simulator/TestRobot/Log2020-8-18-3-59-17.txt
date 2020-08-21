@@ -1,0 +1,47 @@
+Experiment start. 
+
+Data :	 7
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm :	 taskstep 18	 robotstep 46
+RandomSearch Algorithm :	 taskstep 15	 robotstep 47
+RandomSearch Algorithm :	 taskstep 20	 robotstep 54
+RandomSearch Algorithm :	 taskstep 19	 robotstep 52
+RandomSearch Algorithm :	 taskstep 18	 robotstep 49
+RandomSearch Algorithm :	 taskstep 18	 robotstep 53
+RandomSearch Algorithm :	 taskstep 19	 robotstep 47
+RandomSearch Algorithm :	 taskstep 16	 robotstep 47
+RandomSearch Algorithm :	 taskstep 20	 robotstep 51
+RandomSearch Algorithm :	 taskstep 17	 robotstep 56
+RandomSearch Algorithm :	 taskstep 26	 robotstep 53
+RandomSearch Algorithm :	 taskstep 15	 robotstep 47
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm :	 taskstep 17	 robotstep 48
+RandomSearch Algorithm :	 taskstep 16	 robotstep 48
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm :	 taskstep 18	 robotstep 48
+RandomSearch Algorithm :	 taskstep 16	 robotstep 48
+Data 1 complete: (RandomSearch Algorithm)	 success rate: 0.800000	 task step: 18.000000	 robot step: 49.625000
+WavePropatation Algorithm :	 taskstep 20	 robotstep 51
+WavePropatation Algorithm :	 taskstep 23	 robotstep 50
+WavePropatation Algorithm :	 taskstep 27	 robotstep 57
+WavePropatation Algorithm :	 taskstep 19	 robotstep 48
+WavePropatation Algorithm :	 taskstep 19	 robotstep 56
+WavePropatation Algorithm :	 taskstep 13	 robotstep 48
+WavePropatation Algorithm :	 taskstep 24	 robotstep 53
+WavePropatation Algorithm :	 taskstep 17	 robotstep 46
+WavePropatation Algorithm :	 taskstep 24	 robotstep 60
+WavePropatation Algorithm :	 taskstep 18	 robotstep 50
+WavePropatation Algorithm :	 taskstep 16	 robotstep 50
+WavePropatation Algorithm :	 taskstep 19	 robotstep 48
+WavePropatation Algorithm :	 taskstep 19	 robotstep 56
+WavePropatation Algorithm :	 taskstep 18	 robotstep 48
+WavePropatation Algorithm :	 taskstep 19	 robotstep 53
+WavePropatation Algorithm :	 taskstep 23	 robotstep 51
+WavePropatation Algorithm fails! 
+WavePropatation Algorithm fails! 
+WavePropatation Algorithm fails! 
+WavePropatation Algorithm fails! 
+Data 1 complete: (WavePropatation Algorithm)	 success rate: 0.800000	 task step: 19.875000	 robot step: 51.562500
+Vijay Algorithm :	 taskstep 0	 robotstep 51
+Data 1 complete: (Vijay Algorithm)	 success rate: 0.050000	 task step: 0.000000	 robot step: 51.000000

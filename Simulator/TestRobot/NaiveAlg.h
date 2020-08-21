@@ -71,6 +71,7 @@ void NaiveAlg::Processing(string data_dir) {
 	HungarianAssign(task, robot, world);
 
 	isComplete = NaiveRobotMove(task, robot, world);
+	if (!isComplete) return;
 
 	//system("pause");
 	Recover(task);

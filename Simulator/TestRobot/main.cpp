@@ -11,7 +11,7 @@ using namespace std;
 int main() {
 	// data directory
 	string data_home = "../TestRobot/Data/";
-	int data_num = 7; 
+	int data_num = 20; 
 	vector<string> data_directory;
 	for (int i = data_num - 1; i < data_num; ++i) {
 		data_directory.push_back(data_home + to_string(i+1) + "/");
@@ -28,8 +28,8 @@ int main() {
 	int epoch_1 = 1;
 	int epoch = 20;
 	// algorithmns
-	//vector<int> alg = {0,0,1,0,0};
-	vector<int> alg = { 1,1,1,1,1 };
+	vector<int> alg = {0,0,1,1,1};
+	//vector<int> alg = { 1,1,1,1,1 };
 
 	// Experiment start
 	struct tm t;   //tmΩ·ππ÷∏’Î

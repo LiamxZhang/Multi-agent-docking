@@ -67,22 +67,18 @@ void WaveAlg::Processing(string data_dir) {
 	}
 
 	// Extend the task components, according to the assembly tree
-	bool taskFlag = TaskExtension(task, world);
-	if (!taskFlag) {
-		isComplete = false;
-		return;
-	}
+	isComplete = TaskExtension(task, world);
+	if (!isComplete) return;
+
 	// assign the task to the closest robots using optimization (or bid)
 	AssignTaskToRobot(task, robot);
 	// show the task extension process
 	RecordTaskExtend(task, robot);
 
 	// Robot movement
-	bool robotFlag = RobotMove_LocalPlan(task, robot, world);
-	if (!robotFlag) {
-		isComplete = false;
-		return;
-	}
+	isComplete = RobotMove_LocalPlan(task, robot, world);
+	if (!isComplete) return;
+
 	//system("pause");
 	Recover(task);
 	
@@ -139,6 +135,7 @@ bool WaveAlg::TaskExtension(Task* task, MatrixMap* map) {
 				cout << endl << endl << "Error: System failed!!!" << endl;
 				return false;
 			}
+
 			CheckFail(task) ? step++ : step = 0;
 			if (step > 10) {
 				return false;

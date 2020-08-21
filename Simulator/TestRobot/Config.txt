@@ -2,7 +2,7 @@ Speed:1000
 Period:1000
 PeriodNumber:1000000
 OpenBulletScreen:1
-OpenGrid:1
+OpenGrid:0
 DesignResolutionSize:500
 GridColor:59,32,12
 ObstacleColor:128,128,128

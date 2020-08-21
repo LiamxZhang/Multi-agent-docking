@@ -1,0 +1,29 @@
+Experiment start. 
+
+Data :	 11
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm :	 taskstep 24	 robotstep 57
+RandomNoPair Algorithm :	 taskstep 26	 robotstep 57
+RandomNoPair Algorithm :	 taskstep 19	 robotstep 50
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm :	 taskstep 29	 robotstep 52
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm :	 taskstep 22	 robotstep 51
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm :	 taskstep 28	 robotstep 48
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm fails! 
+Data 1 complete: (RandNoPair Algorithm)	 success rate: 0.300000	 task step: 24.666667	 robot step: 52.500000
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 

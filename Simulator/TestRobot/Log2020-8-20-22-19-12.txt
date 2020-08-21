@@ -1,0 +1,32 @@
+Experiment start. 
+
+Data :	 20
+Naive Algorithm fails! 
+Data 1 complete: (Naive Algorithm)	 success rate: 0.000000	 task step: -nan(ind)	 robot step: -nan(ind)
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm :	 taskstep 19	 robotstep 52
+RandomNoPair Algorithm :	 taskstep 22	 robotstep 58
+RandomNoPair Algorithm :	 taskstep 22	 robotstep 67
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm :	 taskstep 20	 robotstep 82
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm :	 taskstep 17	 robotstep 58
+RandomNoPair Algorithm :	 taskstep 18	 robotstep 66
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm fails! 
+Data 1 complete: (RandNoPair Algorithm)	 success rate: 0.300000	 task step: 19.666667	 robot step: 63.833333
+RandomSearch Algorithm :	 taskstep 24	 robotstep 65
+RandomSearch Algorithm :	 taskstep 29	 robotstep 65
+RandomSearch Algorithm :	 taskstep 29	 robotstep 63
+RandomSearch Algorithm :	 taskstep 28	 robotstep 57
+RandomSearch Algorithm :	 taskstep 31	 robotstep 68
+RandomSearch Algorithm :	 taskstep 30	 robotstep 65

@@ -1,0 +1,4 @@
+Experiment start. 
+
+Data :	 11
+RandomNoPair Algorithm :	 taskstep 17	 robotstep 51

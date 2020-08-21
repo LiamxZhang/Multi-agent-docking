@@ -10,7 +10,7 @@
 #define random() (rand() / double(RAND_MAX))
 #define WaitTime 0
 #define DEADLOOP 3000
-#define REPEAT 20
+#define REPEAT 30
 #define LogFlag false
 
 using namespace std;
@@ -232,7 +232,6 @@ static vector<RobotGroup> Dock(vector<Robot*> robot, Task* task, vector<int> tID
 	return groups;
 }
 
-
 static vector<RobotGroup> Dock(vector<Robot*> robot, Task* task, int layer) {  // layer = stepNum - i - 1
 	// get nodes of one layer, task->AssemblyTree  // all nodes of one layer of task tree
 	vector<BinNode<vector<int>>*> nodeVec = task->AssemblyTree.getLayerNode(task->AssemblyTree.root(), 0, layer, nodeVec);
@@ -271,7 +270,6 @@ static vector<RobotGroup> Dock(vector<Robot*> robot, Task* task, int layer) {  /
 	cout << endl << "Finished to dock!" << endl;
 	return groups;
 }
-
 
 
 // task ID->robot index // robot ID -> robot index
@@ -633,6 +631,31 @@ static vector<RobotGroup> NewGroups(vector<RobotGroup> groups, vector<Robot*> ro
 #pragma endregion
 
 
+static vector<int> GetRobotAtPeerTarget(vector<Robot*> robot, MatrixMap* world, vector<TaskPoint*> allTargets, vector<int> peersIDs) {
+	// get peer robots
+	vector<Robot*> peers;
+	for (int k = 0; k < robot.size(); ++k) {
+		vector<int>::iterator iter = find(peersIDs.begin(), peersIDs.end(), robot[k]->id);
+		if (iter != peersIDs.end()) peers.push_back(robot[k]);
+	}
+	// get peer target area
+	vector<Point> peerTarget;
+	for (int i = 0; i < peers.size(); i++)
+		for (int j = 0; j < allTargets.size(); j++)
+			if (peers[i]->taskID == allTargets[j]->id) {
+				peerTarget.push_back(allTargets[j]->taskPoint);
+				break;
+			}
+	// find the robots in peer target area
+	vector<int> robotInPeerTarget;
+	for (int i = 0; i < peerTarget.size(); i++) {
+		if (world->map_robot(peerTarget[i].x, peerTarget[i].y))
+			robotInPeerTarget.push_back(world->map_robot(peerTarget[i].x, peerTarget[i].y));
+	}
+
+	return robotInPeerTarget;
+}
+
 // robots move
 static void RobotMove(Task* task, vector<Robot*> robot, MatrixMap* world, vector<int> tID2index) {
 	// initialize robot groups
@@ -702,7 +725,7 @@ static bool RobotMove_LocalPlan(Task* task, vector<Robot*> robot, MatrixMap* wor
 		
 		// initial path planning without robots in the map
 		for (int j = 0; j < groups.size(); j++) {
-			groups[j].LocalPathPlanning(world, task->allTargets[stepNum - i - 1], vector<Robot*> ());
+			groups[j].LocalPathPlanning(world, task->allTargets[stepNum - i - 1], vector<int> (), vector<char> ());
 		}
 
 		// move
@@ -730,12 +753,7 @@ static bool RobotMove_LocalPlan(Task* task, vector<Robot*> robot, MatrixMap* wor
 			//
 			for (int j = 0; j < groups.size(); j++) {
 				vector<int> peersIDs = GetPeers(groups[j], robot, task, stepNum - i);
-				vector<Robot*> peers;
-				for (int k = 0; k < robot.size(); ++k) {
-					vector<int>::iterator iter = find(peersIDs.begin(), peersIDs.end(), robot[k]->id);
-					if (iter != peersIDs.end()) peers.push_back(robot[k]);
-				}
-
+				vector<int> robotInPeerTarget = GetRobotAtPeerTarget(robot, world, task->allTargets[stepNum - i - 1], peersIDs);
 				if (state[j] >= waitRound) {
 					// task get the group target up,down,left,right
 					// step: stepNum - i - 1, group: robot ids
@@ -749,10 +767,10 @@ static bool RobotMove_LocalPlan(Task* task, vector<Robot*> robot, MatrixMap* wor
 					cout << endl << "Seg direction:\t" << segdir << "\tChild side:\t" << childside << endl;
 					*/
 					if (PeerTargetLock(groups[j])) { // open for peer target area
-						groups[j].LocalPathPlanning(world, task->allTargets[stepNum - i - 1], peers, segDir_childSide);
+						groups[j].LocalPathPlanning(world, task->allTargets[stepNum - i - 1], robotInPeerTarget, segDir_childSide);
 					}
 					else {
-						groups[j].LocalPathPlanning(world, task->allTargets[stepNum - i - 1], vector<Robot*>(), segDir_childSide);
+						groups[j].LocalPathPlanning(world, task->allTargets[stepNum - i - 1], vector<int>(), segDir_childSide);
 					}
 					state[j] = 0;
 				}
@@ -761,8 +779,9 @@ static bool RobotMove_LocalPlan(Task* task, vector<Robot*> robot, MatrixMap* wor
 				// move
 				groups[j].TrialMove();
 				cout << "Trial move!" << endl;
-				vector<int> openIDs;
-				PeerTargetLock(groups[j]) ? openIDs = peersIDs : openIDs = vector<int>();
+				vector<int> openIDs; // robots at the peer target area
+				PeerTargetLock(groups[j]) ? openIDs = robotInPeerTarget : openIDs = vector<int>();
+
 				if (!world->CollisionCheck(groups[j].GetTendPos(), groups[j].GetRobotIds(), openIDs, groups[j].addObstacles)
 					&& groups[j].robot[groups[j].leaderIndex]->planPath.size()) {
 					groups[j].Move(world);

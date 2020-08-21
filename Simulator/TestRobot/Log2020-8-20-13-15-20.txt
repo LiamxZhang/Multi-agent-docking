@@ -1,0 +1,70 @@
+Experiment start. 
+
+Data :	 18
+Naive Algorithm fails! 
+Data 1 complete: (Naive Algorithm)	 success rate: 0.000000	 task step: -nan(ind)	 robot step: -nan(ind)
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm :	 taskstep 50	 robotstep 84
+RandomNoPair Algorithm :	 taskstep 189	 robotstep 67
+RandomNoPair Algorithm :	 taskstep 66	 robotstep 77
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm :	 taskstep 76	 robotstep 88
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm :	 taskstep 49	 robotstep 82
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm :	 taskstep 77	 robotstep 80
+RandomNoPair Algorithm :	 taskstep 44	 robotstep 80
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm :	 taskstep 194	 robotstep 88
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm fails! 
+Data 1 complete: (RandNoPair Algorithm)	 success rate: 0.400000	 task step: 93.125000	 robot step: 80.750000
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm :	 taskstep 149	 robotstep 76
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm :	 taskstep 65	 robotstep 72
+RandomSearch Algorithm :	 taskstep 213	 robotstep 76
+RandomSearch Algorithm :	 taskstep 74	 robotstep 70
+RandomSearch Algorithm :	 taskstep 302	 robotstep 70
+RandomSearch Algorithm :	 taskstep 112	 robotstep 74
+RandomSearch Algorithm :	 taskstep 57	 robotstep 74
+RandomSearch Algorithm :	 taskstep 280	 robotstep 82
+RandomSearch Algorithm :	 taskstep 193	 robotstep 75
+RandomSearch Algorithm :	 taskstep 148	 robotstep 83
+RandomSearch Algorithm :	 taskstep 91	 robotstep 78
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm :	 taskstep 51	 robotstep 76
+RandomSearch Algorithm :	 taskstep 88	 robotstep 78
+RandomSearch Algorithm :	 taskstep 116	 robotstep 82
+RandomSearch Algorithm :	 taskstep 114	 robotstep 73
+RandomSearch Algorithm fails! 
+Data 1 complete: (RandomSearch Algorithm)	 success rate: 0.750000	 task step: 136.866667	 robot step: 75.933333
+WavePropatation Algorithm fails! 
+WavePropatation Algorithm fails! 
+WavePropatation Algorithm fails! 
+WavePropatation Algorithm fails! 
+WavePropatation Algorithm fails! 
+WavePropatation Algorithm fails! 
+WavePropatation Algorithm fails! 
+WavePropatation Algorithm fails! 
+WavePropatation Algorithm fails! 
+WavePropatation Algorithm fails! 
+WavePropatation Algorithm fails! 
+WavePropatation Algorithm fails! 
+WavePropatation Algorithm fails! 
+WavePropatation Algorithm fails! 
+WavePropatation Algorithm fails! 
+WavePropatation Algorithm fails! 
+WavePropatation Algorithm fails! 
+WavePropatation Algorithm fails! 
+WavePropatation Algorithm fails! 
+WavePropatation Algorithm fails! 
+Data 1 complete: (WavePropatation Algorithm)	 success rate: 0.000000	 task step: -nan(ind)	 robot step: -nan(ind)
+Vijay Algorithm fails! 
+Data 1 complete: (Vijay Algorithm)	 success rate: 0.000000	 task step: -nan(ind)	 robot step: -nan(ind)

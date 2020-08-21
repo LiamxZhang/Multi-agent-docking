@@ -72,6 +72,7 @@ void VijayAlg::Processing(string data_dir) {
 
 	// Robot movement
 	isComplete = RobotMove_LocalPlan(task, robot, world);
+	if (!isComplete) return;
 
 	//system("pause");
 	Recover(task);

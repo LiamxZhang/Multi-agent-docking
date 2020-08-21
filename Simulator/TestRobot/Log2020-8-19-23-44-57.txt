@@ -1,0 +1,5 @@
+Experiment start. 
+
+Data :	 16
+Naive Algorithm fails! 
+Data 1 complete: (Naive Algorithm)	 success rate: 0.000000	 task step: -nan(ind)	 robot step: -nan(ind)
