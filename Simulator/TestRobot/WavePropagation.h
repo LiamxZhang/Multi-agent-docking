@@ -37,10 +37,14 @@ public:
 	int WhichGroup(int pointID, vector<TaskSubgroup>* taskGroups);
 
 	// variables
-	int taskStep = 0;
-	int robotStep = 0;
-	int taskStep_sys = 0;
-	int robotStep_sys = 0;
+	double taskStep = 0;
+	double robotStep = 0;
+	double taskStep_mean = 0;
+	double robotStep_mean = 0;
+	double taskStep_variance = 0;
+	double robotStep_variance = 0;
+	double taskStep_sys = 0;
+	double robotStep_sys = 0;
 	bool isComplete = true;
 private:
 };
@@ -76,23 +80,30 @@ void WaveAlg::Processing(string data_dir) {
 	RecordTaskExtend(task, robot);
 
 	// Robot movement
-	isComplete = RobotMove_LocalPlan(task, robot, world);
-	if (!isComplete) return;
+	robotStep_sys = RobotMove_LocalPlan(task, robot, world);
+	if (!robotStep_sys) {
+		isComplete = false;
+		return;
+	}
 
 	//system("pause");
 	Recover(task);
 	
 	//record the step
-	vector<int> steps = RecordStep(task, robot);
+	vector<double> steps = RecordStep(task, robot);
 	taskStep = steps[0];
-	robotStep = steps[1];
+	taskStep_mean = steps[1];
+	taskStep_variance = steps[2];
+	robotStep = steps[3];
+	robotStep_mean = steps[4];
+	robotStep_variance = steps[5];
 }
 
 bool WaveAlg::TaskExtension(Task* task, MatrixMap* map) {
 	task->PushAll("allExtendedPoints");
 
 	int depth = task->AssemblyTree.depth(task->AssemblyTree.root());
-
+	taskStep_sys = 0;
 	for (int i = 0; i < depth - 1; i++) {
 		// construct the task subgroups
 		vector<TaskSubgroup>* taskGroups = new vector<TaskSubgroup>();
@@ -100,7 +111,6 @@ bool WaveAlg::TaskExtension(Task* task, MatrixMap* map) {
 
 		bool sepComplete = false;
 		int step = 0;
-		int deadLoop = 0;
 		while (!sepComplete) {
 			// try separation
 			vector<int> incompleteGroup = Separation(taskGroups, task, map);
@@ -129,8 +139,8 @@ bool WaveAlg::TaskExtension(Task* task, MatrixMap* map) {
 			map->Display("task");
 
 			// Fail check
-			deadLoop++;
-			if (deadLoop > DEADLOOP) {
+			taskStep_sys++;
+			if (taskStep_sys > DEADLOOP) {
 				Recover(task);
 				cout << endl << endl << "Error: System failed!!!" << endl;
 				return false;

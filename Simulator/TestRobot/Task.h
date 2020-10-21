@@ -308,12 +308,23 @@ vector<int> TaskSubgroup::Separation(MatrixMap* world) {
 }
 
 vector<int> TaskSubgroup::SepCheck(MatrixMap* world, vector<int> trial_left, vector<int> trial_right) {
-	vector<int> collosion; // left, right
-	collosion.push_back(PartMoveCheck(world, trial_left, 'l'));
-	collosion.push_back(PartMoveCheck(world, trial_right, 'r'));
-	return collosion;
+	//
+	for (int i = 0; i < ltaskNumber; ++i) {
+		ltasks[i]->tendPosition.x = ltasks[i]->taskPoint.x + trial_left[0];
+		ltasks[i]->tendPosition.y = ltasks[i]->taskPoint.y + trial_left[1];
+	}
+	for (int i = 0; i < rtaskNumber; ++i) {
+		rtasks[i]->tendPosition.x = rtasks[i]->taskPoint.x + trial_right[0];
+		rtasks[i]->tendPosition.y = rtasks[i]->taskPoint.y + trial_right[1];
+	}
+	//
+	vector<int> collision; // left, right
+	collision.push_back(PartMoveCheck(world, trial_left, 'l'));
+	collision.push_back(PartMoveCheck(world, trial_right, 'r'));
+	return collision;
 }
 
+/*
 int TaskSubgroup::PartMoveCheck(MatrixMap* world, vector<int> trial, char LorR) {
 	// return flags indicating no obstacle (0), obstacles/border (1) or other points (2)
 	// trial move (x,y) is {1, 0} or {0, 1} or {-1, 0} or {0, -1} 
@@ -469,6 +480,33 @@ int TaskSubgroup::PartMoveCheck(MatrixMap* world, vector<int> trial, char LorR) 
 	//
 	return COL;
 }
+*/
+
+
+int TaskSubgroup::PartMoveCheck(MatrixMap* world, vector<int> trial, char LorR) {
+	// return flags indicating no obstacle (0), obstacles/border (1) or other points (2)
+	// trial move (x,y) is {1, 0} or {0, 1} or {-1, 0} or {0, -1} 
+	
+	vector<TaskPoint*> partner; // partner of the under-checking group
+	vector<TaskPoint*> member; // member of the under-checking group
+	switch (LorR) {
+	case 'l': if (!ltaskNumber) return 0; member = ltasks; partner = rtasks; break;
+	case 'r': if (!rtaskNumber) return 0; member = rtasks; partner = ltasks; break;
+	}
+	vector<int> peerID;
+	for (int i = 0; i < partner.size(); ++i) peerID.push_back(partner[i]->id);
+
+	// collect all task points
+	vector<Point> tendPositions;
+	vector<int> memberID;
+	for (int i = 0; i < member.size(); ++i) {
+		tendPositions.push_back(member[i]->tendPosition);
+		memberID.push_back(member[i]->id);
+	}
+
+	return world->TaskCheck(tendPositions, trial, memberID, vector<int> (), range);
+}
+
 
 vector<int> TaskSubgroup::ShearDeform(MatrixMap* world, int direction) {
 	// shear deformation separation in opposite direction; there are two directions, direction = -1 or 1
@@ -513,27 +551,23 @@ vector<int> TaskSubgroup::ShearDeform(MatrixMap* world, int direction) {
 //
 
 void TaskSubgroup::UpdateWeights(MatrixMap* world, int direction) {
-	vector<int> trial(2); // trial move
 	neighborWeight.swap(vector<float>()); // clear neightWeight
-
-	vector<float> weights;
-	for (int i = 0; i < 4; ++i) weights.push_back(1.0);
+	vector<float> weights = {1.0, 1.0, 1.0, 1.0};
 	if (direction) weights[direction - 1] = 2.0; // direction: 1 up, 2 down, 3 left, 4 right, 0 no direction
 	float zero = 0.0;
 	float FourSideFree = accumulate(weights.begin(), weights.end(), zero);
 
-	trial[1] = 1; // up [0,1]
-	if (MoveCheck(world, trial)) neighborWeight.push_back(weights[0]);
+	// up [0,1]
+	if (MoveCheck(world, {0,1})) neighborWeight.push_back(weights[0]);
 	else neighborWeight.push_back(zero);
-	trial[1] = -1; // down [0,-1]
-	if (MoveCheck(world, trial)) neighborWeight.push_back(weights[1]);
+	// down [0,-1]
+	if (MoveCheck(world, {0,-1})) neighborWeight.push_back(weights[1]);
 	else neighborWeight.push_back(zero);
-	trial[1] = 0;
-	trial[0] = 1; // left [1,0]
-	if (MoveCheck(world, trial)) neighborWeight.push_back(weights[2]);
+	// left [1,0]
+	if (MoveCheck(world, {1,0})) neighborWeight.push_back(weights[2]);
 	else neighborWeight.push_back(zero);
-	trial[0] = -1; // right [-1,0]
-	if (MoveCheck(world, trial)) neighborWeight.push_back(weights[3]);
+	// right [-1,0]
+	if (MoveCheck(world, {-1,0})) neighborWeight.push_back(weights[3]);
 	else neighborWeight.push_back(zero);
 
 	float sum = accumulate(neighborWeight.begin(), neighborWeight.end(), zero);
@@ -632,7 +666,6 @@ bool TaskSubgroup::OverallMove(MatrixMap* world, int direction) {
 	UpdateLastPos();
 	cout << endl << "Real move check: " << moveOK << endl;
 	if (moveOK) { // check OK
-
 		vector<int> collision(2);
 		int step = Move(world, trial, trial, collision); // move
 		moveStep += step;
@@ -752,6 +785,16 @@ int TaskSubgroup::Move(MatrixMap* world, vector<int> trial_left, vector<int> tri
 }
 
 bool TaskSubgroup::MoveCheck(MatrixMap* world, vector<int> trial){
+	for (int i = 0; i < ltaskNumber; ++i) {
+		ltasks[i]->tendPosition.x = ltasks[i]->taskPoint.x + trial[0];
+		ltasks[i]->tendPosition.y = ltasks[i]->taskPoint.y + trial[1];
+	}
+
+	for (int i = 0; i < rtaskNumber; ++i) {
+		rtasks[i]->tendPosition.x = rtasks[i]->taskPoint.x + trial[0];
+		rtasks[i]->tendPosition.y = rtasks[i]->taskPoint.y + trial[1];
+	}
+
 	bool free = false; // left, right
 	if (!PartMoveCheck(world, trial, 'l') && !PartMoveCheck(world, trial, 'r')) free = true;
 	return free;

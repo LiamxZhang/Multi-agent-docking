@@ -31,10 +31,14 @@ public:
 	bool TaskExtension(Task* task, MatrixMap* map);
 
 	// variables
-	int taskStep = 0;
-	int robotStep = 0;
-	int taskStep_sys = 0;
-	int robotStep_sys = 0;
+	double taskStep = 0;
+	double robotStep = 0;
+	double taskStep_mean = 0;
+	double robotStep_mean = 0;
+	double taskStep_variance = 0;
+	double robotStep_variance = 0;
+	double taskStep_sys = 0;
+	double robotStep_sys = 0;
 	bool isComplete = true;
 private:
 };
@@ -64,28 +68,38 @@ void RandomSearch::Processing(string data_dir) {
 	if (!isComplete) return;
 	
 	// assign the task to the closest robots using optimization (or bid)
-	AssignTaskToRobot(task, robot);
+	//AssignTaskToRobot(task, robot);
+	HungarianAssign(task, robot,world);
+
 	// show the task extension process
 	RecordTaskExtend(task, robot);
 	
 	// Robot movement
 	//RobotMove(task, robot, world, tID2index);
-	isComplete = RobotMove_LocalPlan(task, robot, world);
-	if (!isComplete) return;
+	robotStep_sys = RobotMove_LocalPlan(task, robot, world);
+	if (!robotStep_sys) {
+		isComplete = false;
+		return;
+	}
 	
 	//system("pause");
 	Recover(task);
 
 	//record the step
-	vector<int> steps = RecordStep(task, robot);
+	vector<double> steps = RecordStep(task, robot);
 	taskStep = steps[0];
-	robotStep = steps[1];
+	taskStep_mean = steps[1];
+	taskStep_variance = steps[2];
+	robotStep = steps[3];
+	robotStep_mean = steps[4];
+	robotStep_variance = steps[5];
 }
 
 bool RandomSearch::TaskExtension(Task* task, MatrixMap* map) {
 	task->PushAll("allExtendedPoints");
 	vector<int> sepStuckGroups;
 	vector<int> moveStuckGroups;
+	taskStep_sys = 0;
 	int depth = task->AssemblyTree.depth(task->AssemblyTree.root());
 	for (int i = 0; i < depth - 1; i++) { // the leaf layer of assembly tree is not needed for extension
 		// construct the task subgroups
@@ -97,7 +111,6 @@ bool RandomSearch::TaskExtension(Task* task, MatrixMap* map) {
 		bool sepComplete = false;
 		vector<int> collision;
 		int step = 0;
-		int deadLoop = 0;
 		while (!sepComplete) {
 			for (int i = 0; i < taskGroups->size(); ++i) {
 				cout << endl
@@ -130,8 +143,8 @@ bool RandomSearch::TaskExtension(Task* task, MatrixMap* map) {
 			}
 
 			// Fail check
-			deadLoop++;
-			if (deadLoop > DEADLOOP) {
+			taskStep_sys++;
+			if (taskStep_sys > DEADLOOP) {
 				Recover(task);
 				cout << endl << endl << "Error: System failed!!!" << endl;
 				return false;

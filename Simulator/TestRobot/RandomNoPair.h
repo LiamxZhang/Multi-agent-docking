@@ -33,10 +33,14 @@ public:
 	int GroupDistance(TaskSubgroup group1, TaskSubgroup group2);
 	
 	// variables
-	int taskStep = 0;
-	int robotStep = 0;
-	int taskStep_sys = 0;
-	int robotStep_sys = 0;
+	double taskStep = 0;
+	double robotStep = 0;
+	double taskStep_mean = 0;
+	double robotStep_mean = 0;
+	double taskStep_variance = 0;
+	double robotStep_variance = 0;
+	double taskStep_sys = 0;
+	double robotStep_sys = 0;
 	bool isComplete = true;
 private:
 };
@@ -67,26 +71,36 @@ void RandomNoPair::Processing(string data_dir) {
 	if (!isComplete) return;
 
 	// assign the task to the closest robots using optimization (or bid)
-	AssignTaskToRobot(task, robot);
+	//AssignTaskToRobot(task, robot);
+	HungarianAssign(task, robot, world);
+
 	// show the task extension process
 	RecordTaskExtend(task, robot);
 
 	// Robot movement
-	isComplete = RobotMove_LocalPlan(task, robot, world);
-	if (!isComplete) return;
-	
+	robotStep_sys = RobotMove_LocalPlan(task, robot, world);
+	if (!robotStep_sys) {
+		isComplete = false;
+		return;
+	}
+
 	//system("pause");
 	Recover(task);
 	
 	//record the step
-	vector<int> steps = RecordStep(task, robot);
+	vector<double> steps = RecordStep(task, robot);
 	taskStep = steps[0];
-	robotStep = steps[1];
+	taskStep_mean = steps[1];
+	taskStep_variance = steps[2];
+	robotStep = steps[3];
+	robotStep_mean = steps[4];
+	robotStep_variance = steps[5];
 }
 
 bool RandomNoPair::TaskExtension(Task* task, MatrixMap* map) {
 	task->PushAll("allExtendedPoints");
 
+	taskStep_sys = 0;
 	vector<int> moveStuckGroups;
 	int depth = task->AssemblyTree.depth(task->AssemblyTree.root());
 	for (int i = 1; i < depth; i++) { // the leaf layer of assembly tree is not needed for extension
@@ -100,7 +114,6 @@ bool RandomNoPair::TaskExtension(Task* task, MatrixMap* map) {
 		bool Complete = false;
 		vector<int> collision;
 		int repeatStep = 0;
-		int deadLoop = 0;
 		while (!Complete) {
 			// move 
 			if (!Complete) {
@@ -118,8 +131,8 @@ bool RandomNoPair::TaskExtension(Task* task, MatrixMap* map) {
 			cout << "Separation complete? :  " << Complete << endl;
 
 			// Fail check
-			deadLoop++;
-			if (deadLoop > DEADLOOP) {
+			taskStep_sys++;
+			if (taskStep_sys > DEADLOOP) {
 				Recover(task);
 				cout << endl << endl << "Error: System failed!!!" << endl;
 				return false;
@@ -174,19 +187,14 @@ void RandomNoPair::PrepareTaskSubgroups(vector<TaskSubgroup>* taskGroups, BinNod
 }
 
 bool RandomNoPair::EndCheck(vector<TaskSubgroup>* taskGroups, int range) {
-	bool endflag = true;
-	int size = taskGroups->size();
-
-	for (int i = 0; i < size - 1; ++i) {
-		for (int j = i + 1; j < size; ++j) {
-			if (GroupDistance((*taskGroups)[i], (*taskGroups)[j]) < range) {
-				endflag = false;
-				i = size - 1;
-				break;
+	for (int i = 0; i < taskGroups->size() - 1; ++i) {
+		for (int j = i + 1; j < taskGroups->size(); ++j) {
+			if (GroupDistance((*taskGroups)[i], (*taskGroups)[j]) <= range) {
+				return false;
 			}
 		}
 	}
-	return endflag;
+	return true;
 }
 
 int RandomNoPair::GroupDistance(TaskSubgroup group1, TaskSubgroup group2) {
@@ -198,8 +206,7 @@ int RandomNoPair::GroupDistance(TaskSubgroup group1, TaskSubgroup group2) {
 			TaskPoint* task2 = group2.ltasks[j];
 
 			// calculate the distance between the robots in two groups
-			int temp_dist = abs(task1->taskPoint.x - task2->taskPoint.x)
-				+ abs(task1->taskPoint.y - task2->taskPoint.y);
+			int temp_dist = abs(task1->taskPoint.x - task2->taskPoint.x) + abs(task1->taskPoint.y - task2->taskPoint.y);
 
 			// get the minimum distance
 			if (temp_dist < mini_distance) mini_distance = temp_dist;

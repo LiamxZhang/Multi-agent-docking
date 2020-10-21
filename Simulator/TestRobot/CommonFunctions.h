@@ -9,7 +9,7 @@
 
 #define random() (rand() / double(RAND_MAX))
 #define WaitTime 0
-#define DEADLOOP 3000
+#define DEADLOOP 800
 #define REPEAT 30
 #define LogFlag false
 
@@ -496,21 +496,57 @@ static void Recover(Task* task) {
 }
 
 // record the step
-static vector<int> RecordStep(Task* task, vector<Robot*> robot) {
-	vector<int> step;
+static vector<double> RecordStep(Task* task, vector<Robot*> robot) {
+	vector<double> step;
+
+	// task max step
 	int max = INT_MIN;
+	vector<double> allTaskStep;
 	for (int i = 0; i < task->taskNum; ++i) {
 		if (task->currentTargets[i]->step > max) {
 			max = task->currentTargets[i]->step;
 		}
+		allTaskStep.push_back(task->currentTargets[i]->step);
 	}
 	step.push_back(max);
+
+	// task mean step
+	double sum = std::accumulate(std::begin(allTaskStep), std::end(allTaskStep), 0.0);
+	double mean = sum / double(allTaskStep.size());
+	step.push_back(mean);
+
+	// task step variance
+	double accum = 0.0;
+	std::for_each(std::begin(allTaskStep), std::end(allTaskStep), [&](const double d) {
+		accum += (d - mean) * (d - mean);
+		});
+	double stdev = sqrt(accum / double(allTaskStep.size() - 1)); 
+	step.push_back(stdev);
+
+	// robot max step
 	max = INT_MIN;
+	vector<double> allRobotStep;
 	for (int i = 0; i < robot.size(); ++i) {
-		if (robot[i]->step > max)
+		if (robot[i]->step > max) {
 			max = robot[i]->step;
+		}
+		allRobotStep.push_back(robot[i]->step);
 	}
 	step.push_back(max);
+
+	// robot mean step
+	sum = std::accumulate(std::begin(allRobotStep), std::end(allRobotStep), 0.0);
+	mean = sum / double(allRobotStep.size());
+	step.push_back(mean);
+
+	// robot step variance
+	accum = 0.0;
+	std::for_each(std::begin(allRobotStep), std::end(allRobotStep), [&](const double d) {
+		accum += (d - mean) * (d - mean);
+		});
+	stdev = sqrt(accum / double(allRobotStep.size() - 1)); 
+	step.push_back(stdev);
+
 	return step;
 }
 
@@ -706,7 +742,7 @@ static void RobotMove(Task* task, vector<Robot*> robot, MatrixMap* world, vector
 
 
 // robot groups move, local path replanning
-static bool RobotMove_LocalPlan(Task* task, vector<Robot*> robot, MatrixMap* world) {
+static int RobotMove_LocalPlan(Task* task, vector<Robot*> robot, MatrixMap* world) {
 	// initialize robot groups
 	vector<RobotGroup> groups;
 	for (int i = 0; i < robot.size(); i++) {  // for each one node 
@@ -719,6 +755,7 @@ static bool RobotMove_LocalPlan(Task* task, vector<Robot*> robot, MatrixMap* wor
 	// robots move
 	int stepNum = task->allTargets.size(); // tree depth
 	int roboNum = task->allTargets[0].size();
+	int deadLoop = 0; // cout
 	for (int i = 0; i < stepNum; i++) { // for each one layer
 		// update task
 		task->UpdateTaskmap(world, stepNum - i - 1);
@@ -733,7 +770,7 @@ static bool RobotMove_LocalPlan(Task* task, vector<Robot*> robot, MatrixMap* wor
 		bool reach = false;
 		vector<int> state(groups.size());// flag indicates the robot group is 0: moving, 1: waiting or 2: replanning
 		int waitRound = 0; // wait for how many round to replan the path
-		int deadLoop = 0;
+		
 		while (!reach) {
 			//
 			if (CheckAdjacent(groups)) {
@@ -802,11 +839,11 @@ static bool RobotMove_LocalPlan(Task* task, vector<Robot*> robot, MatrixMap* wor
 			if (deadLoop > DEADLOOP) {
 				Recover(task);
 				cout << endl << endl << "Error: System failed!!!" << endl;
-				return false;
+				return 0;
 			}
 			CheckFail(robot) ? step++ : step = 0;
 			if (step > 10) {
-				return false;
+				return 0;
 			}
 		}
 
@@ -814,6 +851,6 @@ static bool RobotMove_LocalPlan(Task* task, vector<Robot*> robot, MatrixMap* wor
 		// dock
 		groups = Dock(robot, task, stepNum - i - 1);
 	}
-	return true;
+	return deadLoop;
 }
 

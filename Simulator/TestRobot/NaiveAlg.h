@@ -37,10 +37,14 @@ public:
 	//int GroupDistance(RobotGroup group1, RobotGroup group2);
 
 	// variables
-	int taskStep = 0;
-	int robotStep = 0;
-	int taskStep_sys = 0;
-	int robotStep_sys = 0;
+	double taskStep = 0;
+	double robotStep = 0;
+	double taskStep_mean = 0;
+	double robotStep_mean = 0;
+	double taskStep_variance = 0;
+	double robotStep_variance = 0;
+	double taskStep_sys = 0;
+	double robotStep_sys = 0;
 	bool isComplete = true;
 private:
 };
@@ -77,9 +81,13 @@ void NaiveAlg::Processing(string data_dir) {
 	Recover(task);
 
 	//record the step
-	vector<int> steps = RecordStep(task, robot);
+	vector<double> steps = RecordStep(task, robot);
 	taskStep = steps[0];
-	robotStep = steps[1];
+	taskStep_mean = steps[1];
+	taskStep_variance = steps[2];
+	robotStep = steps[3];
+	robotStep_mean = steps[4];
+	robotStep_variance = steps[5];
 }
 
 bool NaiveAlg::NaiveRobotMove(Task* task, vector<Robot*> robot, MatrixMap* world) {
@@ -93,6 +101,7 @@ bool NaiveAlg::NaiveRobotMove(Task* task, vector<Robot*> robot, MatrixMap* world
 	}
 
 	// robots move
+	robotStep_sys = 0;
 	int stepNum = task->allTargets.size(); // tree depth
 	int roboNum = task->allTargets[0].size();
 	vector<int> peersIDs;
@@ -105,7 +114,6 @@ bool NaiveAlg::NaiveRobotMove(Task* task, vector<Robot*> robot, MatrixMap* world
 
 		// move
 		int step = 0; // count the steps
-		int deadLoop = 0;
 		bool reach = false;
 		while (!reach) {
 			// check whether adjacent // if adjacent, form new groups
@@ -144,8 +152,8 @@ bool NaiveAlg::NaiveRobotMove(Task* task, vector<Robot*> robot, MatrixMap* world
 
 			// check dead loop
 		
-			deadLoop++;
-			if (deadLoop > DEADLOOP) {
+			robotStep_sys++;
+			if (robotStep_sys > DEADLOOP) {
 				Recover(task);
 				cout << endl << endl << "Fail: System is in endless loop!!!" << endl;
 				return false;

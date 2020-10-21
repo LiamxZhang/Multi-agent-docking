@@ -1,0 +1,221 @@
+Experiment start. 
+
+Data :	 16
+RandomNoPair Algorithm :	 taskstep 23.000000	 taskstep mean 16.750000	 taskstep variance 4.711688	 total taskstep 26.000000	 robotstep 63.000000	 robotstep mean 49.750000	 robotstep variance 6.159004	 total robotstep 67.000000
+RandomNoPair Algorithm :	 taskstep 25.000000	 taskstep mean 16.500000	 taskstep variance 6.928203	 total taskstep 34.000000	 robotstep 63.000000	 robotstep mean 49.937500	 robotstep variance 6.340018	 total robotstep 68.000000
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm :	 taskstep 24.000000	 taskstep mean 15.125000	 taskstep variance 5.213764	 total taskstep 24.000000	 robotstep 63.000000	 robotstep mean 51.062500	 robotstep variance 6.287222	 total robotstep 69.000000
+RandomNoPair Algorithm :	 taskstep 25.000000	 taskstep mean 14.562500	 taskstep variance 5.202163	 total taskstep 25.000000	 robotstep 64.000000	 robotstep mean 51.437500	 robotstep variance 5.932608	 total robotstep 72.000000
+RandomNoPair Algorithm :	 taskstep 31.000000	 taskstep mean 18.000000	 taskstep variance 7.580677	 total taskstep 36.000000	 robotstep 63.000000	 robotstep mean 49.500000	 robotstep variance 7.312090	 total robotstep 69.000000
+RandomNoPair Algorithm :	 taskstep 28.000000	 taskstep mean 18.000000	 taskstep variance 6.985700	 total taskstep 37.000000	 robotstep 69.000000	 robotstep mean 51.937500	 robotstep variance 7.094305	 total robotstep 80.000000
+RandomNoPair Algorithm :	 taskstep 25.000000	 taskstep mean 14.937500	 taskstep variance 6.027368	 total taskstep 28.000000	 robotstep 63.000000	 robotstep mean 51.375000	 robotstep variance 7.060453	 total robotstep 73.000000
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm :	 taskstep 29.000000	 taskstep mean 17.750000	 taskstep variance 6.465292	 total taskstep 33.000000	 robotstep 62.000000	 robotstep mean 52.437500	 robotstep variance 5.111670	 total robotstep 73.000000
+RandomNoPair Algorithm :	 taskstep 23.000000	 taskstep mean 15.812500	 taskstep variance 4.519864	 total taskstep 26.000000	 robotstep 61.000000	 robotstep mean 49.062500	 robotstep variance 6.136978	 total robotstep 67.000000
+RandomNoPair Algorithm :	 taskstep 25.000000	 taskstep mean 16.937500	 taskstep variance 5.579352	 total taskstep 29.000000	 robotstep 66.000000	 robotstep mean 51.125000	 robotstep variance 6.365270	 total robotstep 71.000000
+RandomNoPair Algorithm :	 taskstep 21.000000	 taskstep mean 15.250000	 taskstep variance 4.358899	 total taskstep 24.000000	 robotstep 74.000000	 robotstep mean 59.625000	 robotstep variance 6.344289	 total robotstep 88.000000
+RandomNoPair Algorithm :	 taskstep 33.000000	 taskstep mean 21.875000	 taskstep variance 9.127796	 total taskstep 46.000000	 robotstep 68.000000	 robotstep mean 55.125000	 robotstep variance 6.672081	 total robotstep 77.000000
+RandomNoPair Algorithm :	 taskstep 24.000000	 taskstep mean 15.937500	 taskstep variance 5.603198	 total taskstep 27.000000	 robotstep 58.000000	 robotstep mean 47.062500	 robotstep variance 5.170026	 total robotstep 62.000000
+RandomNoPair Algorithm :	 taskstep 24.000000	 taskstep mean 15.375000	 taskstep variance 5.487865	 total taskstep 27.000000	 robotstep 69.000000	 robotstep mean 54.625000	 robotstep variance 7.246838	 total robotstep 77.000000
+RandomNoPair Algorithm :	 taskstep 22.000000	 taskstep mean 14.062500	 taskstep variance 5.384778	 total taskstep 23.000000	 robotstep 73.000000	 robotstep mean 54.500000	 robotstep variance 8.310636	 total robotstep 76.000000
+RandomNoPair Algorithm :	 taskstep 22.000000	 taskstep mean 14.937500	 taskstep variance 4.972843	 total taskstep 24.000000	 robotstep 64.000000	 robotstep mean 52.687500	 robotstep variance 5.781796	 total robotstep 73.000000
+RandomNoPair Algorithm :	 taskstep 22.000000	 taskstep mean 14.062500	 taskstep variance 4.327721	 total taskstep 27.000000	 robotstep 77.000000	 robotstep mean 62.562500	 robotstep variance 7.545142	 total robotstep 90.000000
+Data 16 complete: (RandNoPair Algorithm)	 success rate: 0.850000	 task step: 25.058824	 taskstep mean 16.227941	 taskstep variance 5.792775	 total taskstep 29.176471	 robotstep 65.882353	 robotstep mean 52.577206	 robotstep variance 6.521790	 total robotstep 73.647059
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+Data 16 complete: (RandomSearch Algorithm)	 success rate: 0.000000	 task step: -nan(ind)	 taskstep mean -nan(ind)	 taskstep variance -nan(ind)	 total taskstep -nan(ind)	 robotstep -nan(ind)	 robotstep mean -nan(ind)	 robotstep variance -nan(ind)	 total robotstep -nan(ind)
+
+Data :	 17
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm fails! 
+Data 17 complete: (RandNoPair Algorithm)	 success rate: 0.000000	 task step: -nan(ind)	 taskstep mean -nan(ind)	 taskstep variance -nan(ind)	 total taskstep -nan(ind)	 robotstep -nan(ind)	 robotstep mean -nan(ind)	 robotstep variance -nan(ind)	 total robotstep -nan(ind)
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+Data 17 complete: (RandomSearch Algorithm)	 success rate: 0.000000	 task step: -nan(ind)	 taskstep mean -nan(ind)	 taskstep variance -nan(ind)	 total taskstep -nan(ind)	 robotstep -nan(ind)	 robotstep mean -nan(ind)	 robotstep variance -nan(ind)	 total robotstep -nan(ind)
+
+Data :	 18
+RandomNoPair Algorithm :	 taskstep 52.000000	 taskstep mean 26.062500	 taskstep variance 16.051869	 total taskstep 71.000000	 robotstep 86.000000	 robotstep mean 67.937500	 robotstep variance 10.049668	 total robotstep 111.000000
+RandomNoPair Algorithm :	 taskstep 48.000000	 taskstep mean 26.812500	 taskstep variance 16.133686	 total taskstep 74.000000	 robotstep 87.000000	 robotstep mean 66.875000	 robotstep variance 9.156965	 total robotstep 100.000000
+RandomNoPair Algorithm :	 taskstep 73.000000	 taskstep mean 33.687500	 taskstep variance 21.895871	 total taskstep 103.000000	 robotstep 87.000000	 robotstep mean 67.750000	 robotstep variance 10.135745	 total robotstep 98.000000
+RandomNoPair Algorithm :	 taskstep 52.000000	 taskstep mean 34.062500	 taskstep variance 15.528334	 total taskstep 79.000000	 robotstep 80.000000	 robotstep mean 63.750000	 robotstep variance 9.313073	 total robotstep 99.000000
+RandomNoPair Algorithm :	 taskstep 60.000000	 taskstep mean 31.625000	 taskstep variance 20.687758	 total taskstep 118.000000	 robotstep 96.000000	 robotstep mean 71.937500	 robotstep variance 11.681716	 total robotstep 109.000000
+RandomNoPair Algorithm :	 taskstep 71.000000	 taskstep mean 39.125000	 taskstep variance 24.827069	 total taskstep 96.000000	 robotstep 92.000000	 robotstep mean 70.187500	 robotstep variance 10.967946	 total robotstep 102.000000
+RandomNoPair Algorithm :	 taskstep 74.000000	 taskstep mean 37.937500	 taskstep variance 20.223645	 total taskstep 97.000000	 robotstep 87.000000	 robotstep mean 66.750000	 robotstep variance 10.841279	 total robotstep 95.000000
+RandomNoPair Algorithm :	 taskstep 47.000000	 taskstep mean 25.125000	 taskstep variance 14.509192	 total taskstep 60.000000	 robotstep 73.000000	 robotstep mean 63.500000	 robotstep variance 7.127412	 total robotstep 99.000000
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm :	 taskstep 41.000000	 taskstep mean 25.375000	 taskstep variance 13.889444	 total taskstep 73.000000	 robotstep 92.000000	 robotstep mean 71.187500	 robotstep variance 9.799447	 total robotstep 100.000000
+RandomNoPair Algorithm :	 taskstep 60.000000	 taskstep mean 31.437500	 taskstep variance 19.273362	 total taskstep 80.000000	 robotstep 73.000000	 robotstep mean 62.312500	 robotstep variance 7.236194	 total robotstep 84.000000
+RandomNoPair Algorithm :	 taskstep 64.000000	 taskstep mean 39.750000	 taskstep variance 19.961630	 total taskstep 152.000000	 robotstep 81.000000	 robotstep mean 63.125000	 robotstep variance 10.775744	 total robotstep 92.000000
+RandomNoPair Algorithm :	 taskstep 66.000000	 taskstep mean 40.250000	 taskstep variance 20.670430	 total taskstep 94.000000	 robotstep 78.000000	 robotstep mean 66.187500	 robotstep variance 7.635171	 total robotstep 99.000000
+RandomNoPair Algorithm :	 taskstep 44.000000	 taskstep mean 26.875000	 taskstep variance 15.619966	 total taskstep 64.000000	 robotstep 79.000000	 robotstep mean 65.937500	 robotstep variance 8.314395	 total robotstep 97.000000
+RandomNoPair Algorithm :	 taskstep 68.000000	 taskstep mean 34.750000	 taskstep variance 22.492962	 total taskstep 98.000000	 robotstep 74.000000	 robotstep mean 61.875000	 robotstep variance 8.163945	 total robotstep 82.000000
+RandomNoPair Algorithm :	 taskstep 73.000000	 taskstep mean 37.687500	 taskstep variance 25.386922	 total taskstep 105.000000	 robotstep 77.000000	 robotstep mean 62.187500	 robotstep variance 8.280248	 total robotstep 90.000000
+RandomNoPair Algorithm :	 taskstep 71.000000	 taskstep mean 44.562500	 taskstep variance 21.219390	 total taskstep 125.000000	 robotstep 87.000000	 robotstep mean 71.000000	 robotstep variance 10.875048	 total robotstep 115.000000
+RandomNoPair Algorithm :	 taskstep 57.000000	 taskstep mean 30.250000	 taskstep variance 18.964880	 total taskstep 88.000000	 robotstep 79.000000	 robotstep mean 64.750000	 robotstep variance 8.449852	 total robotstep 94.000000
+RandomNoPair Algorithm :	 taskstep 64.000000	 taskstep mean 35.750000	 taskstep variance 21.151832	 total taskstep 91.000000	 robotstep 87.000000	 robotstep mean 68.750000	 robotstep variance 9.462206	 total robotstep 98.000000
+RandomNoPair Algorithm :	 taskstep 70.000000	 taskstep mean 37.312500	 taskstep variance 24.354928	 total taskstep 123.000000	 robotstep 83.000000	 robotstep mean 67.875000	 robotstep variance 8.484299	 total robotstep 94.000000
+Data 18 complete: (RandNoPair Algorithm)	 success rate: 0.950000	 task step: 60.789474	 taskstep mean 33.601974	 taskstep variance 19.623325	 total taskstep 94.263158	 robotstep 83.052632	 robotstep mean 66.519737	 robotstep variance 9.302650	 total robotstep 97.789474
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+Data 18 complete: (RandomSearch Algorithm)	 success rate: 0.000000	 task step: -nan(ind)	 taskstep mean -nan(ind)	 taskstep variance -nan(ind)	 total taskstep -nan(ind)	 robotstep -nan(ind)	 robotstep mean -nan(ind)	 robotstep variance -nan(ind)	 total robotstep -nan(ind)
+
+Data :	 19
+RandomNoPair Algorithm :	 taskstep 37.000000	 taskstep mean 20.812500	 taskstep variance 8.239893	 total taskstep 48.000000	 robotstep 77.000000	 robotstep mean 63.062500	 robotstep variance 6.308394	 total robotstep 91.000000
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm :	 taskstep 31.000000	 taskstep mean 19.062500	 taskstep variance 6.894140	 total taskstep 35.000000	 robotstep 77.000000	 robotstep mean 62.937500	 robotstep variance 7.835549	 total robotstep 85.000000
+RandomNoPair Algorithm :	 taskstep 40.000000	 taskstep mean 25.625000	 taskstep variance 9.938980	 total taskstep 52.000000	 robotstep 74.000000	 robotstep mean 62.312500	 robotstep variance 6.799203	 total robotstep 83.000000
+RandomNoPair Algorithm :	 taskstep 29.000000	 taskstep mean 20.687500	 taskstep variance 8.097067	 total taskstep 34.000000	 robotstep 83.000000	 robotstep mean 72.000000	 robotstep variance 6.582806	 total robotstep 103.000000
+RandomNoPair Algorithm :	 taskstep 33.000000	 taskstep mean 21.812500	 taskstep variance 6.968680	 total taskstep 39.000000	 robotstep 72.000000	 robotstep mean 61.125000	 robotstep variance 7.804913	 total robotstep 87.000000
+RandomNoPair Algorithm :	 taskstep 21.000000	 taskstep mean 15.875000	 taskstep variance 4.455334	 total taskstep 23.000000	 robotstep 75.000000	 robotstep mean 60.937500	 robotstep variance 6.255331	 total robotstep 80.000000
+RandomNoPair Algorithm :	 taskstep 25.000000	 taskstep mean 16.875000	 taskstep variance 5.725673	 total taskstep 28.000000	 robotstep 73.000000	 robotstep mean 60.312500	 robotstep variance 5.850570	 total robotstep 87.000000
+RandomNoPair Algorithm :	 taskstep 25.000000	 taskstep mean 17.312500	 taskstep variance 5.712195	 total taskstep 29.000000	 robotstep 72.000000	 robotstep mean 59.750000	 robotstep variance 6.308724	 total robotstep 78.000000
+RandomNoPair Algorithm :	 taskstep 30.000000	 taskstep mean 21.000000	 taskstep variance 6.250333	 total taskstep 37.000000	 robotstep 84.000000	 robotstep mean 67.062500	 robotstep variance 6.855351	 total robotstep 93.000000
+RandomNoPair Algorithm :	 taskstep 33.000000	 taskstep mean 20.500000	 taskstep variance 8.740709	 total taskstep 37.000000	 robotstep 98.000000	 robotstep mean 75.687500	 robotstep variance 9.321793	 total robotstep 106.000000
+RandomNoPair Algorithm :	 taskstep 31.000000	 taskstep mean 20.812500	 taskstep variance 8.588510	 total taskstep 39.000000	 robotstep 75.000000	 robotstep mean 62.187500	 robotstep variance 6.472699	 total robotstep 86.000000
+RandomNoPair Algorithm :	 taskstep 37.000000	 taskstep mean 23.750000	 taskstep variance 8.078779	 total taskstep 42.000000	 robotstep 71.000000	 robotstep mean 60.875000	 robotstep variance 5.863730	 total robotstep 84.000000
+RandomNoPair Algorithm :	 taskstep 28.000000	 taskstep mean 18.437500	 taskstep variance 6.592609	 total taskstep 33.000000	 robotstep 81.000000	 robotstep mean 66.000000	 robotstep variance 7.624522	 total robotstep 87.000000
+RandomNoPair Algorithm :	 taskstep 19.000000	 taskstep mean 12.625000	 taskstep variance 4.349329	 total taskstep 20.000000	 robotstep 78.000000	 robotstep mean 62.125000	 robotstep variance 7.116881	 total robotstep 83.000000
+RandomNoPair Algorithm :	 taskstep 38.000000	 taskstep mean 25.375000	 taskstep variance 9.851396	 total taskstep 44.000000	 robotstep 71.000000	 robotstep mean 61.125000	 robotstep variance 5.512108	 total robotstep 86.000000
+RandomNoPair Algorithm :	 taskstep 28.000000	 taskstep mean 18.625000	 taskstep variance 6.238322	 total taskstep 29.000000	 robotstep 69.000000	 robotstep mean 57.562500	 robotstep variance 6.239324	 total robotstep 77.000000
+RandomNoPair Algorithm :	 taskstep 33.000000	 taskstep mean 21.687500	 taskstep variance 7.391155	 total taskstep 39.000000	 robotstep 75.000000	 robotstep mean 62.687500	 robotstep variance 5.510218	 total robotstep 97.000000
+RandomNoPair Algorithm :	 taskstep 24.000000	 taskstep mean 17.687500	 taskstep variance 4.585757	 total taskstep 28.000000	 robotstep 77.000000	 robotstep mean 64.562500	 robotstep variance 5.842017	 total robotstep 85.000000
+RandomNoPair Algorithm :	 taskstep 37.000000	 taskstep mean 25.375000	 taskstep variance 9.330059	 total taskstep 49.000000	 robotstep 75.000000	 robotstep mean 64.437500	 robotstep variance 6.811449	 total robotstep 87.000000
+Data 19 complete: (RandNoPair Algorithm)	 success rate: 0.950000	 task step: 30.473684	 taskstep mean 20.207237	 taskstep variance 7.159417	 total taskstep 36.052632	 robotstep 76.684211	 robotstep mean 63.513158	 robotstep variance 6.679768	 total robotstep 87.631579
+RandomSearch Algorithm :	 taskstep 45.000000	 taskstep mean 41.000000	 taskstep variance 2.633122	 total taskstep 59.000000	 robotstep 91.000000	 robotstep mean 72.000000	 robotstep variance 9.804761	 total robotstep 97.000000
+RandomSearch Algorithm :	 taskstep 28.000000	 taskstep mean 24.625000	 taskstep variance 2.093641	 total taskstep 28.000000	 robotstep 82.000000	 robotstep mean 67.937500	 robotstep variance 7.252298	 total robotstep 91.000000
+RandomSearch Algorithm :	 taskstep 139.000000	 taskstep mean 115.875000	 taskstep variance 21.626758	 total taskstep 142.000000	 robotstep 83.000000	 robotstep mean 68.125000	 robotstep variance 8.040522	 total robotstep 89.000000
+RandomSearch Algorithm :	 taskstep 70.000000	 taskstep mean 58.125000	 taskstep variance 9.379943	 total taskstep 97.000000	 robotstep 76.000000	 robotstep mean 64.812500	 robotstep variance 6.295170	 total robotstep 83.000000
+RandomSearch Algorithm :	 taskstep 72.000000	 taskstep mean 63.625000	 taskstep variance 6.561250	 total taskstep 80.000000	 robotstep 78.000000	 robotstep mean 65.937500	 robotstep variance 6.637959	 total robotstep 90.000000
+RandomSearch Algorithm :	 taskstep 121.000000	 taskstep mean 103.500000	 taskstep variance 15.336232	 total taskstep 132.000000	 robotstep 78.000000	 robotstep mean 65.500000	 robotstep variance 6.762642	 total robotstep 86.000000
+RandomSearch Algorithm :	 taskstep 33.000000	 taskstep mean 28.687500	 taskstep variance 2.701080	 total taskstep 32.000000	 robotstep 78.000000	 robotstep mean 65.312500	 robotstep variance 6.710378	 total robotstep 87.000000
+RandomSearch Algorithm :	 taskstep 30.000000	 taskstep mean 25.625000	 taskstep variance 2.276694	 total taskstep 30.000000	 robotstep 81.000000	 robotstep mean 67.812500	 robotstep variance 8.092950	 total robotstep 90.000000
+RandomSearch Algorithm :	 taskstep 164.000000	 taskstep mean 127.125000	 taskstep variance 34.790564	 total taskstep 230.000000	 robotstep 84.000000	 robotstep mean 67.312500	 robotstep variance 8.791805	 total robotstep 99.000000
+RandomSearch Algorithm :	 taskstep 163.000000	 taskstep mean 151.375000	 taskstep variance 9.054465	 total taskstep 215.000000	 robotstep 80.000000	 robotstep mean 67.562500	 robotstep variance 6.937519	 total robotstep 91.000000
+RandomSearch Algorithm :	 taskstep 39.000000	 taskstep mean 29.375000	 taskstep variance 7.419569	 total taskstep 44.000000	 robotstep 84.000000	 robotstep mean 69.937500	 robotstep variance 7.784333	 total robotstep 91.000000
+RandomSearch Algorithm :	 taskstep 133.000000	 taskstep mean 83.625000	 taskstep variance 47.419933	 total taskstep 192.000000	 robotstep 79.000000	 robotstep mean 66.812500	 robotstep variance 7.799306	 total robotstep 87.000000
+RandomSearch Algorithm :	 taskstep 159.000000	 taskstep mean 143.500000	 taskstep variance 12.617448	 total taskstep 201.000000	 robotstep 86.000000	 robotstep mean 69.250000	 robotstep variance 8.873181	 total robotstep 94.000000
+RandomSearch Algorithm :	 taskstep 84.000000	 taskstep mean 63.062500	 taskstep variance 17.856721	 total taskstep 114.000000	 robotstep 82.000000	 robotstep mean 68.687500	 robotstep variance 8.435787	 total robotstep 90.000000
+RandomSearch Algorithm :	 taskstep 45.000000	 taskstep mean 39.812500	 taskstep variance 2.809953	 total taskstep 60.000000	 robotstep 78.000000	 robotstep mean 67.687500	 robotstep variance 8.356385	 total robotstep 91.000000
+RandomSearch Algorithm :	 taskstep 50.000000	 taskstep mean 32.125000	 taskstep variance 15.465553	 total taskstep 64.000000	 robotstep 81.000000	 robotstep mean 72.437500	 robotstep variance 6.032896	 total robotstep 101.000000
+RandomSearch Algorithm :	 taskstep 81.000000	 taskstep mean 69.125000	 taskstep variance 8.686196	 total taskstep 122.000000	 robotstep 86.000000	 robotstep mean 70.125000	 robotstep variance 7.455423	 total robotstep 96.000000
+RandomSearch Algorithm :	 taskstep 102.000000	 taskstep mean 91.625000	 taskstep variance 7.597149	 total taskstep 112.000000	 robotstep 84.000000	 robotstep mean 67.125000	 robotstep variance 7.410578	 total robotstep 93.000000
+RandomSearch Algorithm :	 taskstep 131.000000	 taskstep mean 118.000000	 taskstep variance 10.819735	 total taskstep 186.000000	 robotstep 84.000000	 robotstep mean 69.187500	 robotstep variance 8.818305	 total robotstep 92.000000
+RandomSearch Algorithm :	 taskstep 100.000000	 taskstep mean 77.125000	 taskstep variance 20.924866	 total taskstep 140.000000	 robotstep 88.000000	 robotstep mean 69.625000	 robotstep variance 8.609104	 total robotstep 93.000000
+Data 19 complete: (RandomSearch Algorithm)	 success rate: 1.000000	 task step: 89.450000	 taskstep mean 74.346875	 taskstep variance 12.903544	 total taskstep 114.000000	 robotstep 82.150000	 robotstep mean 68.159375	 robotstep variance 7.745065	 total robotstep 91.550000
+
+Data :	 20
+RandomNoPair Algorithm :	 taskstep 24.000000	 taskstep mean 15.687500	 taskstep variance 6.289873	 total taskstep 29.000000	 robotstep 77.000000	 robotstep mean 66.375000	 robotstep variance 8.015610	 total robotstep 90.000000
+RandomNoPair Algorithm :	 taskstep 35.000000	 taskstep mean 22.000000	 taskstep variance 10.405127	 total taskstep 44.000000	 robotstep 97.000000	 robotstep mean 78.687500	 robotstep variance 11.001326	 total robotstep 117.000000
+RandomNoPair Algorithm :	 taskstep 44.000000	 taskstep mean 26.312500	 taskstep variance 15.225937	 total taskstep 59.000000	 robotstep 91.000000	 robotstep mean 69.000000	 robotstep variance 11.707547	 total robotstep 97.000000
+RandomNoPair Algorithm :	 taskstep 36.000000	 taskstep mean 20.875000	 taskstep variance 11.032528	 total taskstep 49.000000	 robotstep 74.000000	 robotstep mean 57.875000	 robotstep variance 7.675719	 total robotstep 78.000000
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm :	 taskstep 45.000000	 taskstep mean 25.750000	 taskstep variance 14.068878	 total taskstep 58.000000	 robotstep 80.000000	 robotstep mean 59.500000	 robotstep variance 10.092902	 total robotstep 82.000000
+RandomNoPair Algorithm :	 taskstep 47.000000	 taskstep mean 25.812500	 taskstep variance 13.972443	 total taskstep 56.000000	 robotstep 84.000000	 robotstep mean 65.500000	 robotstep variance 10.936178	 total robotstep 92.000000
+RandomNoPair Algorithm :	 taskstep 35.000000	 taskstep mean 20.750000	 taskstep variance 10.453070	 total taskstep 43.000000	 robotstep 87.000000	 robotstep mean 67.812500	 robotstep variance 10.845698	 total robotstep 93.000000
+RandomNoPair Algorithm :	 taskstep 33.000000	 taskstep mean 20.562500	 taskstep variance 9.729466	 total taskstep 42.000000	 robotstep 72.000000	 robotstep mean 61.062500	 robotstep variance 8.086769	 total robotstep 80.000000
+RandomNoPair Algorithm :	 taskstep 37.000000	 taskstep mean 20.250000	 taskstep variance 11.138522	 total taskstep 50.000000	 robotstep 86.000000	 robotstep mean 64.875000	 robotstep variance 11.763645	 total robotstep 90.000000
+RandomNoPair Algorithm fails! 
+RandomNoPair Algorithm :	 taskstep 46.000000	 taskstep mean 30.875000	 taskstep variance 14.691834	 total taskstep 68.000000	 robotstep 87.000000	 robotstep mean 67.500000	 robotstep variance 12.274635	 total robotstep 95.000000
+RandomNoPair Algorithm :	 taskstep 28.000000	 taskstep mean 19.312500	 taskstep variance 8.746190	 total taskstep 42.000000	 robotstep 78.000000	 robotstep mean 61.875000	 robotstep variance 9.763025	 total robotstep 85.000000
+RandomNoPair Algorithm :	 taskstep 37.000000	 taskstep mean 21.812500	 taskstep variance 11.634539	 total taskstep 46.000000	 robotstep 79.000000	 robotstep mean 61.375000	 robotstep variance 9.797108	 total robotstep 81.000000
+RandomNoPair Algorithm :	 taskstep 27.000000	 taskstep mean 15.937500	 taskstep variance 7.663496	 total taskstep 28.000000	 robotstep 82.000000	 robotstep mean 62.375000	 robotstep variance 9.653151	 total robotstep 85.000000
+RandomNoPair Algorithm :	 taskstep 32.000000	 taskstep mean 20.812500	 taskstep variance 8.968231	 total taskstep 40.000000	 robotstep 76.000000	 robotstep mean 59.937500	 robotstep variance 8.850377	 total robotstep 79.000000
+RandomNoPair Algorithm :	 taskstep 33.000000	 taskstep mean 21.125000	 taskstep variance 10.594810	 total taskstep 51.000000	 robotstep 80.000000	 robotstep mean 61.812500	 robotstep variance 9.819835	 total robotstep 85.000000
+RandomNoPair Algorithm :	 taskstep 43.000000	 taskstep mean 25.062500	 taskstep variance 13.040801	 total taskstep 46.000000	 robotstep 86.000000	 robotstep mean 67.375000	 robotstep variance 8.943340	 total robotstep 95.000000
+RandomNoPair Algorithm :	 taskstep 36.000000	 taskstep mean 23.187500	 taskstep variance 11.600108	 total taskstep 48.000000	 robotstep 87.000000	 robotstep mean 66.750000	 robotstep variance 9.327379	 total robotstep 92.000000
+RandomNoPair Algorithm :	 taskstep 39.000000	 taskstep mean 26.250000	 taskstep variance 12.041595	 total taskstep 50.000000	 robotstep 79.000000	 robotstep mean 60.750000	 robotstep variance 10.266450	 total robotstep 82.000000
+Data 20 complete: (RandNoPair Algorithm)	 success rate: 0.900000	 task step: 36.500000	 taskstep mean 22.354167	 taskstep variance 11.183191	 total taskstep 47.166667	 robotstep 82.333333	 robotstep mean 64.468750	 robotstep variance 9.934483	 total robotstep 88.777778
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+RandomSearch Algorithm fails! 
+Data 20 complete: (RandomSearch Algorithm)	 success rate: 0.000000	 task step: -nan(ind)	 taskstep mean -nan(ind)	 taskstep variance -nan(ind)	 total taskstep -nan(ind)	 robotstep -nan(ind)	 robotstep mean -nan(ind)	 robotstep variance -nan(ind)	 total robotstep -nan(ind)
