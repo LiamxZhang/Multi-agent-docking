@@ -45,13 +45,13 @@
     <ClInclude Include="RandomSearch.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="WavePropagation.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="VijayAlg.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Hungarian.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="SAPOAads.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

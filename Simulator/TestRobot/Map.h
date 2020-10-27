@@ -200,6 +200,7 @@ MatrixMap::CollisionCheck(vector<Point> positions, vector<int> memberIDs, vector
 			vector<int>::iterator iter = find(peerIDs.begin(), peerIDs.end(), map_robot(positions[i].x, positions[i].y));
 			if (iter != peerIDs.end()) return true;
 		}
+		
 		// if there's no obstacle, no peers, check other robots at nearby
 		int minX, maxX, minY, maxY;
 		(positions[i].x - interval > 0) ? minX = positions[i].x - interval : minX = 0;

@@ -19,7 +19,7 @@ using namespace std;
 #pragma region Task
 
 
-static void GetTaskSubgroups(vector<TaskSubgroup>* taskGroups, BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* task, int depth, int obj) {
+static void GetTaskSubgroups(vector<TaskSubgroup>* taskGroups, BinNode<vector<int>>* assNode, BinNode<char>* segNode, Task* task, int depth, int obj, int range = 3) {
 	if (!assNode) return;   // tree node empty
 	if (assNode->data.size() <= 1) return;  // cannot be extended anymore
 
@@ -59,12 +59,12 @@ static void GetTaskSubgroups(vector<TaskSubgroup>* taskGroups, BinNode<vector<in
 			if (lfull && rfull) break;
 		}
 		// initialization
-		TaskSubgroup taskgroup(ltask, rtask, segNode->data, 3);  // range = 2
+		TaskSubgroup taskgroup(ltask, rtask, segNode->data, range);  // range = 3
 		taskGroups->push_back(taskgroup);
 	}
 
-	GetTaskSubgroups(taskGroups, assNode->lChild, segNode->lChild, task, depth + 1, obj);
-	GetTaskSubgroups(taskGroups, assNode->rChild, segNode->rChild, task, depth + 1, obj);
+	GetTaskSubgroups(taskGroups, assNode->lChild, segNode->lChild, task, depth + 1, obj, range);
+	GetTaskSubgroups(taskGroups, assNode->rChild, segNode->rChild, task, depth + 1, obj, range);
 }
 
 

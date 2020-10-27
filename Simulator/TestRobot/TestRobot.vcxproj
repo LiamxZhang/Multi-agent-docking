@@ -93,9 +93,9 @@
     <ClInclude Include="RandomNoPair.h" />
     <ClInclude Include="RandomSearch.h" />
     <ClInclude Include="Robot.h" />
+    <ClInclude Include="SAPOAads.h" />
     <ClInclude Include="Task.h" />
     <ClInclude Include="VijayAlg.h" />
-    <ClInclude Include="WavePropagation.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

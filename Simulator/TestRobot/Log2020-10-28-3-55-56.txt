@@ -1,0 +1,4 @@
+Experiment start. 
+
+Data :	 6
+SAPOAads Algorithm :	 taskstep 10.000000	 taskstep mean 8.375000	 taskstep variance 1.543805	 total taskstep 11.000000	 robotstep 60.000000	 robotstep mean 51.312500	 robotstep variance 4.771006	 total robotstep 63.000000

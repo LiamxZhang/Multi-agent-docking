@@ -1,9 +1,11 @@
 #include "NaiveAlg.h"
 #include "RandomNoPair.h"
 #include "RandomSearch.h"
-#include "WavePropagation.h"
+#include "SAPOAads.h"
 #include "VijayAlg.h"
 #include "Log.h"
+#include <windows.h>
+
 
 using namespace std;
 
@@ -13,13 +15,13 @@ int main() {
 	NaiveAlg naive;
 	RandomNoPair randno;
 	RandomSearch randse;
-	WaveAlg waveprop;
+	SAPOAads sapoaads;
 	VijayAlg vijay;
 
 	// how many times to run the algorithms
 	int epoch_1 = 1;
 	int epoch = 20;
-	vector<int> alg = { 0,1,1,0,0 };
+	vector<int> alg = { 0,0,0,1,0 };
 
 	// Experiment start
 	struct tm t;   //tmΩ·ππ÷∏’Î
@@ -37,8 +39,20 @@ int main() {
 	for (int data_num = data_start; data_num < data_end; ++data_num) {
 		string data_directory = data_home + to_string(data_num) + "/";
 		RecordLog("\nData :\t " + to_string(data_num), filename);
+		// copy file
+		string source = data_directory + "InitMap.txt";
+		string destination = "../TestRobot/InitMap.txt";
+		CopyFileA(source.c_str(), destination.c_str(), FALSE);
 
-		// NaiveAlg
+		source = data_directory + "Robot_Init_Position.txt";
+		destination = "../TestRobot/Robot_Init_Position.txt";
+		CopyFileA(source.c_str(), destination.c_str(), FALSE);
+
+		source = data_directory + "Task.txt";
+		destination = "../TestRobot/Task.txt";
+		CopyFileA(source.c_str(), destination.c_str(), FALSE);
+
+		// 1 Naive
 		if (alg[0]) {
 			double success_num = 0;
 
@@ -102,7 +116,7 @@ int main() {
 				+ "\t total robotstep " + to_string(robotstep_sys_), filename);
 		}
 
-		// RandomNoPair
+		// 2 SAPOAnop
 		if (alg[1]) {
 			double success_num = 0;
 
@@ -121,7 +135,7 @@ int main() {
 				randno.Processing(data_directory);
 				//log
 				if (randno.isComplete) {
-					RecordLog("RandomNoPair Algorithm :\t taskstep " + to_string(randno.taskStep)
+					RecordLog("SAPOAnop Algorithm :\t taskstep " + to_string(randno.taskStep)
 						+ "\t taskstep mean " + to_string(randno.taskStep_mean)
 						+ "\t taskstep variance " + to_string(randno.taskStep_variance)
 						+ "\t total taskstep " + to_string(randno.taskStep_sys)
@@ -140,7 +154,7 @@ int main() {
 					robotstep_sys_total += randno.robotStep_sys;
 				}
 				else {
-					RecordLog("RandomNoPair Algorithm fails! ", filename);
+					RecordLog("SAPOAnop Algorithm fails! ", filename);
 				}
 			}
 			// log mean value
@@ -154,7 +168,7 @@ int main() {
 			double taskstep_sys_ = double(taskstep_sys_total) / double(success_num);
 			double robotstep_sys_ = double(robotstep_sys_total) / double(success_num);
 
-			RecordLog("Data " + to_string(data_num) + " complete: (RandNoPair Algorithm)\t success rate: "
+			RecordLog("Data " + to_string(data_num) + " complete: (SAPOAnop Algorithm)\t success rate: "
 				+ to_string(success_rate) + "\t task step: " + to_string(taskstep_)
 				+ "\t taskstep mean " + to_string(taskstep_mean_)
 				+ "\t taskstep variance " + to_string(taskstep_var_)
@@ -165,7 +179,7 @@ int main() {
 				+ "\t total robotstep " + to_string(robotstep_sys_), filename);
 		}
 
-		// RandomSearch
+		// 3 SAPOA
 		if (alg[2]) {
 			double success_num = 0;
 
@@ -184,7 +198,7 @@ int main() {
 				randse.Processing(data_directory);
 				//log
 				if (randse.isComplete) {
-					RecordLog("RandomSearch Algorithm :\t taskstep " + to_string(randse.taskStep)
+					RecordLog("SAPOA Algorithm :\t taskstep " + to_string(randse.taskStep)
 						+ "\t taskstep mean " + to_string(randse.taskStep_mean)
 						+ "\t taskstep variance " + to_string(randse.taskStep_variance)
 						+ "\t total taskstep " + to_string(randse.taskStep_sys)
@@ -203,7 +217,7 @@ int main() {
 					robotstep_sys_total += randse.robotStep_sys;
 				}
 				else {
-					RecordLog("RandomSearch Algorithm fails! ", filename);
+					RecordLog("SAPOA Algorithm fails! ", filename);
 				}
 			}
 			// log mean value
@@ -217,7 +231,7 @@ int main() {
 			double taskstep_sys_ = double(taskstep_sys_total) / double(success_num);
 			double robotstep_sys_ = double(robotstep_sys_total) / double(success_num);
 
-			RecordLog("Data " + to_string(data_num) + " complete: (RandomSearch Algorithm)\t success rate: "
+			RecordLog("Data " + to_string(data_num) + " complete: (SAPOA Algorithm)\t success rate: "
 				+ to_string(success_rate) + "\t task step: " + to_string(taskstep_)
 				+ "\t taskstep mean " + to_string(taskstep_mean_)
 				+ "\t taskstep variance " + to_string(taskstep_var_)
@@ -228,7 +242,7 @@ int main() {
 				+ "\t total robotstep " + to_string(robotstep_sys_), filename);
 		}
 
-		// WaveAlg
+		// 4 SAPOAads
 		if (alg[3]) {
 			double success_num = 0;
 
@@ -244,29 +258,29 @@ int main() {
 			double taskstep_sys_total = 0;
 			double robotstep_sys_total = 0;
 			for (int j = 0; j < epoch; ++j) {
-				waveprop.Processing(data_directory);
+				sapoaads.Processing(data_directory);
 				//log
-				if (waveprop.isComplete) {
-					RecordLog("WavePropatation Algorithm :\t taskstep " + to_string(waveprop.taskStep)
-						+ "\t taskstep mean " + to_string(waveprop.taskStep_mean)
-						+ "\t taskstep variance " + to_string(waveprop.taskStep_variance)
-						+ "\t total taskstep " + to_string(waveprop.taskStep_sys)
-						+ "\t robotstep " + to_string(waveprop.robotStep)
-						+ "\t robotstep mean " + to_string(waveprop.robotStep_mean)
-						+ "\t robotstep variance " + to_string(waveprop.robotStep_variance)
-						+ "\t total robotstep " + to_string(waveprop.robotStep_sys), filename);
+				if (sapoaads.isComplete) {
+					RecordLog("SAPOAads Algorithm :\t taskstep " + to_string(sapoaads.taskStep)
+						+ "\t taskstep mean " + to_string(sapoaads.taskStep_mean)
+						+ "\t taskstep variance " + to_string(sapoaads.taskStep_variance)
+						+ "\t total taskstep " + to_string(sapoaads.taskStep_sys)
+						+ "\t robotstep " + to_string(sapoaads.robotStep)
+						+ "\t robotstep mean " + to_string(sapoaads.robotStep_mean)
+						+ "\t robotstep variance " + to_string(sapoaads.robotStep_variance)
+						+ "\t total robotstep " + to_string(sapoaads.robotStep_sys), filename);
 					success_num++;
-					taskstep_total += waveprop.taskStep;
-					robotstep_total += waveprop.robotStep;
-					taskstep_mean_total += waveprop.taskStep_mean;
-					robotstep_mean_total += waveprop.robotStep_mean;
-					taskstep_var_total += waveprop.taskStep_variance;
-					robotstep_var_total += waveprop.robotStep_variance;
-					taskstep_sys_total += waveprop.taskStep_sys;
-					robotstep_sys_total += waveprop.robotStep_sys;
+					taskstep_total += sapoaads.taskStep;
+					robotstep_total += sapoaads.robotStep;
+					taskstep_mean_total += sapoaads.taskStep_mean;
+					robotstep_mean_total += sapoaads.robotStep_mean;
+					taskstep_var_total += sapoaads.taskStep_variance;
+					robotstep_var_total += sapoaads.robotStep_variance;
+					taskstep_sys_total += sapoaads.taskStep_sys;
+					robotstep_sys_total += sapoaads.robotStep_sys;
 				}
 				else {
-					RecordLog("WavePropatation Algorithm fails! ", filename);
+					RecordLog("SAPOAads Algorithm fails! ", filename);
 				}
 			}
 			// log mean value
@@ -280,7 +294,7 @@ int main() {
 			double taskstep_sys_ = double(taskstep_sys_total) / double(success_num);
 			double robotstep_sys_ = double(robotstep_sys_total) / double(success_num);
 
-			RecordLog("Data " + to_string(data_num) + " complete: (WavePropatation Algorithm)\t success rate: "
+			RecordLog("Data " + to_string(data_num) + " complete: (SAPOAads Algorithm)\t success rate: "
 				+ to_string(success_rate) + "\t task step: " + to_string(taskstep_)
 				+ "\t taskstep mean " + to_string(taskstep_mean_)
 				+ "\t taskstep variance " + to_string(taskstep_var_)
@@ -291,7 +305,7 @@ int main() {
 				+ "\t total robotstep " + to_string(robotstep_sys_), filename);
 		}
 
-		// VijayAlg
+		// 5 APAA
 		if (alg[4]) {
 			double success_num = 0;
 
@@ -310,7 +324,7 @@ int main() {
 				vijay.Processing(data_directory);
 				//log
 				if (vijay.isComplete) {
-					RecordLog("Vijay Algorithm :\t taskstep " + to_string(vijay.taskStep)
+					RecordLog("APAA Algorithm :\t taskstep " + to_string(vijay.taskStep)
 						+ "\t taskstep mean " + to_string(vijay.taskStep_mean)
 						+ "\t taskstep variance " + to_string(vijay.taskStep_variance)
 						+ "\t total taskstep " + to_string(vijay.taskStep_sys)
@@ -329,7 +343,7 @@ int main() {
 					robotstep_sys_total += vijay.robotStep_sys;
 				}
 				else {
-					RecordLog("Vijay Algorithm fails! ", filename);
+					RecordLog("APAA Algorithm fails! ", filename);
 				}
 			}
 			// log mean value
@@ -343,7 +357,7 @@ int main() {
 			double taskstep_sys_ = double(taskstep_sys_total) / double(success_num);
 			double robotstep_sys_ = double(robotstep_sys_total) / double(success_num);
 
-			RecordLog("Data " + to_string(data_num) + " complete: (Vijay Algorithm)\t success rate: "
+			RecordLog("Data " + to_string(data_num) + " complete: (APAA Algorithm)\t success rate: "
 				+ to_string(success_rate) + "\t task step: " + to_string(taskstep_)
 				+ "\t taskstep mean " + to_string(taskstep_mean_)
 				+ "\t taskstep variance " + to_string(taskstep_var_)

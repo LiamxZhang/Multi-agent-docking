@@ -797,7 +797,7 @@ public:
 	void Display() { for (int k = 0; k < robot.size(); k++)   cout << robot[k]->id << ", "; }
 	void PathPlanning(MatrixMap* world, vector<TaskPoint*> allTargets, vector<int> peers, int interval = 1);
 	void LocalPathPlanning(MatrixMap* world, vector<TaskPoint*> allTargets, vector<int> peers, int newTarget = INT_MAX);
-	void LocalPathPlanning(MatrixMap* world, vector<TaskPoint*> allTargets, vector<int> peerIDs, vector<char> segDir_childSide, int newTarget = INT_MAX);
+	void LocalPathPlanning(MatrixMap* world, vector<TaskPoint*> allTargets, vector<int> peerIDs, vector<char> segDir_childSide, int newTarget = INT_MAX, int interval = 1);
 	void TrialMove();
 	void Move(MatrixMap*);
 	vector<Point> GetTendPos();
@@ -935,12 +935,12 @@ RobotGroup::LocalPathPlanning(MatrixMap* world, vector<TaskPoint*> allTargets, v
 
 // for common functions
 void
-RobotGroup::LocalPathPlanning(MatrixMap* world, vector<TaskPoint*> allTargets, vector<int> peerIDs, vector<char> segDir_childSide, int newTarget) {
+RobotGroup::LocalPathPlanning(MatrixMap* world, vector<TaskPoint*> allTargets, vector<int> peerIDs, vector<char> segDir_childSide, int newTarget, int interval) {
 	// newTarget is the (N-1) point after the current position
 	// peers are in the to-be-docked group
 
 	// leader update robot workmap, weightMap
-	robot[leaderIndex]->UpdateLocalMap(world, GetRobotIds(), peerIDs);
+	robot[leaderIndex]->UpdateLocalMap(world, GetRobotIds(), peerIDs, interval);
 	// update the target gate
 	/*
 	UpdateMap_Gate(allTargets, segDir_childSide[0], segDir_childSide[1]);
