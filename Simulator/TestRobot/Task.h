@@ -324,7 +324,7 @@ vector<int> TaskSubgroup::SepCheck(MatrixMap* world, vector<int> trial_left, vec
 	return collision;
 }
 
-/*
+
 int TaskSubgroup::PartMoveCheck(MatrixMap* world, vector<int> trial, char LorR) {
 	// return flags indicating no obstacle (0), obstacles/border (1) or other points (2)
 	// trial move (x,y) is {1, 0} or {0, 1} or {-1, 0} or {0, -1} 
@@ -480,9 +480,8 @@ int TaskSubgroup::PartMoveCheck(MatrixMap* world, vector<int> trial, char LorR) 
 	//
 	return COL;
 }
-*/
 
-
+/*
 int TaskSubgroup::PartMoveCheck(MatrixMap* world, vector<int> trial, char LorR) {
 	// return flags indicating no obstacle (0), obstacles/border (1) or other points (2)
 	// trial move (x,y) is {1, 0} or {0, 1} or {-1, 0} or {0, -1} 
@@ -506,7 +505,7 @@ int TaskSubgroup::PartMoveCheck(MatrixMap* world, vector<int> trial, char LorR) 
 
 	return world->TaskCheck(tendPositions, trial, memberID, vector<int> (), range);
 }
-
+*/
 
 vector<int> TaskSubgroup::ShearDeform(MatrixMap* world, int direction) {
 	// shear deformation separation in opposite direction; there are two directions, direction = -1 or 1

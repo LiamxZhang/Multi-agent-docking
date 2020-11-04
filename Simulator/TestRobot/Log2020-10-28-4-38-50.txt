@@ -1,0 +1,5 @@
+Experiment start. 
+
+Data :	 2
+APAA Algorithm fails! 
+Data 2 complete: (APAA Algorithm)	 success rate: 0.000000	 task step: -nan(ind)	 taskstep mean -nan(ind)	 taskstep variance -nan(ind)	 total taskstep -nan(ind)	 robotstep -nan(ind)	 robotstep mean -nan(ind)	 robotstep variance -nan(ind)	 total robotstep -nan(ind)

@@ -105,7 +105,7 @@ bool SAPOAads::TaskExtension(Task* task, MatrixMap* map) {
 	for (int i = 0; i < depth - 1; i++) { // the leaf layer of assembly tree is not needed for extension
 		// construct the task subgroups
 		vector<TaskSubgroup>* taskGroups = new vector<TaskSubgroup>();
-		GetTaskSubgroups(taskGroups, task->AssemblyTree.root(), task->SegTree.root(), task, 0, i, 1);
+		GetTaskSubgroups(taskGroups, task->AssemblyTree.root(), task->SegTree.root(), task, 0, i);
 
 		cout << endl << endl << "Depth proess:   " << i << endl
 			<< "How many groups :  " << taskGroups->size() << endl;
@@ -164,6 +164,7 @@ bool SAPOAads::TaskExtension(Task* task, MatrixMap* map) {
 	}
 	return true;
 }
+
 
 // robot groups move, local path replanning
 int SAPOAads::_RobotMove(Task* task, vector<Robot*> robot, MatrixMap* world) {

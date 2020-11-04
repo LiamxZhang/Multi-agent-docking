@@ -1,0 +1,24 @@
+Experiment start. 
+
+Data :	 14
+SAPOAads Algorithm :	 taskstep 13.000000	 taskstep mean 9.875000	 taskstep variance 2.305790	 total taskstep 15.000000	 robotstep 49.000000	 robotstep mean 42.500000	 robotstep variance 3.687818	 total robotstep 51.000000
+SAPOAads Algorithm :	 taskstep 15.000000	 taskstep mean 11.687500	 taskstep variance 2.242580	 total taskstep 19.000000	 robotstep 51.000000	 robotstep mean 42.562500	 robotstep variance 3.932239	 total robotstep 52.000000
+SAPOAads Algorithm :	 taskstep 51.000000	 taskstep mean 31.437500	 taskstep variance 17.048827	 total taskstep 55.000000	 robotstep 52.000000	 robotstep mean 45.125000	 robotstep variance 3.556684	 total robotstep 57.000000
+SAPOAads Algorithm :	 taskstep 14.000000	 taskstep mean 10.687500	 taskstep variance 3.135150	 total taskstep 16.000000	 robotstep 51.000000	 robotstep mean 44.625000	 robotstep variance 2.941088	 total robotstep 56.000000
+SAPOAads Algorithm :	 taskstep 11.000000	 taskstep mean 7.937500	 taskstep variance 2.235136	 total taskstep 13.000000	 robotstep 51.000000	 robotstep mean 42.562500	 robotstep variance 3.705289	 total robotstep 52.000000
+SAPOAads Algorithm :	 taskstep 31.000000	 taskstep mean 22.187500	 taskstep variance 9.516433	 total taskstep 35.000000	 robotstep 51.000000	 robotstep mean 44.250000	 robotstep variance 3.376389	 total robotstep 55.000000
+SAPOAads Algorithm :	 taskstep 16.000000	 taskstep mean 11.375000	 taskstep variance 3.442383	 total taskstep 19.000000	 robotstep 52.000000	 robotstep mean 43.500000	 robotstep variance 3.847077	 total robotstep 53.000000
+SAPOAads Algorithm :	 taskstep 18.000000	 taskstep mean 13.250000	 taskstep variance 4.404543	 total taskstep 22.000000	 robotstep 50.000000	 robotstep mean 43.812500	 robotstep variance 3.798574	 total robotstep 52.000000
+SAPOAads Algorithm :	 taskstep 13.000000	 taskstep mean 10.125000	 taskstep variance 2.729469	 total taskstep 15.000000	 robotstep 51.000000	 robotstep mean 44.625000	 robotstep variance 3.721559	 total robotstep 55.000000
+SAPOAads Algorithm :	 taskstep 14.000000	 taskstep mean 10.312500	 taskstep variance 2.212653	 total taskstep 17.000000	 robotstep 49.000000	 robotstep mean 42.937500	 robotstep variance 3.641772	 total robotstep 52.000000
+SAPOAads Algorithm :	 taskstep 8.000000	 taskstep mean 5.750000	 taskstep variance 2.144761	 total taskstep 9.000000	 robotstep 51.000000	 robotstep mean 42.437500	 robotstep variance 4.032679	 total robotstep 52.000000
+SAPOAads Algorithm fails! 
+SAPOAads Algorithm :	 taskstep 26.000000	 taskstep mean 19.437500	 taskstep variance 4.335416	 total taskstep 32.000000	 robotstep 50.000000	 robotstep mean 43.750000	 robotstep variance 3.678768	 total robotstep 53.000000
+SAPOAads Algorithm :	 taskstep 16.000000	 taskstep mean 11.937500	 taskstep variance 3.295831	 total taskstep 20.000000	 robotstep 53.000000	 robotstep mean 44.812500	 robotstep variance 4.805812	 total robotstep 54.000000
+SAPOAads Algorithm :	 taskstep 17.000000	 taskstep mean 12.250000	 taskstep variance 4.973262	 total taskstep 22.000000	 robotstep 51.000000	 robotstep mean 42.687500	 robotstep variance 3.944933	 total robotstep 52.000000
+SAPOAads Algorithm :	 taskstep 9.000000	 taskstep mean 5.812500	 taskstep variance 2.227667	 total taskstep 9.000000	 robotstep 51.000000	 robotstep mean 42.625000	 robotstep variance 3.593976	 total robotstep 52.000000
+SAPOAads Algorithm :	 taskstep 20.000000	 taskstep mean 16.062500	 taskstep variance 3.255124	 total taskstep 23.000000	 robotstep 55.000000	 robotstep mean 47.875000	 robotstep variance 4.364631	 total robotstep 60.000000
+SAPOAads Algorithm :	 taskstep 49.000000	 taskstep mean 28.187500	 taskstep variance 18.261868	 total taskstep 52.000000	 robotstep 52.000000	 robotstep mean 43.187500	 robotstep variance 4.182802	 total robotstep 53.000000
+SAPOAads Algorithm :	 taskstep 15.000000	 taskstep mean 10.812500	 taskstep variance 3.331041	 total taskstep 18.000000	 robotstep 51.000000	 robotstep mean 42.437500	 robotstep variance 3.669128	 total robotstep 52.000000
+SAPOAads Algorithm :	 taskstep 25.000000	 taskstep mean 17.500000	 taskstep variance 4.816638	 total taskstep 31.000000	 robotstep 53.000000	 robotstep mean 45.125000	 robotstep variance 3.685557	 total robotstep 56.000000
+Data 14 complete: (SAPOAads Algorithm)	 success rate: 0.950000	 task step: 20.052632	 taskstep mean 14.032895	 taskstep variance 5.048135	 total taskstep 23.263158	 robotstep 51.263158	 robotstep mean 43.759868	 robotstep variance 3.798251	 total robotstep 53.631579

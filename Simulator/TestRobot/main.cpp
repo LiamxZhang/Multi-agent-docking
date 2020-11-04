@@ -34,8 +34,8 @@ int main() {
 
 	// data directory
 	string data_home = "../TestRobot/Data/";
-	int data_start = 6;
-	int data_end = 11;
+	int data_start = 17;
+	int data_end = 19;
 	for (int data_num = data_start; data_num < data_end; ++data_num) {
 		string data_directory = data_home + to_string(data_num) + "/";
 		RecordLog("\nData :\t " + to_string(data_num), filename);

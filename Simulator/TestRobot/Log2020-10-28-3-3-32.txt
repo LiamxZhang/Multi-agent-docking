@@ -1,5 +1,0 @@
-Experiment start. 
-
-Data :	 6
-SAPOAads Algorithm fails! 
-SAPOAads Algorithm fails! 

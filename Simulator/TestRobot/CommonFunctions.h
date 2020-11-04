@@ -8,7 +8,7 @@
 #include "Hungarian.h"
 
 #define random() (rand() / double(RAND_MAX))
-#define WaitTime 0
+#define WaitTime 500
 #define DEADLOOP 800
 #define REPEAT 30
 #define LogFlag false

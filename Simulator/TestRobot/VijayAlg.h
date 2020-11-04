@@ -64,7 +64,7 @@ void VijayAlg::Processing(string data_dir) {
 		Robot* temp = new Robot(task->robotNum, task->startPoints[i]->id, task->startPoints[i]->taskPoint, world->RowNum, world->ColNum);
 		robot.push_back(temp);
 	}
-
+	
 	// Extend the task components, according to the assembly tree
 	TaskExtension(task, world);
 
@@ -98,7 +98,7 @@ void VijayAlg::Processing(string data_dir) {
 
 void VijayAlg::TaskExtension(Task* task, MatrixMap* map) {
 	task->PushAll("allExtendedPoints");
-
+	
 	// mapping to the expanded position
 	AdaptiveMapping(task, map);
 	task->PushAll("allTargets");
@@ -219,7 +219,7 @@ void VijayAlg::TaskExtension(Task* task, MatrixMap* map) {
 
 
 void VijayAlg::DirectMapping(Task* task) {
-	int k = 4;
+	int k = 2;
 	for (int i = 0; i < task->taskNum; ++i) {
 		int centerX = task->centerPoint[0];
 		int centerY = task->centerPoint[1];
@@ -233,7 +233,7 @@ void VijayAlg::DirectMapping(Task* task) {
 
 void VijayAlg::AdaptiveMapping(Task* task, MatrixMap* map) {
 	DirectMapping(task);
-
+	
 	// find the nearest free space
 	for (int i = 0; i < task->taskNum; ++i) {
 		int currentX = task->currentTargets[i]->taskPoint.x;
