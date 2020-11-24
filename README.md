@@ -48,7 +48,7 @@
 
 ​	2) Install the eigen library in VS.
 
-​	3) Download the code and open the ./Multi-Agent-System-Multi-Thread-OOP-20181105.sln project in VS.
+​	3) Download the code and open the ./simulator/Multi-Agent-System-Multi-Thread-OOP-20181105.sln project in VS.
 
 **3.2 Code file architecture**
 
@@ -83,12 +83,14 @@
 
 **3.3 Steps**
 
-​	1) Open the main.cpp 
+​	1) Open the ./simulator/TestRobot/main.cpp 
 
 ​	2) Choose 1 or 0 in **vector<int> alg = { 0,0,0,1,0 }; ** to run the algorithms respectively for Naive, SAPOAnop, SAPOA, SAPOAads and APAA. 
 
 ​	3) Change the value in **int data_start = 1; int data_end = 26;**  to choose the data to be run.
 
 ​	4) Click Run.
+
+​	5) To check the state, you can double click ./simulator/RobotSimulator.exe to open a UI appication and see what is going on.
 
 
