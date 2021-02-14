@@ -1,0 +1,4 @@
+Experiment start. 
+
+Data :	 17
+SAPOA Algorithm :	 taskstep 21.000000	 taskstep mean 17.500000	 taskstep variance 2.000000	 total taskstep 18.000000	 robotstep 63.000000	 robotstep mean 52.937500	 robotstep variance 5.994094	 total robotstep 67.000000

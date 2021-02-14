@@ -21,7 +21,7 @@ int main() {
 	// how many times to run the algorithms
 	int epoch_1 = 1;
 	int epoch = 20;
-	vector<int> alg = { 0,0,0,1,0 };
+	vector<int> alg = { 0,0,1,0,0 };
 
 	// Experiment start
 	struct tm t;   //tmΩ·ππ÷∏’Î

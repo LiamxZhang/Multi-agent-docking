@@ -1,4 +1,5 @@
-﻿  main.cpp
+﻿  Hungarian.cpp
+  main.cpp
 C:\0Projects\MultiAgentDocking\Multi-agent-docking\Simulator\TestRobot\Map.h(154,20): warning C4018: “<”: 有符号/无符号不匹配
 C:\0Projects\MultiAgentDocking\Multi-agent-docking\Simulator\TestRobot\Map.h(189,20): warning C4018: “<”: 有符号/无符号不匹配
 C:\0Projects\MultiAgentDocking\Multi-agent-docking\Simulator\TestRobot\Map.h(190,21): warning C4018: “<”: 有符号/无符号不匹配
@@ -140,5 +141,7 @@ C:\0Projects\MultiAgentDocking\Multi-agent-docking\Simulator\TestRobot\VijayAlg.
 C:\0Projects\MultiAgentDocking\Multi-agent-docking\Simulator\TestRobot\VijayAlg.h(122,8): warning C4101: “closestID”: 未引用的局部变量
 C:\0Projects\MultiAgentDocking\Multi-agent-docking\Simulator\TestRobot\VijayAlg.h(246,21): warning C4101: “minY”: 未引用的局部变量
 C:\0Projects\MultiAgentDocking\Multi-agent-docking\Simulator\TestRobot\VijayAlg.h(246,27): warning C4101: “maxY”: 未引用的局部变量
+  正在生成代码...
 C:\0Projects\MultiAgentDocking\Multi-agent-docking\Simulator\TestRobot\Map.h(377): warning C4715: “MatrixMap::FindConnectTaskGroup”: 不是所有的控件路径都返回值
+  LINK : 没有找到 C:\0Projects\MultiAgentDocking\Multi-agent-docking\Simulator\Debug\TestRobot.exe 或上一个增量链接没有生成它；正在执行完全链接
   TestRobot.vcxproj -> C:\0Projects\MultiAgentDocking\Multi-agent-docking\Simulator\Debug\TestRobot.exe
